@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 // Плавная "дорогая" анимация: кубическая кривая Безье как строка
@@ -59,7 +59,7 @@ export default function HeroSection({ variant = "calm" }: HeroSectionProps) {
           variants={fadeUp}
           className="flex flex-col sm:flex-row gap-4"
         >
-          <a
+          <Link
             href="/destinations/"
             className={`px-8 py-4 font-heading text-sm tracking-widest uppercase transition-all duration-500 hover:scale-[1.02] cursor-pointer inline-block text-center ${
               isAccent
@@ -68,9 +68,9 @@ export default function HeroSection({ variant = "calm" }: HeroSectionProps) {
             }`}
           >
             Направления
-          </a>
+          </Link>
 
-          <a
+          <Link
             href="/blog/"
             className={`px-8 py-4 font-heading text-sm tracking-widest uppercase border transition-all duration-500 hover:scale-[1.02] cursor-pointer inline-block text-center ${
               isAccent
@@ -79,7 +79,7 @@ export default function HeroSection({ variant = "calm" }: HeroSectionProps) {
             }`}
           >
             Блог
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>
