@@ -1,22 +1,20 @@
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "NordTrail Travel — Премиум-путешествия",
-  description:
-    "Премиальный туристический портал. Направления, гиды, бюджетные советы, визовые инструкции и лучшие маршруты для путешествий в 2026 году.",
+  title: "NordTrail Travel | Экспедиции в сердце севера",
+  description: "Премиальные маршруты по Скандинавии: тишина, статус, природа.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="ru" className="h-full">
-      <body className="min-h-full flex flex-col bg-bg text-text font-body">
-        {children}
-      </body>
+    <html lang="ru" className="bg-bg">
+      <body className="antialiased min-h-screen">{children}</body>
     </html>
   );
 }

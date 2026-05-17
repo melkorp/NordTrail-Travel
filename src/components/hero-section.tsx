@@ -1,15 +1,16 @@
 "use client";
+
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-// Плавная "дорогая" анимация: кубическая кривая Безье как строка
-const fadeUp = {
-  hidden: { opacity: 0, y: 40 },
+// Медленное появление без резких скачков
+const gentleFade = {
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.6,
+      duration: 0.7,
       ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
     },
   },
@@ -23,65 +24,71 @@ export default function HeroSection({ variant = "calm" }: HeroSectionProps) {
   const isAccent = variant === "accent";
 
   return (
-    <section className="relative min-h-screen flex items-center justify-start px-6 md:px-12 lg:px-20 py-24 bg-bg overflow-hidden">
-      {/* Фоновый градиент для глубины */}
-      <div className="absolute inset-0 bg-linear-to-br from-bg via-bg to-primary/10 pointer-events-none" />
+    <section className="relative min-h-screen flex flex-col items-center justify-center px-6 bg-bg overflow-hidden">
+      <div className="absolute inset-0 bg-linear-to-b from-transparent via-bg/90 to-accent-bright/5 pointer-events-none" />
 
-      <div className="relative z-10 w-full max-w-5xl">
-        {/* Заголовок */}
+      <div className="relative z-10 text-center max-w-3xl mx-auto">
         <motion.h1
           initial="hidden"
           animate="visible"
-          variants={fadeUp}
-          className={`text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-heading tracking-tight leading-[0.95] mb-6 ${
-            isAccent
-              ? "bg-linear-to-r from-primary to-accent bg-clip-text text-transparent"
-              : "text-text"
-          } text-balance`}
+          variants={gentleFade}
+          className="text-5xl md:text-7xl font-heading font-semibold text-text mb-4 tracking-tighter text-balance"
         >
           NordTrail Travel
         </motion.h1>
 
-        {/* Подзаголовок */}
         <motion.p
           initial="hidden"
           animate="visible"
-          variants={fadeUp}
-          className="text-lg md:text-xl text-text/70 font-body max-w-xl mb-10 leading-relaxed"
+          variants={gentleFade}
+          className="text-lg md:text-xl font-body text-text-muted mb-10 leading-relaxed text-balance"
         >
-          Откройте северную роскошь путешествий
+          Эксклюзивные маршруты в сердце северной дикой природы
         </motion.p>
 
-        {/* Кнопки */}
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={fadeUp}
-          className="flex flex-col sm:flex-row gap-4"
+          variants={gentleFade}
+          className="flex flex-col sm:flex-row gap-4 justify-center"
         >
           <Link
             href="/destinations/"
-            className={`px-8 py-4 font-heading text-sm tracking-widest uppercase transition-all duration-500 hover:scale-[1.02] cursor-pointer inline-block text-center ${
+            className={`px-8 py-4 font-heading text-sm tracking-widest uppercase font-medium rounded-sm transition-all duration-500 ${
               isAccent
-                ? "bg-accent text-bg hover:bg-accent/90"
-                : "bg-primary text-bg hover:bg-primary/80"
+                ? "bg-accent-bright text-bg hover:shadow-[0_0_25px_rgba(212,175,55,0.3)] hover:-translate-y-px"
+                : "bg-accent-calm text-bg hover:bg-accent-bright/90"
             }`}
           >
-            Направления
+            Выбрать маршрут
           </Link>
 
           <Link
-            href="/blog/"
-            className={`px-8 py-4 font-heading text-sm tracking-widest uppercase border transition-all duration-500 hover:scale-[1.02] cursor-pointer inline-block text-center ${
+            href="/about/"
+            className={`px-8 py-4 font-heading text-sm tracking-widest uppercase font-medium rounded-sm border transition-all duration-500 ${
               isAccent
-                ? "border-accent/30 text-accent hover:bg-accent/10"
-                : "border-text/20 text-text/70 hover:border-primary hover:text-primary"
+                ? "border-accent-bright text-accent-bright hover:shadow-[0_0_15px_rgba(212,175,55,0.15)] hover:border-accent-bright/80"
+                : "border-text/20 text-text/70 hover:border-accent-calm hover:text-accent-calm"
             }`}
           >
-            Блог
+            О нас
           </Link>
         </motion.div>
       </div>
+
+      {isAccent && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, y: [0, 6, 0] }}
+          transition={{
+            delay: 1.2,
+            duration: 2.5,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 w-px h-12 bg-linear-to-b from-accent-bright/60 to-transparent"
+        />
+      )}
     </section>
   );
 }

@@ -1,25 +1,21 @@
-/* Подключаем шрифты (Manrope для заголовков, Inter для текста) */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Manrope:wght@700&display=swap");
+/* src/app/globals.css */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
-/* Tailwind v4 читает тему напрямую из CSS */
 @theme {
-  --color-bg: #0b1020;
-  --color-primary: #4da8ff;
-  --color-accent: #8fffd1;
-  --color-text: #f5f7fa;
-  --font-heading: "Manrope", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
+  --color-bg: #0a0a0f;
+  --color-surface: #12121a;
+  --color-accent-calm: #b8962e;
+  --color-accent-bright: #d4af37;
+  --color-text: #fefdf9;
+  --color-text-muted: #9a9aa1;
+  --font-heading: "Inter", system-ui, sans-serif;
+  --font-body: "Lora", system-ui, serif;
 }
 
-/* Базовые стили: сброс шрифтов, фон, сглаживание */
 @layer base {
   body {
-    background-color: var(--color-bg);
-    color: var(--color-text);
-    font-family: var(--font-body);
-    -webkit-font-smoothing: antialiased;
-    line-height: 1.6;
+    @apply bg-bg text-text font-body antialiased selection:bg-accent-bright selection:text-bg;
   }
   h1,
   h2,
@@ -27,15 +23,6 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    line-height: 1.1;
-  }
-}
-
-/* Утилиты для вёрстки */
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+    @apply font-heading tracking-tight leading-none;
   }
 }
