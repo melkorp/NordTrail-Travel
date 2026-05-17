@@ -59,25 +59,27 @@ export default function HeroSection({ variant = "calm" }: HeroSectionProps) {
           variants={fadeUp}
           className="flex flex-col sm:flex-row gap-4"
         >
-          <button
-            className={`px-8 py-4 font-heading text-sm tracking-widest uppercase transition-all duration-500 hover:scale-[1.02] cursor-pointer ${
+          <a
+            href="/destinations/"
+            className={`px-8 py-4 font-heading text-sm tracking-widest uppercase transition-all duration-500 hover:scale-[1.02] cursor-pointer inline-block text-center ${
               isAccent
                 ? "bg-accent text-bg hover:bg-accent/90"
                 : "bg-primary text-bg hover:bg-primary/80"
             }`}
           >
             Направления
-          </button>
+          </a>
 
-          <button
-            className={`px-8 py-4 font-heading text-sm tracking-widest uppercase border transition-all duration-500 hover:scale-[1.02] cursor-pointer ${
+          <a
+            href="/blog/"
+            className={`px-8 py-4 font-heading text-sm tracking-widest uppercase border transition-all duration-500 hover:scale-[1.02] cursor-pointer inline-block text-center ${
               isAccent
                 ? "border-accent/30 text-accent hover:bg-accent/10"
                 : "border-text/20 text-text/70 hover:border-primary hover:text-primary"
             }`}
           >
             Блог
-          </button>
+          </a>
         </motion.div>
       </div>
     </section>
