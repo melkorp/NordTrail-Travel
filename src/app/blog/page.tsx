@@ -39,22 +39,28 @@ const categories = [
 // Позже заменим на fetch из Contentlayer или JSON-файла
 const articles = [
   {
+    slug: "iceland-budget-2026",
+    title: "Сколько стоит путешествие в Исландию в 2026 году",
+    category: "Budget",
+    readTime: "7 min",
+  },
+  {
     slug: "norway-hiking-guide",
     title: "Лучшие треки Norway для самостоятельной экспедиции",
     category: "Hiking",
-    readTime: "8 min",
+    readTime: "9 min",
   },
   {
     slug: "luxury-iceland-hotels",
     title: "Luxury Iceland: приватные отели среди вулканов",
     category: "Luxury",
-    readTime: "10 min",
+    readTime: "8 min",
   },
   {
-    slug: "winter-travel-arctic",
+    slug: "winter-arctic-guide",
     title: "Как подготовиться к зимнему путешествию за Полярный круг",
     category: "Winter",
-    readTime: "6 min",
+    readTime: "10 min",
   },
   {
     slug: "solo-travel-japan-north",
@@ -63,11 +69,28 @@ const articles = [
     readTime: "9 min",
   },
   {
-    // Это уже существующая статья — slug должен совпадать с реальным файлом
-    slug: "iceland-budget-2026",
-    title: "Сколько стоит путешествие в Iceland в 2026 году",
-    category: "Budget",
-    readTime: "7 min",
+    slug: "kamchatka-volcanoes",
+    title: "Камчатка: экспедиции к вулканам и Тихому океану",
+    category: "Hiking",
+    readTime: "11 min",
+  },
+  {
+    slug: "kolsky-peninsula",
+    title: "Кольский полуостров: северное сияние, киты и Арктика без визы",
+    category: "Winter",
+    readTime: "10 min",
+  },
+  {
+    slug: "altai-mountains",
+    title: "Алтай: горные экспедиции и дорога к сибирским ледникам",
+    category: "Hiking",
+    readTime: "10 min",
+  },
+  {
+    slug: "baikal-lake",
+    title: "Байкал зимой и летом: путеводитель по сибирскому озеру-морю",
+    category: "Winter",
+    readTime: "9 min",
   },
 ];
 
