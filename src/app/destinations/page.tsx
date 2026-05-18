@@ -20,7 +20,7 @@ const reveal = {
 // Список направлений: готовые и заглушки
 const destinations = [
   { name: "Iceland", slug: "iceland", isReady: true },
-  { name: "Norway", slug: "norway", isReady: false },
+  { name: "Norway", slug: "norway", isReady: true },
   { name: "Japan", slug: "japan", isReady: false },
   { name: "Georgia", slug: "georgia", isReady: false },
   { name: "Alps", slug: "alps", isReady: false },
