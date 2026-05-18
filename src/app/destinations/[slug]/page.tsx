@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { Destination } from "../../../lib/types";
+import Link from "next/link";
 
 // ── Мок-данные для проверки (потом вынесем в отдельный файл) ──
 const destinations: Destination[] = [
@@ -119,18 +120,18 @@ function Breadcrumbs({ name }: { name: string }) {
     <nav aria-label="Хлебные крошки" className="mb-8">
       <ol className="flex text-sm text-text/50 font-body">
         <li>
-          <a href="/" className="hover:text-primary transition-colors">
+          <Link href="/" className="hover:text-primary transition-colors">
             Главная
-          </a>
+          </Link>
           <span className="mx-2">/</span>
         </li>
         <li>
-          <a
+          <Link
             href="/destinations"
             className="hover:text-primary transition-colors"
           >
             Направления
-          </a>
+          </Link>
           <span className="mx-2">/</span>
         </li>
         <li className="text-text/80">{name}</li>

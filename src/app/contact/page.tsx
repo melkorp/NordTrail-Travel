@@ -2,7 +2,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Link from "next/link";
 import {
   Mail,
   Camera,
@@ -10,7 +9,6 @@ import {
   Play,
   AtSign,
   ArrowRight,
-  Share2,
   MessageCircle,
 } from "lucide-react";
 
