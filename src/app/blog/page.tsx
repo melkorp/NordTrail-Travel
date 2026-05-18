@@ -128,7 +128,7 @@ export default function BlogPage() {
               </span>
             </div>
             {/* Плейсхолдер изображения */}
-            <div className="w-full md:w-1/3 aspect-[4/3] bg-bg/50 rounded-sm border border-white/5" />
+            <div className="w-full md:w-1/3 aspect-4/3 bg-bg/50 rounded-sm border border-white/5" />
           </div>
         </motion.article>
       </section>
@@ -219,7 +219,7 @@ export default function BlogPage() {
             <input
               type="email"
               placeholder="Ваш email"
-              className="px-4 py-3 bg-bg border border-white/10 text-text font-body focus:border-accent-bright focus:outline-none rounded-sm w-full sm:w-auto min-w-[240px]"
+              className="px-4 py-3 bg-bg border border-white/10 text-text font-body focus:border-accent-bright focus:outline-none rounded-sm w-full sm:w-auto min-w-60"
             />
             <button className="px-8 py-3 bg-accent-bright text-bg font-heading text-sm tracking-widest uppercase font-medium hover:-translate-y-px hover:shadow-[0_4px_20px_rgba(212,175,55,0.2)] transition-all duration-500 rounded-sm">
               Подписаться
