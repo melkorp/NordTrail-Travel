@@ -22,12 +22,12 @@ const destinations = [
   { name: "Iceland", slug: "iceland", isReady: true },
   { name: "Norway", slug: "norway", isReady: true },
   { name: "Japan", slug: "japan", isReady: true },
-  { name: "Georgia", slug: "georgia", isReady: false },
-  { name: "Alps", slug: "alps", isReady: false },
-  { name: "Камчатка", slug: "kamchatka", isReady: false },
-  { name: "Кольский полуостров", slug: "kola", isReady: false },
-  { name: "Алтай", slug: "altai", isReady: false },
-  { name: "Байкал", slug: "baikal", isReady: false },
+  { name: "Georgia", slug: "georgia", isReady: true },
+  { name: "Alps", slug: "alps", isReady: true },
+  { name: "Камчатка", slug: "kamchatka", isReady: true },
+  { name: "Кольский полуостров", slug: "kola", isReady: true },
+  { name: "Алтай", slug: "altai", isReady: true },
+  { name: "Байкал", slug: "baikal", isReady: true },
 ];
 
 export default function DestinationsPage() {
