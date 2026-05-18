@@ -16,15 +16,11 @@ export interface ArticleData {
   title: string;
   category: string;
   readTime: string;
-  dateIso: string; // "2026-05-20" — для Schema.org и <time dateTime>
-  dateDisplay: string; // "20 мая 2026" — для отображения пользователю
+  dateIso: string;
+  dateDisplay: string;
   author: string;
   quickAnswer: string;
   sections: { heading: string; content: string }[];
-  // budgetTable — универсальная таблица сравнения.
-  // Для бюджетных статей: цены. Для хайкинга: снаряжение.
-  // Заголовки колонок рендерит BlogPostClient — при необходимости
-  // добавь опциональное поле tableHeaders в тип и компонент.
   budgetTable: { item: string; low: string; premium: string }[];
   faq: { q: string; a: string }[];
   conclusion: string;
@@ -32,8 +28,6 @@ export interface ArticleData {
 
 // ─────────────────────────────────────────────────────────────
 // БАЗА СТАТЕЙ
-// Добавляй новые записи сюда. Slug — ключ объекта и часть URL.
-// Позже заменим на fetch из Contentlayer или JSON-файлов.
 // ─────────────────────────────────────────────────────────────
 const ARTICLES: Record<string, ArticleData> = {
   // ── Статья 1: Бюджет Исландии ──────────────────────────────
@@ -123,8 +117,6 @@ const ARTICLES: Record<string, ArticleData> = {
           "Romsdalseggen — узкий горный хребет с видом на фьорды, пики и долины. 10 км, 6–7 часов, средняя/высокая сложность. Besseggen в национальном парке Jotunheimen известен контрастом двух озёр разных оттенков, разделённых узким гребнем. 14–16 км, 7–9 часов, средняя сложность. Оба маршрута — июнь–сентябрь.",
       },
     ],
-    // budgetTable здесь — сравнение снаряжения, не финансов.
-    // low = минимально достаточно, premium = оптимально для севера.
     budgetTable: [
       {
         item: "Обувь",
@@ -177,14 +169,95 @@ const ARTICLES: Record<string, ArticleData> = {
       },
     ],
     conclusion:
-      "Norway — одно из последних направлений Европы, где hiking по-прежнему ощущается как настоящая северная экспедиция. Trolltunga, Kjeragbolten и Romsdalseggen предлагают не просто маршруты, а редкий опыт движения через фьорды, ледниковые долины и горные хребты. Для самостоятельного путешествия ключевыми остаются подготовка, грамотный выбор сезона и уважение к северной погоде — именно это превращает Norway из обычного туристического направления в территорию настоящего expedition travel.",
+      "Norway — одно из последних направлений Европы, где hiking по-прежнему ощущается как настоящая северная экспедиция. Trolltunga, Kjeragbolten и Romsdalseggen предлагают не просто маршруты, а редкий опыт движения через фьорды, ледниковые долины и горные хребты. Для самостоятельного путешествия ключевыми остаются подготовка, грамотный выбор сезона и уважение к северной погоде.",
+  },
+
+  // ── Статья 3: Люкс-отели Исландии ─────────────────────────
+  "luxury-iceland-hotels": {
+    slug: "luxury-iceland-hotels",
+    title: "Luxury Iceland: приватные отели среди вулканов",
+    category: "Luxury",
+    readTime: "8 min read",
+    dateIso: "2026-05-22",
+    dateDisplay: "22 мая 2026",
+    author: "NordTrail Research Team",
+    quickAnswer:
+      "Luxury Iceland в 2026 году — это не классический городской premium-туризм, а приватные отели среди лавовых полей, ледников и северных фьордов. Лучшие luxury-отели предлагают геотермальные spa, персональные экспедиции и вертолётные туры. Средняя стоимость — от €400 до €2 500 за ночь в зависимости от сезона и уровня эксклюзивности.",
+    sections: [
+      {
+        heading: "The Retreat at Blue Lagoon — главный geothermal luxury",
+        content:
+          "Самый узнаваемый premium-отель Исландии встроен прямо в лавовые поля рядом с геотермальной лагуной. Приватный доступ к Blue Lagoon, subterranean spa, lava suites и fine dining ресторан Moss. Стоимость €1 400–2 500 за ночь. Лучший сезон: октябрь–март для северного сияния, май–сентябрь для road trip.",
+      },
+      {
+        heading: "Deplar Farm — приватная экспедиция на севере",
+        content:
+          "Один из самых эксклюзивных expedition-lodges северной Европы расположен в удалённой долине Troll Peninsula. Heli-skiing, private guides, Arctic surfing и геотермальный outdoor pool. Стоимость €1 800–4 000+ за ночь. Deplar Farm ориентирован не на массовый luxury, а на закрытые северные экспедиции.",
+      },
+      {
+        heading: "Hotel Rangá — luxury lodge для северного сияния",
+        content:
+          "Один из лучших northern lights hotels страны расположен вдали от городского света на юге Исландии. Observatory, outdoor hot tubs, river-side suites и прямой доступ к маршрутам South Coast. Стоимость €450–900 за ночь. Оптимальный сезон: сентябрь–март.",
+      },
+      {
+        heading: "ION Adventure Hotel и Fosshotel Glacier Lagoon",
+        content:
+          "ION Adventure Hotel сочетает северный minimal luxury с expedition aesthetic рядом с Þingvellir National Park: lava landscape, panoramic bar, geothermal spa. €350–700 за ночь, круглый год. Fosshotel Glacier Lagoon расположен между Skaftafell и Jökulsárlón — современный Nordic дизайн, panoramic suites, glacier access. €300–600 за ночь, лучший сезон июнь–сентябрь и февраль–март для ледяных пещер.",
+      },
+    ],
+    // budgetTable здесь — сравнение отелей по цене и сезону
+    budgetTable: [
+      {
+        item: "The Retreat at Blue Lagoon",
+        low: "Октябрь–март",
+        premium: "€1 400–2 500/ночь",
+      },
+      {
+        item: "Deplar Farm",
+        low: "Февраль–сентябрь",
+        premium: "€1 800–4 000+/ночь",
+      },
+      { item: "Hotel Rangá", low: "Сентябрь–март", premium: "€450–900/ночь" },
+      {
+        item: "ION Adventure Hotel",
+        low: "Круглый год",
+        premium: "€350–700/ночь",
+      },
+      {
+        item: "Fosshotel Glacier Lagoon",
+        low: "Февраль–сентябрь",
+        premium: "€300–600/ночь",
+      },
+    ],
+    faq: [
+      {
+        q: "Когда лучший сезон для luxury Iceland?",
+        a: "Осень и зима (октябрь–март) — для северного сияния и геотермальных spa. Лето (май–сентябрь) — для road trips, hiking и midnight sun.",
+      },
+      {
+        q: "Какой отель самый эксклюзивный?",
+        a: "Deplar Farm считается самым закрытым и приватным luxury lodge Исландии: удалённое расположение, ограниченное число гостей, heli-skiing и приватные экспедиции.",
+      },
+      {
+        q: "Можно ли увидеть северное сияние из отеля?",
+        a: "Да. Hotel Rangá оборудован обсерваторией и будит гостей при появлении сияния. The Retreat at Blue Lagoon организует приватные viewing experiences среди лавовых полей.",
+      },
+      {
+        q: "Сколько стоит luxury-путешествие в Исландию?",
+        a: "Комфортный premium-маршрут начинается от €700–1 200 в день на человека: жильё, питание, экскурсии. Верхней планки практически нет — Deplar Farm с вертолётными турами легко превышает €3 000 в день.",
+      },
+      {
+        q: "Нужна ли машина в luxury Iceland?",
+        a: "Да. Даже premium-путешествие строится вокруг road trip-культуры. Большинство отелей расположены за пределами Рейкьявика и недоступны без транспорта. Альтернатива — приватные трансферы, которые предлагают все luxury-отели.",
+      },
+    ],
+    conclusion:
+      "Luxury Iceland — это не демонстративная роскошь, а доступ к редкой северной среде: вулканам, ледникам, геотермальным лагунам и приватным экспедициям вне туристических потоков. The Retreat, Deplar Farm и Hotel Rangá формируют новый формат premium travel, где главным элементом становится не интерьер, а ощущение полной изоляции среди северной природы Исландии.",
   },
 };
 
 // ─────────────────────────────────────────────────────────────
 // generateStaticParams
-// Говорит Next.js: «Создай HTML для каждого slug в ARTICLES».
-// Новая статья появится автоматически — slug вручную не прописываешь.
 // ─────────────────────────────────────────────────────────────
 export function generateStaticParams() {
   return Object.keys(ARTICLES).map((slug) => ({ slug }));
@@ -214,12 +287,11 @@ export async function generateMetadata({
 
 // ─────────────────────────────────────────────────────────────
 // СТРАНИЦА
-// Серверный компонент: получает данные → передаёт в клиентский UI.
 // ─────────────────────────────────────────────────────────────
 export default async function BlogPostPage({
   params,
 }: {
-  params: Promise<{ slug: string }>; // В Next.js 15 params — Promise
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
   const article = ARTICLES[slug];
