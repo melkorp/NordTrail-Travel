@@ -117,6 +117,74 @@ const destinations: Destination[] = [
       },
     ],
   },
+
+  {
+    slug: "japan",
+    name: "Япония",
+    h1: "Путешествие в Japan: от мегаполисов до северных онсэнов",
+    quickAnswer:
+      "Japan — одно из самых многослойных travel-направлений мира, где ультрасовременные мегаполисы соседствуют с горными онсэнами, alpine-маршрутами и северными регионами без туристических толп. Страна подходит как для luxury travel, так и для самостоятельных railway-путешествий через Tokyo, Kyoto, Hokkaido и Tohoku.",
+    bestSeason:
+      "Март–апрель (сакура), Октябрь–ноябрь (осень), Декабрь–февраль (зима и онсэны)",
+    budget: "средний",
+    difficulty: "среднее",
+    forKids: true,
+    safety: 5,
+    sections: [
+      {
+        title: "Tokyo и Kyoto: две стороны Japan",
+        content:
+          "Tokyo остаётся главным входом в современную Japan — город сочетает архитектуру будущего, premium shopping, минималистичные районы Shibuya, Ginza, Asakusa и Shinjuku. Особенно подходит для luxury travel, gastronomy и city photography. Kyoto раскрывает противоположную сторону Japan: древние храмы, ryokan culture, bamboo forests и tea districts. Именно контраст Tokyo и Kyoto формирует базовое понимание страны.",
+      },
+      {
+        title: "Hokkaido и Tohoku: северная Japan без толп",
+        content:
+          "Север Japan — одна из самых недооценённых частей страны. Hokkaido и Tohoku предлагают winter landscapes, вулканические онсэны и railway-маршруты без перегруженных туристических потоков. Главные точки: Sapporo, Noboribetsu, Aomori, Ginzan Onsen и Lake Toya. Лучший сезон: декабрь–февраль для winter travel, октябрь — для autumn foliage. Именно северная Japan создаёт атмосферу slow expedition travel, почти исчезнувшую в популярных азиатских направлениях.",
+      },
+      {
+        title: "Онсэны и японские Альпы",
+        content:
+          "Onsen culture — центральная часть путешествия по Japan. Горячие источники воспринимаются не как spa-формат, а как часть повседневной северной эстетики. Лучшие регионы: Hakone, Kusatsu, Noboribetsu и Japanese Alps. Главные hiking-маршруты: Kamikochi, Tateyama Kurobe и Takayama region. Летом регион подходит для trekking, зимой — для alpine snow travel.",
+      },
+      {
+        title: "Japan Rail Pass и транспорт",
+        content:
+          "Japan Rail Pass остаётся одним из лучших способов перемещения по стране: доступ к shinkansen, быстрые long-distance routes и снижение расходов на intercity travel. Оптимальный маршрут: Tokyo → Kyoto → Alps → Hokkaido. Даже сами поездки на shinkansen становятся частью premium travel experience Japan.",
+      },
+      {
+        title: "Сколько стоит путешествие по Japan",
+        content:
+          "Средние расходы: capsule hotel €35–60, standard hotel €120–220, premium ryokan €350–900, ресторан €15–60, Japan Rail Pass от €320. Наиболее дорогие сезоны — sakura season, Golden Week и новогодние праздники. Для budget travel выгоднее путешествовать в ноябре и феврале. Комфортный маршрут обычно требует €180–350 в день.",
+      },
+    ],
+    faq: [
+      {
+        question: "Когда лучше ехать в Japan?",
+        answer:
+          "Весна (март–апрель) — для сакуры, осень (октябрь–ноябрь) — для mountain landscapes и красных лесов, зима (декабрь–февраль) — для Hokkaido, снежных онсэнов и winter travel. Для budget-маршрутов оптимальны ноябрь и февраль.",
+      },
+      {
+        question: "Подходит ли Japan для solo travel?",
+        answer:
+          "Да. Это одно из самых безопасных направлений мира. Развитая инфраструктура, пунктуальный транспорт и культура уважения к личному пространству делают Japan идеальной страной для одиночных путешествий.",
+      },
+      {
+        question: "Нужен ли Japan Rail Pass?",
+        answer:
+          "Для длинных маршрутов между регионами — практически обязательно. Особенно выгоден при маршруте Tokyo → Kyoto → Hokkaido. Покупать нужно до въезда в страну.",
+      },
+      {
+        question: "Где лучше увидеть традиционную Japan?",
+        answer:
+          "Kyoto — главная точка для храмов и ryokan culture. Tohoku и mountain villages Japanese Alps предлагают более аутентичный и менее туристический опыт традиционной Japan.",
+      },
+      {
+        question: "Сколько стоит поездка в Japan?",
+        answer:
+          "Комфортный маршрут обычно требует €180–350 в день. Budget-формат с capsule hotels и локальной едой — от €120 в день. Самые дорогие периоды: sakura season (конец марта — начало апреля) и Golden Week (начало мая).",
+      },
+    ],
+  },
 ];
 
 // ── Генерация статических страниц ──

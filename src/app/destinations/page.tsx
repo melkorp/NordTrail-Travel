@@ -21,7 +21,7 @@ const reveal = {
 const destinations = [
   { name: "Iceland", slug: "iceland", isReady: true },
   { name: "Norway", slug: "norway", isReady: true },
-  { name: "Japan", slug: "japan", isReady: false },
+  { name: "Japan", slug: "japan", isReady: true },
   { name: "Georgia", slug: "georgia", isReady: false },
   { name: "Alps", slug: "alps", isReady: false },
   { name: "Камчатка", slug: "kamchatka", isReady: false },
