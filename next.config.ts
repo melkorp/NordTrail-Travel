@@ -34,6 +34,10 @@ const nextConfig: NextConfig = {
     // Sharp для оптимизации будем запускать сами во время сборки (через скрипт).
     unoptimized: true,
   },
+
+  env: {
+    NEXT_PUBLIC_BASE_PATH: prefix,
+  },
 };
 
 export default nextConfig;

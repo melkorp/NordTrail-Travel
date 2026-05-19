@@ -30,8 +30,9 @@ export default function HeroSection({ variant = "calm" }: HeroSectionProps) {
         <Image
           src="/images/optimized/hero-bg-1600.webp"
           alt="Норвежские фьорды на рассвете"
-          fill
-          className="object-cover"
+          width={1600}
+          height={900}
+          className="object-cover w-full h-full"
           priority
         />
         <div className="absolute inset-0 bg-linear-to-b from-bg/60 via-bg/40 to-bg/80" />
