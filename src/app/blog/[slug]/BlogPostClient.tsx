@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Check, ChevronDown } from "lucide-react";
 import type { ArticleData } from "./page";
 import Image from "next/image";
+import { assetPath } from "../../../lib/asset-path";
 
 // Базовая анимация появления снизу вверх
 // delay добавляем через prop, а не перезаписью transition —
@@ -286,7 +287,7 @@ export default function BlogPostClient({ article }: { article: ArticleData }) {
       {image && (
         <div className="px-6 pb-8 max-w-3xl mx-auto">
           <Image
-            src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${image}`}
+            src={assetPath(image)}
             alt={title}
             width={800}
             height={450}
@@ -294,7 +295,6 @@ export default function BlogPostClient({ article }: { article: ArticleData }) {
           />
         </div>
       )}
-
       {/* ── Quick Answer ─────────────────────────────────────── */}
       <section className="px-6 pb-12 max-w-3xl mx-auto">
         <motion.div

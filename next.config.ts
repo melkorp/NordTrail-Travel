@@ -7,7 +7,8 @@ const repo = process.env.GITHUB_REPOSITORY?.split("/")[1];
 
 // Если деплоим на GitHub Pages — добавляем "/NordTrail-Travel" как префикс.
 // Если работаем локально — префикс пустой, сайт открывается на localhost:3000 как обычно.
-const prefix = repo ? `/${repo}` : "";
+const isProduction = process.env.NODE_ENV === "production";
+const prefix = isProduction ? "/NordTrail-Travel" : "";
 
 const nextConfig: NextConfig = {
   // Говорим Next.js: "Собери сайт как обычные HTML/CSS/JS файлы, без сервера".
