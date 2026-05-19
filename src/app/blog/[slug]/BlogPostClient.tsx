@@ -11,6 +11,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Check, ChevronDown } from "lucide-react";
 import type { ArticleData } from "./page";
+import Image from "next/image";
 
 // Базовая анимация появления снизу вверх
 // delay добавляем через prop, а не перезаписью transition —
@@ -125,6 +126,7 @@ export default function BlogPostClient({ article }: { article: ArticleData }) {
     dateDisplay,
     author,
     quickAnswer,
+    image,
     sections,
     budgetTable,
     faq,
@@ -280,6 +282,18 @@ export default function BlogPostClient({ article }: { article: ArticleData }) {
           <span>{author}</span>
         </motion.div>
       </header>
+
+      {image && (
+        <div className="px-6 pb-8 max-w-3xl mx-auto">
+          <Image
+            src={image}
+            alt={title}
+            width={800}
+            height={450}
+            className="w-full rounded-sm border border-white/5"
+          />
+        </div>
+      )}
 
       {/* ── Quick Answer ─────────────────────────────────────── */}
       <section className="px-6 pb-12 max-w-3xl mx-auto">

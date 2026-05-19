@@ -20,6 +20,7 @@ export interface ArticleData {
   dateDisplay: string;
   author: string;
   quickAnswer: string;
+  image?: string; // <-- добавь эту строку
   sections: { heading: string; content: string }[];
   budgetTable: { item: string; low: string; premium: string }[];
   faq: { q: string; a: string }[];
@@ -31,8 +32,9 @@ export interface ArticleData {
 // ─────────────────────────────────────────────────────────────
 const ARTICLES: Record<string, ArticleData> = {
   // ── Статья 1: Бюджет Исландии ──────────────────────────────
-  // ── Статья 1: Бюджет Исландии ──────────────────────────────
+
   "iceland-budget-2026": {
+    image: "/images/optimized/budget-iceland-800.webp",
     slug: "iceland-budget-2026",
     title: "Сколько стоит путешествие в Исландию в 2026 году",
     category: "Budget",
@@ -98,6 +100,7 @@ const ARTICLES: Record<string, ArticleData> = {
 
   // ── Статья 2: Хайкинг Норвегия ────────────────────────────
   "norway-hiking-guide": {
+    image: "/images/optimized/norway-hiking-800.webp",
     slug: "norway-hiking-guide",
     title: "Лучшие треки Norway для самостоятельной экспедиции",
     category: "Hiking",

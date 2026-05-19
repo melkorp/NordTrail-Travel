@@ -4,8 +4,30 @@ import Navigation from "../components/navigation";
 import Link from "next/link";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://melkorp.github.io/NordTrail-Travel"),
   title: "NordTrail Travel | Экспедиции в сердце севера",
   description: "Премиальные маршруты по Скандинавии: тишина, статус, природа.",
+  openGraph: {
+    title: "NordTrail Travel | Экспедиции в сердце севера",
+    description:
+      "Премиальные маршруты по Скандинавии: тишина, статус, природа.",
+    images: [
+      {
+        url: "/images/optimized/og-main-1600.webp",
+        width: 1200,
+        height: 630,
+        alt: "NordTrail Travel — премиум-путешествия на север",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NordTrail Travel | Экспедиции в сердце севера",
+    description:
+      "Премиальные маршруты по Скандинавии: тишина, статус, природа.",
+    images: ["/images/optimized/og-main-1600.webp"],
+  },
 };
 
 export default function RootLayout({

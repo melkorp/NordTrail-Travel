@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 // Медленное появление без резких скачков
 const gentleFade = {
@@ -25,7 +26,16 @@ export default function HeroSection({ variant = "calm" }: HeroSectionProps) {
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 bg-bg overflow-hidden">
-      <div className="absolute inset-0 bg-linear-to-b from-transparent via-bg/90 to-accent-bright/5 pointer-events-none" />
+      <div className="fixed inset-0">
+        <Image
+          src="/images/optimized/hero-bg-1600.webp"
+          alt="Норвежские фьорды на рассвете"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-linear-to-b from-bg/60 via-bg/40 to-bg/80" />
+      </div>
 
       <div className="relative z-10 text-center max-w-3xl mx-auto">
         <motion.h1
