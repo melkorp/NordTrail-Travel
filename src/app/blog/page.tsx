@@ -1,13 +1,9 @@
-// src/app/blog/page.tsx
-//
-// Страница списка блога.
-// Static Export — рендерится один раз при сборке, без серверных запросов.
-// "use client" нужен только для Framer Motion (браузерные анимации).
-
 "use client";
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
+import { assetPath } from "../../lib/asset-path";
 
 // Базовая анимация появления.
 // delay передаём через custom + функцию-вариант,
@@ -187,9 +183,12 @@ export default function BlogPage() {
               </div>
 
               {/* Плейсхолдер изображения — позже заменить на <Image> */}
-              <div
-                className="w-full md:w-1/3 aspect-4/3 bg-bg/50 rounded-sm border border-white/5"
-                aria-hidden="true"
+              <Image
+                src={assetPath("/images/optimized/budget-iceland-800.webp")}
+                alt="Исландия зимой"
+                width={400}
+                height={300}
+                className="w-full md:w-1/3 aspect-4/3 rounded-sm border border-white/5 object-cover"
               />
             </article>
           </Link>
