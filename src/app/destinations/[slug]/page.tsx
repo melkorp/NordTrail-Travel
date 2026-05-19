@@ -836,13 +836,20 @@ export default async function DestinationPage({
               {dest.name}. Следите за обновлениями — мы добавляем новые маршруты
               и советы каждый сезон.
             </p>
-            <div className="mt-4">
+
+            <div className="mt-4 flex flex-wrap gap-4">
               <Link
                 href={`/destinations/${dest.slug}/best-time/`}
                 className="text-accent-bright hover:underline text-sm font-heading"
               >
                 Лучшее время для посещения {dest.name} — подробный гид по
                 сезонам →
+              </Link>
+              <Link
+                href={`/destinations/${dest.slug}/cost/`}
+                className="text-accent-bright hover:underline text-sm font-heading"
+              >
+                Стоимость путешествия в {dest.name} — детальный разбор бюджета →
               </Link>
             </div>
           </section>
