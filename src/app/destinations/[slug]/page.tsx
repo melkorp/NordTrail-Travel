@@ -662,7 +662,7 @@ function Breadcrumbs({ name }: { name: string }) {
     <nav aria-label="Хлебные крошки" className="mb-8">
       <ol className="flex text-sm text-text/50 font-body">
         <li>
-          <Link href="/" className="hover:text-primary transition-colors">
+          <Link href="/" className="hover:text-accent-bright transition-colors">
             Главная
           </Link>
           <span className="mx-2">/</span>
@@ -670,7 +670,7 @@ function Breadcrumbs({ name }: { name: string }) {
         <li>
           <Link
             href="/destinations"
-            className="hover:text-primary transition-colors"
+            className="hover:text-accent-bright transition-colors"
           >
             Направления
           </Link>
@@ -787,7 +787,7 @@ export default async function DestinationPage({
           {/* Quick Answer — AI-snippet */}
           <aside
             aria-label="Краткий обзор направления"
-            className="bg-primary/5 border border-primary/10 rounded-lg p-5 mb-10"
+            className="bg-accent-bright/5 border border-accent-bright/10 rounded-lg p-5 mb-10"
           >
             <p className="text-text/80 leading-relaxed">{dest.quickAnswer}</p>
           </aside>
