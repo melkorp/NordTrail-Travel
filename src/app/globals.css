@@ -1,7 +1,9 @@
 /* src/app/globals.css */
+/* Подключаем шрифты: Inter для заголовков, Lora для основного текста */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
+/* Тема «Полночное золото» — все цвета и шрифты в одном месте */
 @theme {
   --color-bg: #0a0a0f;
   --color-surface: #12121a;
@@ -13,6 +15,7 @@
   --font-body: "Lora", system-ui, serif;
 }
 
+/* Базовые стили: сброс, типографика, выделение текста */
 @layer base {
   body {
     @apply bg-bg text-text font-body antialiased selection:bg-accent-bright selection:text-bg;
@@ -25,4 +28,35 @@
   h6 {
     @apply font-heading tracking-tight leading-none;
   }
+}
+
+/* Зернистая текстура для глубины фона — создаёт тактильное ощущение премиальной бумаги */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  pointer-events: none;
+}
+
+/* Плавный скролл для якорных ссылок */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Скрываем скроллбар для чистого «журнального» вида (опционально) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-calm);
 }
