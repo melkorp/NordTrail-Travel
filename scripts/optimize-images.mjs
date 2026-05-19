@@ -1,4 +1,4 @@
-// scripts/optimize-images.js
+// scripts/optimize-images.mjs
 
 import sharp from "sharp";
 import fs from "fs/promises";
@@ -52,6 +52,25 @@ function isSupportedImage(fileName) {
 }
 
 // =====================================
+// Проверка: файл уже существует?
+// Возвращает true — пропускаем.
+// Возвращает false — создаём.
+// Аналогия: как кэш в браузере —
+// если страница уже скачана, не качаем снова.
+// =====================================
+
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    // fs.access бросает ошибку если файла нет —
+    // это нормально, просто возвращаем false
+    return false;
+  }
+}
+
+// =====================================
 // Оптимизация изображения
 // =====================================
 
@@ -77,17 +96,22 @@ async function optimizeImage(fileName) {
 
       const avifOutput = path.join(OUTPUT_DIR, `${baseName}-${size}.avif`);
 
-      await sharp(inputPath)
-        .resize({
-          width: size,
-          withoutEnlargement: true,
-        })
-        .avif({
-          quality: AVIF_QUALITY,
-        })
-        .toFile(avifOutput);
+      // Проверяем — если файл уже есть, пропускаем
+      if (await fileExists(avifOutput)) {
+        console.log(`↩ AVIF уже есть, пропуск: ${baseName}-${size}.avif`);
+      } else {
+        await sharp(inputPath)
+          .resize({
+            width: size,
+            withoutEnlargement: true,
+          })
+          .avif({
+            quality: AVIF_QUALITY,
+          })
+          .toFile(avifOutput);
 
-      console.log(`✓ AVIF создан: ${baseName}-${size}.avif`);
+        console.log(`✓ AVIF создан: ${baseName}-${size}.avif`);
+      }
 
       // =====================================
       // WEBP
@@ -95,17 +119,22 @@ async function optimizeImage(fileName) {
 
       const webpOutput = path.join(OUTPUT_DIR, `${baseName}-${size}.webp`);
 
-      await sharp(inputPath)
-        .resize({
-          width: size,
-          withoutEnlargement: true,
-        })
-        .webp({
-          quality: WEBP_QUALITY,
-        })
-        .toFile(webpOutput);
+      // Проверяем — если файл уже есть, пропускаем
+      if (await fileExists(webpOutput)) {
+        console.log(`↩ WEBP уже есть, пропуск: ${baseName}-${size}.webp`);
+      } else {
+        await sharp(inputPath)
+          .resize({
+            width: size,
+            withoutEnlargement: true,
+          })
+          .webp({
+            quality: WEBP_QUALITY,
+          })
+          .toFile(webpOutput);
 
-      console.log(`✓ WEBP создан: ${baseName}-${size}.webp`);
+        console.log(`✓ WEBP создан: ${baseName}-${size}.webp`);
+      }
     }
 
     console.log(`✔ Готово: ${fileName}`);
