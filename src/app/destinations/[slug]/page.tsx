@@ -851,6 +851,12 @@ export default async function DestinationPage({
               >
                 Стоимость путешествия в {dest.name} — детальный разбор бюджета →
               </Link>
+              <Link
+                href={`/destinations/${dest.slug}/itinerary/`}
+                className="text-accent-bright hover:underline text-sm font-heading"
+              >
+                Маршрут по {dest.name} — готовый план путешествия →
+              </Link>
             </div>
           </section>
         </article>
