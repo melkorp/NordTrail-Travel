@@ -1136,17 +1136,17 @@ function JsonLd({ data }: { data: BestTimeData }) {
 // Цвет сезона для акцента карточки
 // ─────────────────────────────────────────────────────────────
 const SEASON_ACCENT: Record<string, string> = {
-  Лето: "border-accent/40 shadow-[0_0_24px_rgba(143,255,209,0.06)]",
-  Осень: "border-accent-bright/40 shadow-[0_0_24px_rgba(212,175,55,0.06)]",
-  Зима: "border-primary/40 shadow-[0_0_24px_rgba(77,168,255,0.06)]",
-  Весна: "border-accent/30 shadow-[0_0_24px_rgba(143,255,209,0.04)]",
+  Лето: "border-accent-bright/40 shadow-[0_0_24px_rgba(212,175,55,0.06)]",
+  Осень: "border-accent-calm/40 shadow-[0_0_24px_rgba(184,150,46,0.06)]",
+  Зима: "border-accent-bright/30 shadow-[0_0_24px_rgba(212,175,55,0.04)]",
+  Весна: "border-accent-calm/30 shadow-[0_0_24px_rgba(184,150,46,0.04)]",
 };
 
 const SEASON_BADGE: Record<string, string> = {
-  Лето: "text-accent border-accent/30",
-  Осень: "text-accent-bright border-accent-bright/30",
-  Зима: "text-primary border-primary/30",
-  Весна: "text-accent border-accent/30",
+  Лето: "text-accent-bright border-accent-bright/30",
+  Осень: "text-accent-calm border-accent-calm/30",
+  Зима: "text-accent-bright border-accent-bright/30",
+  Весна: "text-accent-calm border-accent-calm/30",
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -1177,20 +1177,23 @@ export default async function BestTimePage({
         <section className="mx-auto max-w-4xl px-6 pb-10 pt-20">
           {/* Хлебные крошки */}
           <nav className="mb-8 flex flex-wrap items-center gap-2 text-xs text-text-muted">
-            <Link href="/" className="transition-colors hover:text-primary">
+            <Link
+              href="/"
+              className="transition-colors hover:text-accent-bright"
+            >
               NordTrail
             </Link>
             <span>/</span>
             <Link
               href="/destinations/"
-              className="transition-colors hover:text-primary"
+              className="transition-colors hover:text-accent-bright"
             >
               Направления
             </Link>
             <span>/</span>
             <Link
               href={`/destinations/${slug}/`}
-              className="transition-colors hover:text-primary"
+              className="transition-colors hover:text-accent-bright"
             >
               {data.destinationName}
             </Link>
@@ -1205,8 +1208,8 @@ export default async function BestTimePage({
           <div className="mt-3 h-px w-24 bg-linear-to-r from-accent-bright to-accent" />
 
           {/* Quick Answer */}
-          <div className="mt-6 rounded-2xl border border-primary/20 bg-primary/5 p-5">
-            <p className="text-sm font-medium uppercase tracking-widest text-primary mb-2">
+          <div className="mt-6 rounded-2xl border border-accent-bright/20 bg-accent-bright/5 p-5">
+            <p className="text-sm font-medium uppercase tracking-widest text-accent-bright mb-2">
               Кратко
             </p>
             <p className="text-base leading-relaxed text-text/80">
@@ -1289,14 +1292,14 @@ export default async function BestTimePage({
 
                 {/* Активности */}
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wide text-primary mb-1.5">
+                  <p className="text-xs font-medium uppercase tracking-wide text-accent-bright mb-1.5">
                     Активности
                   </p>
                   <div className="flex flex-wrap gap-1.5">
                     {season.activities.map((act) => (
                       <span
                         key={act}
-                        className="rounded-full bg-primary/8 px-2.5 py-0.5 text-xs text-primary/80"
+                        className="rounded-full bg-accent-bright/8 px-2.5 py-0.5 text-xs text-accent-bright/80"
                       >
                         {act}
                       </span>
@@ -1392,7 +1395,7 @@ export default async function BestTimePage({
           <div className="mt-8">
             <Link
               href={`/destinations/${slug}/`}
-              className="inline-flex items-center gap-2 text-sm text-primary/70 transition-colors hover:text-primary"
+              className="inline-flex items-center gap-2 text-sm text-accent-bright/70 transition-colors hover:text-accent-bright"
             >
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                 <path
