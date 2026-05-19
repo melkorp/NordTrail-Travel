@@ -28,7 +28,7 @@ export default function HeroSection({ variant = "calm" }: HeroSectionProps) {
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 bg-bg overflow-hidden">
       <div className="fixed inset-0">
         <Image
-          src="/images/optimized/hero-bg-1600.webp"
+          src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/optimized/hero-bg-1600.webp`}
           alt="Норвежские фьорды на рассвете"
           width={1600}
           height={900}

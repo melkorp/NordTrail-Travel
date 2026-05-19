@@ -286,7 +286,7 @@ export default function BlogPostClient({ article }: { article: ArticleData }) {
       {image && (
         <div className="px-6 pb-8 max-w-3xl mx-auto">
           <Image
-            src={image}
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${image}`}
             alt={title}
             width={800}
             height={450}
