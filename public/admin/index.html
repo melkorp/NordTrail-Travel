@@ -2,11 +2,27 @@
 <html lang="ru">
   <head>
     <meta charset="utf-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>NordTrail CMS</title>
   </head>
+
   <body>
-    <!-- Локальный файл — не зависит от CDN -->
+    <script>
+      window.CMS_MANUAL_INIT = true;
+    </script>
+
     <script src="/NordTrail-Travel/admin/decap-cms.js"></script>
+
+    <script>
+      CMS.init({
+        config: {
+          load_config_file: true,
+        },
+
+        configUrl: "/NordTrail-Travel/admin/config.yml",
+      });
+    </script>
   </body>
 </html>
