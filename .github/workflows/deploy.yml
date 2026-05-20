@@ -1,91 +1,47 @@
-# Название воркфлоу — отображается во вкладке Actions на GitHub
-name: Деплой на GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
-  # Запускаем автоматически при каждом push в ветку main
   push:
-    branches: [main]
-
-  # Кнопка "запустить вручную" во вкладке Actions — удобно для отладки
-  workflow_dispatch:
-
-# Права доступа для этого воркфлоу:
-# - читать код репозитория
-# - записывать результат на GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write # Нужен для безопасной аутентификации с Pages
-
-# Если новый push пришёл пока старый деплой ещё идёт —
-# отменяем старый и запускаем новый. Экономит минуты Actions.
-concurrency:
-  group: pages
-  cancel-in-progress: true
+    branches:
+      [main] # запускается при каждом коммите в main
+      # включая коммиты от Decap CMS
 
 jobs:
-  # ── ШАГ 1: Сборка проекта ─────────────────────────────────
-  build:
-    runs-on: ubuntu-latest # Бесплатная виртуальная машина от GitHub
-
-    steps:
-      # Скачиваем код репозитория на виртуальную машину
-      - name: Скачать код репозитория
-        uses: actions/checkout@v4
-
-      # Устанавливаем pnpm ПЕРЕД Node.js — это важно:
-      # setup-node умеет кешировать pnpm, только если pnpm уже есть в системе
-      - name: Установить pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: latest # Всегда свежая стабильная версия
-
-      # Устанавливаем Node.js 22 и включаем кеш для pnpm
-      # Кеш — это "память" между запусками: если зависимости не менялись,
-      # они не скачиваются заново. Экономит 1–3 минуты на каждом деплое.
-      - name: Установить Node.js 22
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm # Кешируем папку node_modules через pnpm store
-
-      # Настраиваем GitHub Pages — генерирует BASE_PATH и другие переменные
-      # Именно здесь появляется GITHUB_REPOSITORY, которую читает next.config.ts
-      - name: Настроить GitHub Pages
-        uses: actions/configure-pages@v5
-
-      # Устанавливаем зависимости строго по lock-файлу (frozen-lockfile).
-      # Аналогия: не "купи похожее", а "купи именно это по списку".
-      # Защищает от неожиданных обновлений пакетов в продакшне.
-      - name: Установить зависимости
-        run: pnpm install --frozen-lockfile
-
-      # Запускаем сборку. Next.js создаст папку out/ со статическими файлами.
-      - name: Собрать проект
-        run: pnpm build
-
-      # Упаковываем папку out/ в специальный артефакт Pages.
-      # Артефакт — это "посылка", которую второй job (deploy) заберёт и опубликует.
-      - name: Упаковать папку out/ для деплоя
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: out # Именно папка out/, которую генерирует Next.js Static Export
-
-  # ── ШАГ 2: Публикация на GitHub Pages ────────────────────
-  # Отдельный job нужен, потому что у деплоя особые права (id-token).
-  # Разделение build/deploy — стандартная практика безопасности.
   deploy:
     runs-on: ubuntu-latest
-    needs: build # Запускается только если build завершился успешно
-
-    # Привязываем этот job к окружению "github-pages".
-    # GitHub создаёт его автоматически и показывает URL задеплоенного сайта.
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }} # URL появится в интерфейсе Actions
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
 
     steps:
-      # Публикуем артефакт из предыдущего job на GitHub Pages
-      - name: Опубликовать на GitHub Pages
-        id: deploy
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+        env:
+          NODE_ENV: production
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+      - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4

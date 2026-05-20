@@ -1,54 +1,33 @@
-// ─────────────────────────────────────────────
-// ТИПЫ ДЛЯ СТРАНИЦ НАПРАВЛЕНИЙ (DESTINATIONS)
-// Думай об этом как о «бланке анкеты»:
-// TypeScript проверит, что все обязательные поля заполнены.
-// ─────────────────────────────────────────────
+// src/lib/types.ts
+// Единый источник типов для всего проекта.
+// Импортируй отсюда вместо локальных определений.
 
-// Один раздел статьи: заголовок H2/H3 + текстовый контент
-export interface DestinationSection {
-  title: string; // Заголовок раздела, например "Когда ехать"
-  content: string; // Текст раздела (можно HTML-строку или plain text)
-}
-
-// Один вопрос-ответ для блока FAQ
-export interface FAQ {
-  question: string; // Вопрос, например "Нужна ли виза в Исландию?"
-  answer: string; // Развёрнутый ответ
-}
-
-// Главный тип — всё, что описывает одно направление
-export interface Destination {
-  // ── Служебные поля ──────────────────────────
-  slug: string; // URL-имя: "iceland", "norway", "sweden"
-
-  // ── SEO и заголовки ─────────────────────────
-  name: string; // Читаемое имя: "Исландия"
-  h1: string; // Заголовок страницы (может отличаться от name)
-  // Например: "Исландия 2025: полный гид для путешественников"
-
-  // ── Quick Answer (AI-snippet) ────────────────
-  // Короткий абзац 40-60 слов — именно его Google показывает в нулевой позиции.
-  // Пиши как ответ на вопрос "Стоит ли ехать в X?"
+export interface ArticleData {
+  slug: string;
+  title: string;
+  category: string;
+  readTime: string;
+  dateIso: string;
+  dateDisplay: string;
+  author: string;
   quickAnswer: string;
+  image?: string;
+  sections: { heading: string; content: string }[];
+  budgetTable: { item: string; low: string; premium: string }[];
+  faq: { q: string; a: string }[];
+  conclusion: string;
+}
 
-  // ── Карточка с параметрами (для таблицы сравнения) ──
-  bestSeason: string; // "Июнь–август" или "Декабрь–февраль (северное сияние)"
-  budget: "низкий" | "средний" | "высокий" | "очень высокий";
-  difficulty: "лёгкое" | "среднее" | "сложное"; // Сложность маршрутов
-  forKids: boolean; // Подходит ли для путешествий с детьми
-  safety: 1 | 2 | 3 | 4 | 5; // Индекс безопасности (5 — самый безопасный)
-
-  // ── Основной контент ─────────────────────────
-  sections: DestinationSection[]; // Массив разделов статьи
-
-  // ── FAQ ──────────────────────────────────────
-  faq: FAQ[]; // Вопросы и ответы для Schema.org FAQPage
-
-  // ── Дополнительно для программатик-SEO ───────
-  // Эти поля добавим позже, когда будем генерировать 100+ страниц.
-  // Оставляем как необязательные (?), чтобы не ломать текущие моки.
-  metaTitle?: string; // <title> тег — если отличается от h1
-  metaDescription?: string; // <meta description> — до 160 символов
-  heroImage?: string; // Путь к обложке, например "/images/iceland-hero.avif"
-  relatedSlugs?: string[]; // Ссылки на похожие направления (для перелинковки)
+export interface Destination {
+  slug: string;
+  name: string;
+  h1: string;
+  quickAnswer: string;
+  bestSeason: string;
+  budget: string;
+  difficulty: string;
+  forKids: boolean;
+  safety: number;
+  sections: { title: string; content: string }[];
+  faq: { question: string; answer: string }[];
 }
