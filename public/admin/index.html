@@ -1,14 +1,13 @@
+<!-- public/admin/index.html — замени один скрипт -->
 <!doctype html>
 <html lang="ru">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NordTrail CMS</title>
-    <!-- Netlify Identity — обеспечивает вход через GitHub -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
-    <!-- Decap CMS — загружается как SPA, работает независимо от Next.js -->
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <!-- Sveltia CMS вместо Decap — тот же config.yml, в 5–10 раз быстрее -->
+    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
 </html>

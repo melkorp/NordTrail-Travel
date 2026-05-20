@@ -3,9 +3,16 @@
 # Decap коммитит изменения напрямую в твой GitHub репозиторий.
 # Netlify Identity обеспечивает аутентификацию.
 # ─────────────────────────────────────────────────────────────
+# public/admin/config.yml — замени блок backend
 backend:
-  name: git-gateway
+  name: github
+  repo: melkorp/NordTrail-Travel
   branch: main
+  # Прямой OAuth через GitHub — без Netlify посредника
+  # Быстрее, стабильнее, нет rate limit проблем Git Gateway
+  base_url: https://sveltia-cms-auth.pages.dev
+  auth_endpoint: /auth
+  app_id: Ov23lixSv3yAtETkee9s
 
 # ─────────────────────────────────────────────────────────────
 # МЕДИАФАЙЛЫ
