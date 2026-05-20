@@ -199,6 +199,28 @@ export default function BlogPostClient({ article }: { article: ArticleData }) {
           }),
         }}
       />
+      {/* ── Article Schema.org ───────────────────────────────── */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: title,
+            description: quickAnswer,
+            datePublished: dateIso,
+            author: {
+              "@type": "Organization",
+              name: author,
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "NordTrail Travel",
+              url: baseUrl,
+            },
+          }),
+        }}
+      />
 
       {/* ── Хлебные крошки ──────────────────────────────────── */}
       <nav
