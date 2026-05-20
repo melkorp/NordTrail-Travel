@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import "./globals.css";
 import Navigation from "../components/navigation";
 import Link from "next/link";
@@ -54,10 +53,6 @@ export default function RootLayout({
             .
           </p>
         </footer>
-        <Script
-          src="https://identity.netlify.com/v1/netlify-identity-widget.js"
-          strategy="afterInteractive"
-        />
       </body>
     </html>
   );

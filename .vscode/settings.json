@@ -1,0 +1,9 @@
+{
+  "files.exclude": {
+    "**/public/admin/decap-cms.js": true
+  },
+
+  "search.exclude": {
+    "**/public/admin/decap-cms.js": true
+  }
+}
