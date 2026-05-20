@@ -2,7 +2,6 @@ backend:
   name: github
   repo: melkorp/NordTrail-Travel
   branch: main
-  base_url: https://sveltia-cms-auth.pages.dev
 
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
