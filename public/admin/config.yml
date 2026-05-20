@@ -2,10 +2,14 @@ backend:
   name: github
   repo: melkorp/NordTrail-Travel
   branch: main
+  site_domain: melkorp.github.io/NordTrail-Travel
+  base_url: https://api.github.com
 
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
 locale: "ru"
+
+# ... остальные коллекции без изменений ...
 
 collections:
   - name: "blog"
