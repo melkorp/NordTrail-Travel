@@ -139,7 +139,7 @@ export async function generateMetadata({
     title: `${cat.h1} | NordTrail Travel`,
     description: cat.subtitle,
     alternates: {
-      canonical: `/blog/category/${slug}/`,
+      canonical: `https://melkorp.github.io/NordTrail-Travel/destinations/${slug}/`,
     },
   };
 }

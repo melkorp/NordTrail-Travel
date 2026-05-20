@@ -794,7 +794,7 @@ export async function generateMetadata({
     title: `${article.title} | NordTrail Travel`,
     description: article.quickAnswer,
     alternates: {
-      canonical: `/blog/${slug}/`,
+      canonical: `https://melkorp.github.io/NordTrail-Travel/destinations/${slug}/`,
     },
   };
 }

@@ -1049,7 +1049,7 @@ export async function generateMetadata({
     title: `${data.h1} | NordTrail Travel`,
     description: data.quickAnswer.slice(0, 160),
     alternates: {
-      canonical: `/destinations/${slug}/cost/`,
+      canonical: `https://melkorp.github.io/NordTrail-Travel/destinations/${slug}/`,
     },
   };
 }
