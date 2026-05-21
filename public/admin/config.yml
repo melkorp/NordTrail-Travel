@@ -2,25 +2,29 @@ backend:
   name: github
   repo: melkorp/NordTrail-Travel
   branch: main
-  site_domain: melkorp.github.io/NordTrail-Travel
-  auth_type: pkce
-  cms_label: "NordTrail CMS"
 
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
+
 locale: "ru"
 
 collections:
   - name: "blog"
     label: "Статьи блога"
+
     folder: "content/blog"
+
     create: true
     slug: "{{slug}}"
+
     extension: "mdx"
     format: "frontmatter"
+
     fields:
       - { label: "Slug", name: "slug", widget: "string" }
+
       - { label: "Заголовок", name: "title", widget: "string" }
+
       - label: "Категория"
         name: "category"
         widget: "select"
@@ -31,12 +35,14 @@ collections:
           - { label: "Зима", value: "Winter" }
           - { label: "Соло-путешествия", value: "Solo Travel" }
           - { label: "Семья", value: "Family" }
+
       - {
           label: "Время чтения",
           name: "readTime",
           widget: "string",
           default: "8 min read",
         }
+
       - {
           label: "Дата (ISO)",
           name: "dateIso",
@@ -45,59 +51,65 @@ collections:
           date_format: "YYYY-MM-DD",
           time_format: false,
         }
-      - {
-          label: "Дата (отображение)",
-          name: "dateDisplay",
-          widget: "string",
-          hint: "Например: 15 мая 2026",
-        }
+
+      - { label: "Дата (отображение)", name: "dateDisplay", widget: "string" }
+
       - {
           label: "Автор",
           name: "author",
           widget: "string",
           default: "NordTrail Research Team",
         }
+
       - {
           label: "Обложка статьи",
           name: "image",
           widget: "image",
           required: false,
         }
+
       - { label: "Краткий ответ", name: "quickAnswer", widget: "text" }
+
       - label: "Секции статьи"
         name: "sections"
         widget: "list"
         fields:
           - { label: "Заголовок секции", name: "heading", widget: "string" }
+
           - { label: "Текст секции", name: "content", widget: "text" }
-      - label: "Таблица"
-        name: "budgetTable"
-        widget: "list"
-        fields:
-          - { label: "Пункт", name: "item", widget: "string" }
-          - { label: "Бюджетно", name: "low", widget: "string" }
-          - { label: "Премиум", name: "premium", widget: "string" }
+
       - label: "FAQ"
         name: "faq"
         widget: "list"
         fields:
           - { label: "Вопрос", name: "q", widget: "string" }
+
           - { label: "Ответ", name: "a", widget: "text" }
+
       - { label: "Заключение", name: "conclusion", widget: "text" }
 
   - name: "destinations"
     label: "Направления"
+
     folder: "content/destinations"
+
     create: true
     slug: "{{slug}}"
+
     extension: "mdx"
     format: "frontmatter"
+
     fields:
       - { label: "Slug", name: "slug", widget: "string" }
+
       - { label: "Название", name: "name", widget: "string" }
+
       - { label: "H1 заголовок", name: "h1", widget: "string" }
+
       - { label: "Краткий ответ", name: "quickAnswer", widget: "text" }
+
       - { label: "Лучший сезон", name: "bestSeason", widget: "string" }
+
       - label: "Бюджет"
         name: "budget"
         widget: "select"
@@ -105,6 +117,7 @@ collections:
           - { label: "Низкий", value: "низкий" }
           - { label: "Средний", value: "средний" }
           - { label: "Высокий", value: "высокий" }
+
       - label: "Сложность"
         name: "difficulty"
         widget: "select"
@@ -112,12 +125,14 @@ collections:
           - { label: "Лёгкое", value: "лёгкое" }
           - { label: "Среднее", value: "среднее" }
           - { label: "Сложное", value: "сложное" }
+
       - {
           label: "Подходит для детей",
           name: "forKids",
           widget: "boolean",
           default: true,
         }
+
       - {
           label: "Безопасность (1–5)",
           name: "safety",
@@ -126,15 +141,19 @@ collections:
           max: 5,
           value_type: "int",
         }
+
       - label: "Секции"
         name: "sections"
         widget: "list"
         fields:
           - { label: "Заголовок", name: "title", widget: "string" }
+
           - { label: "Текст", name: "content", widget: "text" }
+
       - label: "FAQ"
         name: "faq"
         widget: "list"
         fields:
           - { label: "Вопрос", name: "question", widget: "string" }
+
           - { label: "Ответ", name: "answer", widget: "text" }
