@@ -10,8 +10,6 @@ media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
 locale: "ru"
 
-# ... остальные коллекции без изменений ...
-
 collections:
   - name: "blog"
     label: "Статьи блога"
