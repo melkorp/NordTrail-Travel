@@ -1,9 +1,3 @@
-// src/components/BlogPostClient.tsx
-//
-// КЛИЕНТСКИЙ КОМПОНЕНТ — только анимации, useState, интерактивность.
-// Данные получает через props от серверного page.tsx.
-// Разделение серверного и клиентского кода — требование Next.js App Router.
-
 "use client";
 
 import { useState } from "react";
@@ -12,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Check, ChevronDown } from "lucide-react";
 import type { ArticleData } from "./page";
 import Image from "next/image";
-import { assetPath } from "../../../lib/asset-path";
 
 // Базовая анимация появления снизу вверх
 // delay добавляем через prop, а не перезаписью transition —
@@ -309,7 +302,7 @@ export default function BlogPostClient({ article }: { article: ArticleData }) {
       {image && (
         <div className="px-6 pb-8 max-w-3xl mx-auto">
           <Image
-            src={assetPath(image)}
+            src={image}
             alt={title}
             width={800}
             height={450}

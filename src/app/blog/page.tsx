@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { assetPath } from "../../lib/asset-path";
 
 // Базовая анимация появления.
 // delay передаём через custom + функцию-вариант,
@@ -184,7 +183,7 @@ export default function BlogPage() {
 
               {/* Плейсхолдер изображения — позже заменить на <Image> */}
               <Image
-                src={assetPath("/images/optimized/budget-iceland-800.webp")}
+                src="/images/optimized/budget-iceland-800.webp"
                 alt="Исландия зимой"
                 width={400}
                 height={300}
