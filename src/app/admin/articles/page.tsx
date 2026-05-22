@@ -44,12 +44,12 @@ function CategoryBadge({ category }: { category: string }) {
 
   // Маппинг категорий на цвета темы (ключи — русские названия)
   const styles: Record<string, string> = {
-    Бюджет: "border-accent/30 text-accent bg-accent/5",
+    Бюджет: "border-accent-calm/30 text-accent-calm bg-accent-calm/5",
     Хайкинг: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
-    Люкс: "border-primary/30 text-primary bg-primary/5",
-    Зима: "border-primary/30 text-primary bg-primary/5",
-    Соло: "border-accent/30 text-accent bg-accent/5",
-    Семья: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
+    Люкс: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
+    Зима: "border-accent-calm/30 text-accent-calm bg-accent-calm/5",
+    Соло: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
+    Семья: "border-accent-calm/30 text-accent-calm bg-accent-calm/5",
   };
 
   const style =
