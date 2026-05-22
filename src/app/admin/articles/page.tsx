@@ -31,23 +31,35 @@ async function getAllArticles(): Promise<ArticleData[]> {
 // Бейдж категории — цвет зависит от категории
 // ─────────────────────────────────────────────────────────────
 function CategoryBadge({ category }: { category: string }) {
-  // Маппинг категорий на цвета темы
+  // Перевод английских категорий на русский
+  const categoryMap: Record<string, string> = {
+    Budget: "Бюджет",
+    Hiking: "Хайкинг",
+    Luxury: "Люкс",
+    Winter: "Зима",
+    "Solo Travel": "Соло",
+    Family: "Семья",
+  };
+  const categoryLabel = categoryMap[category] ?? category;
+
+  // Маппинг категорий на цвета темы (ключи — русские названия)
   const styles: Record<string, string> = {
-    Budget: "border-accent/30 text-accent bg-accent/5",
-    Hiking: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
-    Luxury: "border-primary/30 text-primary bg-primary/5",
-    Winter: "border-primary/30 text-primary bg-primary/5",
-    "Solo Travel": "border-accent/30 text-accent bg-accent/5",
-    Family: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
+    Бюджет: "border-accent/30 text-accent bg-accent/5",
+    Хайкинг: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
+    Люкс: "border-primary/30 text-primary bg-primary/5",
+    Зима: "border-primary/30 text-primary bg-primary/5",
+    Соло: "border-accent/30 text-accent bg-accent/5",
+    Семья: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
   };
 
-  const style = styles[category] ?? "border-text/20 text-text-muted bg-text/5";
+  const style =
+    styles[categoryLabel] ?? "border-text/20 text-text-muted bg-text/5";
 
   return (
     <span
       className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${style}`}
     >
-      {category}
+      {categoryLabel}
     </span>
   );
 }
