@@ -125,24 +125,24 @@ export default async function AdminArticlesPage() {
           </summary>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs text-text-muted">
             <div>
-              <span className="text-accent font-medium">Бюджет</span> — статьи о
-              бюджетных путешествиях
+              <span className="text-accent-calm font-medium">Бюджет</span> —
+              статьи о бюджетных путешествиях
             </div>
             <div>
               <span className="text-accent-bright font-medium">Хайкинг</span> —
               пешие походы и треккинг
             </div>
             <div>
-              <span className="text-primary font-medium">Люкс</span> —
+              <span className="text-accent-bright font-medium">Люкс</span> —
               премиум-отдых и отели
             </div>
             <div>
-              <span className="text-primary font-medium">Зима</span> — зимние
-              путешествия
+              <span className="text-accent-calm font-medium">Зима</span> —
+              зимние путешествия
             </div>
             <div>
-              <span className="text-accent font-medium">Соло</span> — одиночные
-              путешествия
+              <span className="text-accent-calm font-medium">Соло</span> —
+              одиночные путешествия
             </div>
             <div>
               <span className="text-accent-bright font-medium">Семья</span> —
