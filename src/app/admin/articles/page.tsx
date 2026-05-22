@@ -118,6 +118,39 @@ export default async function AdminArticlesPage() {
           <span className="text-text/70">Статьи</span>
         </nav>
 
+        {/* ── Подсказка по категориям ──────────────────────────── */}
+        <details className="mb-6 rounded-xl border border-text/8 bg-surface/20 p-4 text-sm">
+          <summary className="cursor-pointer font-heading text-text-muted hover:text-text transition-colors">
+            О категориях
+          </summary>
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs text-text-muted">
+            <div>
+              <span className="text-accent font-medium">Бюджет</span> — статьи о
+              бюджетных путешествиях
+            </div>
+            <div>
+              <span className="text-accent-bright font-medium">Хайкинг</span> —
+              пешие походы и треккинг
+            </div>
+            <div>
+              <span className="text-primary font-medium">Люкс</span> —
+              премиум-отдых и отели
+            </div>
+            <div>
+              <span className="text-primary font-medium">Зима</span> — зимние
+              путешествия
+            </div>
+            <div>
+              <span className="text-accent font-medium">Соло</span> — одиночные
+              путешествия
+            </div>
+            <div>
+              <span className="text-accent-bright font-medium">Семья</span> —
+              семейные поездки
+            </div>
+          </div>
+        </details>
+
         {/* ── Таблица статей ──────────────────────────────── */}
         {articles.length === 0 ? (
           // Заглушка если статей нет
