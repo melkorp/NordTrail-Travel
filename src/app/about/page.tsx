@@ -106,6 +106,25 @@ export default function AboutPage() {
       {/* 3. Команда (фон bg) */}
       <section className="py-24 px-6 max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          {/* Текстовый блок слева */}
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={reveal}
+          >
+            <h2 className="text-2xl md:text-3xl font-heading text-text mb-4 tracking-tight">
+              Команда
+            </h2>
+            <div className="w-12 h-px bg-accent-calm mb-6" />
+            <p className="text-text-muted leading-relaxed">
+              Мы собираем и структурируем информацию о направлениях, сезонах и
+              бюджетах, чтобы путешественники могли самостоятельно планировать
+              поездки по северным регионам.
+            </p>
+          </motion.div>
+
+          {/* Изображение справа */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -138,8 +157,7 @@ export default function AboutPage() {
             variants={reveal}
             className="text-3xl md:text-4xl font-heading text-text mb-6 tracking-tight"
           >
-            Изучите направления, сравните сезоны и бюджеты — вся информация уже
-            собрана на сайте.
+            Изучите направления, сравните сезоны и бюджеты.
           </motion.h2>
 
           <motion.p
