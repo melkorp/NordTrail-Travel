@@ -16,7 +16,10 @@ const handler = NextAuth({
       },
     }),
   ],
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 10 * 60, // 30 минут — выход при бездействии
+  },
   pages: { signIn: "/admin/login" },
 });
 
