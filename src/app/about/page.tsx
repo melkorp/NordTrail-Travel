@@ -125,23 +125,6 @@ export default function AboutPage() {
               className="w-full h-full object-cover"
             />
           </motion.div>
-
-          {/* Плейсхолдер для фото: сохраняет сетку до вставки реального изображения */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{
-              duration: 0.7,
-              ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
-              delay: 0.2,
-            }}
-            className="h-64 md:h-80 bg-surface rounded-sm flex items-center justify-center border border-white/5"
-          >
-            <span className="text-text/20 font-heading text-xs tracking-widest uppercase">
-              Фото команды
-            </span>
-          </motion.div>
         </div>
       </section>
 
