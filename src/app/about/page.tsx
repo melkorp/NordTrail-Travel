@@ -3,6 +3,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 
 // Базовая анимация: медленное появление, мягкое торможение
 const reveal = {
@@ -29,7 +30,7 @@ export default function AboutPage() {
           variants={reveal}
           className="text-4xl md:text-5xl lg:text-6xl font-heading font-semibold text-text mb-6 tracking-tight text-balance"
         >
-          NordTrail Travel — Премиум-путешествия на край северного мира
+          NordTrail Travel — Планирование путешествий на север
         </motion.h1>
 
         <motion.div
@@ -70,15 +71,15 @@ export default function AboutPage() {
             {[
               {
                 title: "Экспертиза",
-                desc: "Глубокое знание маршрутов, логистики и местных традиций. Мы работаем только там, где побывали сами.",
+                desc: "Практические маршруты, сезонные рекомендации и структурированная информация для самостоятельного планирования путешествий по северным направлениям.",
               },
               {
-                title: "Эксклюзивность",
-                desc: "Маршруты вне массового туризма. Закрытые локации, частные лоджи и доступ к нетронутым пейзажам.",
+                title: "Актуальные направления",
+                desc: "Подборка маршрутов, локаций и travel-идей с фокусом на Исландию, Скандинавию, Японию и северные регионы России.",
               },
               {
-                title: "Персонализация",
-                desc: "Каждая экспедиция собирается под вас: от темпа движения до гастрономических предпочтений.",
+                title: "Удобное планирование",
+                desc: "Сайт помогает быстро сравнить сезоны, бюджеты, маршруты и форматы поездок — от коротких путешествий до экспедиционных направлений.",
               },
             ].map((item, i) => (
               <motion.div
@@ -106,20 +107,23 @@ export default function AboutPage() {
       <section className="py-24 px-6 max-w-5xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <motion.div
-            initial="hidden"
-            whileInView="visible"
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            variants={reveal}
+            transition={{
+              duration: 0.7,
+              ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+              delay: 0.2,
+            }}
+            className="h-64 md:h-80 rounded-sm overflow-hidden border border-white/5"
           >
-            <h2 className="text-2xl md:text-3xl font-heading text-text mb-4 tracking-tight">
-              Команда
-            </h2>
-            <div className="w-12 h-px bg-accent-calm mb-6" />
-            <p className="text-text-muted leading-relaxed">
-              Небольшая команда исследователей и travel-аналитиков. Мы не
-              продаём туры — мы проектируем впечатления, опираясь на личные
-              отчёты, метеоданные и десятилетия опыта в Арктике.
-            </p>
+            <Image
+              src="/images/optimized/about-team-1600.webp"
+              alt="Рабочее пространство NordTrail"
+              width={800}
+              height={450}
+              className="w-full h-full object-cover"
+            />
           </motion.div>
 
           {/* Плейсхолдер для фото: сохраняет сетку до вставки реального изображения */}
@@ -151,7 +155,8 @@ export default function AboutPage() {
             variants={reveal}
             className="text-3xl md:text-4xl font-heading text-text mb-6 tracking-tight"
           >
-            Готовы начать маршрут?
+            Изучите направления, сравните сезоны и бюджеты — вся информация уже
+            собрана на сайте.
           </motion.h2>
 
           <motion.p
@@ -162,8 +167,8 @@ export default function AboutPage() {
             transition={{ delay: 0.1 }}
             className="text-text-muted mb-10 max-w-xl mx-auto"
           >
-            Оставьте заявку, и мы составим предварительную программу вашей
-            северной экспедиции в течение 48 часов.
+            Вся информация для планирования уже собрана — выбирайте направление
+            и начинайте.
           </motion.p>
 
           <motion.div
@@ -173,10 +178,10 @@ export default function AboutPage() {
             transition={{ delay: 0.2 }}
           >
             <Link
-              href="/contact"
+              href="/destinations"
               className="inline-block px-10 py-4 font-heading text-sm tracking-widest uppercase font-medium text-bg bg-accent-bright rounded-sm transition-all duration-500 hover:-translate-y-px hover:shadow-[0_4px_24px_rgba(212,175,55,0.25)]"
             >
-              Свяжитесь с нами
+              Смотреть направления
             </Link>
           </motion.div>
         </div>
