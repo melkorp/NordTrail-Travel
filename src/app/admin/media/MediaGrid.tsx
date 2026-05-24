@@ -8,7 +8,6 @@ import { useState } from "react";
 import Image from "next/image";
 import type { ImageFile } from "./page";
 import { formatBytes } from "@/lib/format";
-
 // ─────────────────────────────────────────────────────────────
 // Карточка одного изображения
 // ─────────────────────────────────────────────────────────────

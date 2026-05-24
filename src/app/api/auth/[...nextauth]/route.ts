@@ -16,9 +16,10 @@ const handler = NextAuth({
       },
     }),
   ],
+  // Смена тайминга для админки
   session: {
     strategy: "jwt",
-    maxAge: 10 * 60, // 30 минут — выход при бездействии
+    maxAge: 10 * 60, // 10 минут — выход при бездействии
   },
   pages: { signIn: "/admin/login" },
 });

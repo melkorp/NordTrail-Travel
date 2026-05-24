@@ -9,22 +9,15 @@ import { readdirSync, statSync } from "fs";
 import path from "path";
 import Link from "next/link";
 import MediaGrid from "./MediaGrid";
-import { formatBytes } from "@/lib/format";
+import UploadButton from "./UploadButton";
 
-// ─────────────────────────────────────────────────────────────
-// ТИП ИЗОБРАЖЕНИЯ
-// ─────────────────────────────────────────────────────────────
 export interface ImageFile {
-  name: string; // "hero-bg-1600.webp"
-  url: string; // "/images/optimized/hero-bg-1600.webp"
-  size: number; // размер в байтах
-  ext: string; // "webp" | "avif"
+  name: string;
+  url: string;
+  size: number;
+  ext: string;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Чтение изображений из папки optimized
-// Возвращает только AVIF и WebP — PNG/JPG в originals
-// ─────────────────────────────────────────────────────────────
 function getOptimizedImages(): ImageFile[] {
   const dir = path.join(process.cwd(), "public", "images", "optimized");
 
@@ -32,8 +25,7 @@ function getOptimizedImages(): ImageFile[] {
   try {
     files = readdirSync(dir);
   } catch {
-    // Папка не существует — возвращаем пустой массив
-    return [] as ImageFile[];
+    return [];
   }
 
   return files
@@ -42,20 +34,17 @@ function getOptimizedImages(): ImageFile[] {
       const filePath = path.join(dir, name);
       const stat = statSync(filePath);
       const ext = name.split(".").pop()?.toLowerCase() ?? "";
-
-      return {
-        name,
-        url: `/images/optimized/${name}`,
-        size: stat.size,
-        ext,
-      };
+      return { name, url: `/images/optimized/${name}`, size: stat.size, ext };
     })
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-// ─────────────────────────────────────────────────────────────
-// Статистика по форматам
-// ─────────────────────────────────────────────────────────────
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function getStats(images: ImageFile[]) {
   const avif = images.filter((i) => i.ext === "avif").length;
   const webp = images.filter((i) => i.ext === "webp").length;
@@ -63,11 +52,7 @@ function getStats(images: ImageFile[]) {
   return { avif, webp, total: images.length, totalSize };
 }
 
-// ─────────────────────────────────────────────────────────────
-// СТРАНИЦА
-// ─────────────────────────────────────────────────────────────
 export default async function AdminMediaPage() {
-  // Проверяем сессию
   const session = await getServerSession();
   if (!session) redirect("/admin");
 
@@ -102,36 +87,19 @@ export default async function AdminMediaPage() {
             </p>
           </div>
 
-          {/* Кнопка загрузки — заглушка */}
-          <button
-            disabled
-            title="В разработке"
-            className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl border border-accent-bright/30 bg-accent-bright/8 px-4 py-2.5 text-sm font-medium text-accent-bright opacity-50"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path
-                d="M7 1v8M4 6l3-3 3 3M2 11h10"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            Загрузить изображение
-          </button>
+          {/* Активная кнопка загрузки */}
+          <UploadButton />
         </div>
 
         {/* ── Подсказка про скрипт оптимизации ───────────── */}
         <div className="mb-6 rounded-xl border border-accent-bright/15 bg-accent-bright/5 px-4 py-3">
           <p className="text-xs text-text-muted">
-            Для добавления изображений: положи оригиналы в{" "}
+            После загрузки оригинал попадёт в репозиторий. GitHub Actions
+            запустит{" "}
             <code className="rounded bg-surface/50 px-1.5 py-0.5 font-mono text-accent-bright">
-              public/images/originals/
+              optimize-images.mjs
             </code>{" "}
-            и запусти{" "}
-            <code className="rounded bg-surface/50 px-1.5 py-0.5 font-mono text-accent-bright">
-              pnpm optimize-images
-            </code>
+            и оптимизированные версии появятся через 2–3 минуты.
           </p>
         </div>
 
@@ -143,11 +111,10 @@ export default async function AdminMediaPage() {
               Изображений пока нет
             </p>
             <p className="mt-2 text-sm text-text-muted/75">
-              Добавьте файлы в public/images/originals/ и запустите скрипт
+              Загрузите первое изображение через кнопку выше
             </p>
           </div>
         ) : (
-          // Передаём данные в клиентский компонент
           <MediaGrid images={images} />
         )}
 

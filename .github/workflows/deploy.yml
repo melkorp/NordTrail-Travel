@@ -32,6 +32,9 @@ jobs:
         env:
           FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+      - name: Optimize images
+        run: node scripts/optimize-images.mjs
+
       - name: Build
         run: pnpm build
         env:
