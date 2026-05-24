@@ -77,8 +77,7 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Футер админки */}
-        <footer className="mt-16 pt-6 border-t border-white/5 text-xs font-heading text-text-muted/60">
+        <footer className="mt-16 pt-6 border-t border-white/5 text-xs font-heading text-text-muted/60 flex justify-between items-center">
           <p>
             Система обновлена • Версия 1.0.0 •{" "}
             <Link
@@ -88,6 +87,12 @@ export default function AdminPage() {
               Вернуться на сайт
             </Link>
           </p>
+          <Link
+            href="/admin/help"
+            className="hover:text-accent-bright transition-colors"
+          >
+            Помощь
+          </Link>
         </footer>
       </div>
     </main>
