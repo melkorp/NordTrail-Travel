@@ -48,13 +48,13 @@ function ConfirmModal({
           <p className="font-mono text-xs text-text-muted/80 leading-relaxed">
             {name}
             <br />
-            {name.replace(/\.[^.]+$/, "").replace(/-(800|1600)$/, "")}-800.webp
+            {name.replace(/-\d+\.(webp|avif)$/, "")}-800.webp
             <br />
-            {name.replace(/\.[^.]+$/, "").replace(/-(800|1600)$/, "")}-1600.webp
+            {name.replace(/-\d+\.(webp|avif)$/, "")}-1600.webp
             <br />
-            {name.replace(/\.[^.]+$/, "").replace(/-(800|1600)$/, "")}-800.avif
+            {name.replace(/-\d+\.(webp|avif)$/, "")}-800.avif
             <br />
-            {name.replace(/\.[^.]+$/, "").replace(/-(800|1600)$/, "")}-1600.avif
+            {name.replace(/-\d+\.(webp|avif)$/, "")}-1600.avif
           </p>
         </div>
 
