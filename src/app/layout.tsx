@@ -58,6 +58,26 @@ export default function RootLayout({
             </Link>
             .
           </p>
+          <div className="mt-2 flex justify-center gap-4">
+            <Link
+              href="/privacy-policy/"
+              className="hover:text-accent-bright transition-colors"
+            >
+              Политика конфиденциальности
+            </Link>
+            <Link
+              href="/terms/"
+              className="hover:text-accent-bright transition-colors"
+            >
+              Условия использования
+            </Link>
+            <Link
+              href="/cookies/"
+              className="hover:text-accent-bright transition-colors"
+            >
+              Cookie
+            </Link>
+          </div>
         </footer>
       </body>
     </html>
