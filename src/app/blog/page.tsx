@@ -87,6 +87,12 @@ const articles = [
     category: "Winter",
     readTime: "9 min",
   },
+  {
+    slug: "alps-ski-resorts",
+    title: "Горные лыжи в Альпах: 5 лучших курортов для зимнего отдыха",
+    category: "Winter",
+    readTime: "9 min",
+  },
 ];
 
 export default function BlogPage() {
@@ -147,44 +153,34 @@ export default function BlogPage() {
           custom={0}
         >
           <Link
-            href="/blog/iceland-budget-2026/"
+            href="/blog/alps-ski-resorts/"
             className="group relative block bg-surface border border-white/5 hover:border-accent-bright/40 transition-all duration-500 rounded-sm overflow-hidden"
           >
             <article className="p-8 md:p-12 flex flex-col md:flex-row gap-8 items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-4 text-xs font-heading uppercase tracking-widest text-accent-calm mb-4">
-                  <span>Luxury</span>
-                  <span
-                    className="w-1 h-1 bg-white/20 rounded-full"
-                    aria-hidden="true"
-                  />
                   <span>Winter</span>
                   <span
                     className="w-1 h-1 bg-white/20 rounded-full"
                     aria-hidden="true"
                   />
-                  <span>12 min read</span>
+                  <span>9 min read</span>
                 </div>
-
                 <h2 className="text-2xl md:text-3xl font-heading text-text mb-4 group-hover:text-accent-bright transition-colors duration-500">
-                  Iceland зимой: северное сияние вне туристических маршрутов
+                  Горные лыжи в Альпах: 5 лучших курортов для зимнего отдыха
                 </h2>
-
                 <p className="text-text-muted leading-relaxed mb-6">
-                  Полный гид по частным локациям, где световое шоу становится
-                  личным опытом, а не массовым зрелищем.
+                  Альпы остаются главным направлением Европы для зимнего отдыха.
+                  Chamonix, Zermatt, St. Anton, Val d&apos;Isère и Courchevel —
+                  пять курортов, которые стоит посетить.
                 </p>
-
-                {/* span вместо <a> — мы уже внутри <Link>, вкладывать ссылку в ссылку нельзя */}
                 <span className="text-sm font-heading text-text/60 group-hover:text-accent-bright transition-colors duration-500 underline decoration-accent-bright/30 underline-offset-4">
                   Читать статью
                 </span>
               </div>
-
-              {/* Плейсхолдер изображения — позже заменить на <Image> */}
               <Image
-                src="/images/optimized/budget-iceland-800.webp"
-                alt="Исландия зимой"
+                src="/images/optimized/alps-ski-800.webp"
+                alt="Горные лыжи в Альпах"
                 width={400}
                 height={300}
                 className="w-full md:w-1/3 aspect-4/3 rounded-sm border border-white/5 object-cover"
