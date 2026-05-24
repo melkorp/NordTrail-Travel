@@ -37,6 +37,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ru" className="bg-bg scroll-smooth">
+      <head>
+        <meta
+          name="google-site-verification"
+          content="yPR572WBTIYrST5_MOVxNekvIknpEGVrGNH3HbD60b0"
+        />
+      </head>
       <body className="antialiased min-h-screen font-body text-text">
         <Navigation />
         <main className="pt-16 md:pt-20">{children}</main>
