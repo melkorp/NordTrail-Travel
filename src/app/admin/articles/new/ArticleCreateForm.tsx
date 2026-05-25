@@ -1,0 +1,743 @@
+// src/app/admin/articles/new/ArticleCreateForm.tsx
+"use client";
+
+// Клиентский компонент — форма создания новой статьи.
+// Поля идентичны ArticleEditForm, но все пустые.
+// Сохранение через POST /api/admin/articles/[slug].
+// После успешного создания — редирект на страницу редактирования.
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { ArticleData } from "@/lib/types";
+
+// ─────────────────────────────────────────────────────────────
+// ТИПЫ
+// ─────────────────────────────────────────────────────────────
+type Section = ArticleData["sections"][number];
+type BudgetRow = ArticleData["budgetTable"][number];
+type FaqItem = ArticleData["faq"][number];
+type SaveStatus = "idle" | "saving" | "success" | "error";
+
+// ─────────────────────────────────────────────────────────────
+// НАЧАЛЬНОЕ СОСТОЯНИЕ — все поля пустые кроме дефолтов
+// ─────────────────────────────────────────────────────────────
+const EMPTY_ARTICLE: ArticleData = {
+  slug: "",
+  title: "",
+  category: "Hiking",
+  readTime: "8 min read",
+  dateIso: new Date().toISOString().split("T")[0], // сегодняшняя дата
+  dateDisplay: "",
+  author: "NordTrail Research Team",
+  image: "",
+  quickAnswer: "",
+  sections: [],
+  budgetTable: [],
+  faq: [],
+  conclusion: "",
+};
+
+// ─────────────────────────────────────────────────────────────
+// СТИЛИ
+// ─────────────────────────────────────────────────────────────
+const inputClass =
+  "w-full rounded-xl border border-text/10 bg-surface/40 px-4 py-2.5 text-sm text-text placeholder-text-muted/50 outline-none transition-all focus:border-accent-bright/50 focus:bg-surface/70";
+
+const textareaClass =
+  "w-full resize-none rounded-xl border border-text/10 bg-surface/40 px-4 py-2.5 text-sm text-text placeholder-text-muted/50 outline-none transition-all focus:border-accent-bright/50 focus:bg-surface/70";
+
+// ─────────────────────────────────────────────────────────────
+// ВСПОМОГАТЕЛЬНЫЕ КОМПОНЕНТЫ
+// ─────────────────────────────────────────────────────────────
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mb-3 text-xs font-medium uppercase tracking-widest text-text-muted">
+      {children}
+    </p>
+  );
+}
+
+function FieldCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-text/8 bg-surface/20 p-5">
+      {children}
+    </div>
+  );
+}
+
+function RemoveButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="ml-2 shrink-0 rounded-lg border border-text/10 p-1.5 text-text-muted transition-all hover:border-red-500/30 hover:text-red-400"
+    >
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path
+          d="M2 2l8 8M10 2l-8 8"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+function CreateButton({ status }: { status: SaveStatus }) {
+  return (
+    <button
+      type="button"
+      disabled={status === "saving"}
+      className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${
+        status === "saving"
+          ? "cursor-wait border border-text/10 bg-surface/30 text-text-muted"
+          : status === "success"
+            ? "border border-accent/30 bg-accent/10 text-accent"
+            : status === "error"
+              ? "border border-red-500/30 bg-red-500/10 text-red-400"
+              : "border border-accent-bright/40 bg-accent-bright/10 text-accent-bright hover:bg-accent-bright/20"
+      }`}
+    >
+      {status === "saving" && "Создание..."}
+      {status === "success" && "✓ Создано"}
+      {status === "error" && "✗ Ошибка"}
+      {status === "idle" && "Создать статью"}
+    </button>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// ГЛАВНЫЙ КОМПОНЕНТ
+// ─────────────────────────────────────────────────────────────
+export default function ArticleCreateForm() {
+  const [form, setForm] = useState<ArticleData>({ ...EMPTY_ARTICLE });
+  const [status, setStatus] = useState<SaveStatus>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const router = useRouter();
+
+  // ─────────────────────────────────────────────────────────
+  // Slug генерируется автоматически из заголовка
+  // "Лучшие треки Norway" → "luchshie-treki-norway"
+  // Пользователь может переопределить вручную
+  // ─────────────────────────────────────────────────────────
+  const [slugManual, setSlugManual] = useState(false);
+
+  function generateSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .replace(/[а-яё]/g, (ch) => {
+        // Транслитерация русских букв
+        const map: Record<string, string> = {
+          а: "a",
+          б: "b",
+          в: "v",
+          г: "g",
+          д: "d",
+          е: "e",
+          ё: "yo",
+          ж: "zh",
+          з: "z",
+          и: "i",
+          й: "y",
+          к: "k",
+          л: "l",
+          м: "m",
+          н: "n",
+          о: "o",
+          п: "p",
+          р: "r",
+          с: "s",
+          т: "t",
+          у: "u",
+          ф: "f",
+          х: "h",
+          ц: "ts",
+          ч: "ch",
+          ш: "sh",
+          щ: "sch",
+          ъ: "",
+          ы: "y",
+          ь: "",
+          э: "e",
+          ю: "yu",
+          я: "ya",
+        };
+        return map[ch] ?? ch;
+      })
+      .replace(/[^a-z0-9]+/g, "-") // спецсимволы → дефис
+      .replace(/^-|-$/g, ""); // дефисы по краям
+  }
+
+  // Обновление простых полей
+  function setField<K extends keyof ArticleData>(
+    key: K,
+    value: ArticleData[K],
+  ) {
+    setForm((prev) => {
+      const next = { ...prev, [key]: value };
+      // Автогенерация slug из title если пользователь не задал вручную
+      if (key === "title" && !slugManual) {
+        next.slug = generateSlug(value as string);
+      }
+      return next;
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // Секции
+  // ─────────────────────────────────────────────────────────
+  function updateSection(index: number, field: keyof Section, value: string) {
+    setForm((prev) => {
+      const sections = [...prev.sections];
+      sections[index] = { ...sections[index], [field]: value };
+      return { ...prev, sections };
+    });
+  }
+
+  function addSection() {
+    setForm((prev) => ({
+      ...prev,
+      sections: [...prev.sections, { heading: "", content: "" }],
+    }));
+  }
+
+  function removeSection(index: number) {
+    setForm((prev) => ({
+      ...prev,
+      sections: prev.sections.filter((_, i) => i !== index),
+    }));
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // Таблица бюджета
+  // ─────────────────────────────────────────────────────────
+  function updateBudgetRow(
+    index: number,
+    field: keyof BudgetRow,
+    value: string,
+  ) {
+    setForm((prev) => {
+      const budgetTable = [...prev.budgetTable];
+      budgetTable[index] = { ...budgetTable[index], [field]: value };
+      return { ...prev, budgetTable };
+    });
+  }
+
+  function addBudgetRow() {
+    setForm((prev) => ({
+      ...prev,
+      budgetTable: [...prev.budgetTable, { item: "", low: "", premium: "" }],
+    }));
+  }
+
+  function removeBudgetRow(index: number) {
+    setForm((prev) => ({
+      ...prev,
+      budgetTable: prev.budgetTable.filter((_, i) => i !== index),
+    }));
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // FAQ
+  // ─────────────────────────────────────────────────────────
+  function updateFaq(index: number, field: keyof FaqItem, value: string) {
+    setForm((prev) => {
+      const faq = [...prev.faq];
+      faq[index] = { ...faq[index], [field]: value };
+      return { ...prev, faq };
+    });
+  }
+
+  function addFaq() {
+    setForm((prev) => ({
+      ...prev,
+      faq: [...prev.faq, { q: "", a: "" }],
+    }));
+  }
+
+  function removeFaq(index: number) {
+    setForm((prev) => ({
+      ...prev,
+      faq: prev.faq.filter((_, i) => i !== index),
+    }));
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // Валидация перед отправкой
+  // ─────────────────────────────────────────────────────────
+  function validate(): string | null {
+    if (!form.slug.trim()) return "Slug не может быть пустым";
+    if (!/^[a-z0-9-]+$/.test(form.slug))
+      return "Slug может содержать только латинские буквы, цифры и дефисы";
+    if (!form.title.trim()) return "Заголовок не может быть пустым";
+    if (!form.quickAnswer.trim()) return "Quick Answer не может быть пустым";
+    if (!form.dateIso) return "Укажите дату публикации";
+    if (!form.dateDisplay.trim()) return "Укажите отображаемую дату";
+    return null;
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // Создание статьи через POST /api/admin/articles/[slug]
+  // ─────────────────────────────────────────────────────────
+  async function handleCreate() {
+    const validationError = validate();
+    if (validationError) {
+      setStatus("error");
+      setErrorMsg(validationError);
+      return;
+    }
+
+    setStatus("saving");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch(`/api/admin/articles/${form.slug}`, {
+        method: "POST", // POST = создание, PUT = обновление
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error ?? `HTTP ${res.status}`);
+      }
+
+      setStatus("success");
+
+      // Редиректим на страницу редактирования созданной статьи
+      setTimeout(() => {
+        router.push(`/admin/articles/${form.slug}/edit`);
+      }, 1000);
+    } catch (err) {
+      setStatus("error");
+      setErrorMsg(err instanceof Error ? err.message : "Неизвестная ошибка");
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // РЕНДЕР
+  // ─────────────────────────────────────────────────────────
+  return (
+    <main className="min-h-screen bg-bg text-text">
+      <div className="mx-auto max-w-4xl px-6 py-12">
+        {/* ── Хлебные крошки ────────────────────────────── */}
+        <nav className="mb-6 flex items-center gap-2 text-xs text-text-muted">
+          <Link href="/admin" className="transition-colors hover:text-primary">
+            Админка
+          </Link>
+          <span>/</span>
+          <Link
+            href="/admin/articles"
+            className="transition-colors hover:text-primary"
+          >
+            Статьи
+          </Link>
+          <span>/</span>
+          <span className="text-text/70">Новая статья</span>
+        </nav>
+
+        {/* ── Шапка ─────────────────────────────────────── */}
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-text">
+              Новая статья
+            </h1>
+            <p className="mt-1 font-mono text-xs text-text-muted">
+              content/blog/
+              <span className="text-accent-bright">
+                {form.slug || "slug"}.mdx
+              </span>
+            </p>
+          </div>
+
+          {/* Кнопка создания — форма submit */}
+          <div onClick={handleCreate}>
+            <CreateButton status={status} />
+          </div>
+        </div>
+
+        {/* Сообщение об ошибке */}
+        {status === "error" && errorMsg && (
+          <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-400">
+            {errorMsg}
+          </div>
+        )}
+
+        {/* Подсказка про slug */}
+        <div className="mb-6 rounded-xl border border-accent-bright/15 bg-accent-bright/5 px-4 py-3">
+          <p className="text-xs text-text-muted">
+            Slug генерируется автоматически из заголовка. После создания статьи
+            slug изменить нельзя — он становится частью URL.
+          </p>
+        </div>
+
+        {/* ── ФОРМА ─────────────────────────────────────── */}
+        <div className="space-y-6">
+          {/* Основные поля */}
+          <FieldCard>
+            <SectionLabel>Основная информация</SectionLabel>
+            <div className="space-y-3">
+              {/* Заголовок — из него генерируется slug */}
+              <div>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Заголовок
+                </label>
+                <input
+                  className={inputClass}
+                  value={form.title}
+                  onChange={(e) => setField("title", e.target.value)}
+                  placeholder="Лучшие треки Norway для самостоятельной экспедиции"
+                  autoFocus
+                />
+              </div>
+
+              {/* Slug — автозаполняется, можно переопределить */}
+              <div>
+                <label className="mb-1.5 flex items-center justify-between text-xs text-text-muted">
+                  <span>Slug (URL)</span>
+                  {/* Переключатель ручного ввода */}
+                  <button
+                    type="button"
+                    onClick={() => setSlugManual((v) => !v)}
+                    className={`text-xs transition-colors ${
+                      slugManual
+                        ? "text-accent-bright"
+                        : "text-text-muted/60 hover:text-text-muted"
+                    }`}
+                  >
+                    {slugManual ? "Автогенерация" : "Редактировать вручную"}
+                  </button>
+                </label>
+                <input
+                  className={`${inputClass} font-mono ${
+                    slugManual ? "" : "opacity-70"
+                  }`}
+                  value={form.slug}
+                  onChange={(e) => {
+                    setSlugManual(true);
+                    // Только безопасные символы
+                    setField(
+                      "slug",
+                      e.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9-]/g, "-")
+                        .replace(/-+/g, "-"),
+                    );
+                  }}
+                  placeholder="norway-hiking-guide"
+                  readOnly={!slugManual}
+                />
+                {/* Превью URL */}
+                {form.slug && (
+                  <p className="mt-1 text-xs text-text-muted/60">
+                    URL: /blog/{form.slug}/
+                  </p>
+                )}
+              </div>
+
+              {/* Категория и время чтения */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-xs text-text-muted">
+                    Категория
+                  </label>
+                  <select
+                    className={inputClass}
+                    value={form.category}
+                    onChange={(e) => setField("category", e.target.value)}
+                  >
+                    {[
+                      "Budget",
+                      "Hiking",
+                      "Luxury",
+                      "Winter",
+                      "Solo Travel",
+                      "Family",
+                    ].map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs text-text-muted">
+                    Время чтения
+                  </label>
+                  <input
+                    className={inputClass}
+                    value={form.readTime}
+                    onChange={(e) => setField("readTime", e.target.value)}
+                    placeholder="8 min read"
+                  />
+                </div>
+              </div>
+
+              {/* Дата ISO и дата отображения */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1.5 block text-xs text-text-muted">
+                    Дата (ISO: YYYY-MM-DD)
+                  </label>
+                  <input
+                    type="date"
+                    className={inputClass}
+                    value={form.dateIso}
+                    onChange={(e) => setField("dateIso", e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs text-text-muted">
+                    Дата (отображение)
+                  </label>
+                  <input
+                    className={inputClass}
+                    value={form.dateDisplay}
+                    onChange={(e) => setField("dateDisplay", e.target.value)}
+                    placeholder="20 мая 2026"
+                  />
+                </div>
+              </div>
+
+              {/* Автор */}
+              <div>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Автор
+                </label>
+                <input
+                  className={inputClass}
+                  value={form.author}
+                  onChange={(e) => setField("author", e.target.value)}
+                  placeholder="NordTrail Research Team"
+                />
+              </div>
+            </div>
+          </FieldCard>
+
+          {/* Quick Answer */}
+          <FieldCard>
+            <SectionLabel>Краткий ответ (Quick Answer)</SectionLabel>
+            <textarea
+              className={textareaClass}
+              rows={4}
+              value={form.quickAnswer}
+              onChange={(e) => setField("quickAnswer", e.target.value)}
+              placeholder="Краткое описание для сниппета в поиске — 2–3 предложения..."
+            />
+          </FieldCard>
+
+          {/* Секции */}
+          <FieldCard>
+            <div className="mb-3 flex items-center justify-between">
+              <SectionLabel>Секции статьи</SectionLabel>
+              <button
+                type="button"
+                onClick={addSection}
+                className="text-xs text-accent-bright transition-colors hover:text-accent-bright/70"
+              >
+                + Добавить секцию
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {form.sections.map((section, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl border border-text/8 bg-bg/40 p-4"
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="text-xs font-medium text-text-muted">
+                      Секция {i + 1}
+                    </span>
+                    <RemoveButton onClick={() => removeSection(i)} />
+                  </div>
+
+                  <input
+                    className={`${inputClass} mb-2`}
+                    value={section.heading}
+                    onChange={(e) =>
+                      updateSection(i, "heading", e.target.value)
+                    }
+                    placeholder="Заголовок секции (H2)"
+                  />
+
+                  <textarea
+                    className={textareaClass}
+                    rows={4}
+                    value={section.content}
+                    onChange={(e) =>
+                      updateSection(i, "content", e.target.value)
+                    }
+                    placeholder="Текст секции..."
+                  />
+                </div>
+              ))}
+
+              {form.sections.length === 0 && (
+                <p className="py-4 text-center text-sm text-text-muted/60">
+                  Нет секций — нажмите «Добавить секцию»
+                </p>
+              )}
+            </div>
+          </FieldCard>
+
+          {/* Таблица бюджета */}
+          <FieldCard>
+            <div className="mb-3 flex items-center justify-between">
+              <SectionLabel>Таблица бюджета</SectionLabel>
+              <button
+                type="button"
+                onClick={addBudgetRow}
+                className="text-xs text-accent-bright transition-colors hover:text-accent-bright/70"
+              >
+                + Добавить строку
+              </button>
+            </div>
+
+            {form.budgetTable.length > 0 && (
+              <div className="mb-2 grid grid-cols-[1fr_1fr_1fr_auto] gap-2 px-1">
+                {["Пункт", "Бюджетно", "Премиум", ""].map((h) => (
+                  <span
+                    key={h}
+                    className="text-xs font-medium uppercase tracking-wide text-text-muted"
+                  >
+                    {h}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              {form.budgetTable.map((row, i) => (
+                <div
+                  key={i}
+                  className="grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-2"
+                >
+                  <input
+                    className={inputClass}
+                    value={row.item}
+                    onChange={(e) => updateBudgetRow(i, "item", e.target.value)}
+                    placeholder="Пункт расходов"
+                  />
+                  <input
+                    className={inputClass}
+                    value={row.low}
+                    onChange={(e) => updateBudgetRow(i, "low", e.target.value)}
+                    placeholder="€100"
+                  />
+                  <input
+                    className={inputClass}
+                    value={row.premium}
+                    onChange={(e) =>
+                      updateBudgetRow(i, "premium", e.target.value)
+                    }
+                    placeholder="€300"
+                  />
+                  <RemoveButton onClick={() => removeBudgetRow(i)} />
+                </div>
+              ))}
+
+              {form.budgetTable.length === 0 && (
+                <p className="py-4 text-center text-sm text-text-muted/60">
+                  Нет строк — нажмите «Добавить строку»
+                </p>
+              )}
+            </div>
+          </FieldCard>
+
+          {/* FAQ */}
+          <FieldCard>
+            <div className="mb-3 flex items-center justify-between">
+              <SectionLabel>FAQ</SectionLabel>
+              <button
+                type="button"
+                onClick={addFaq}
+                className="text-xs text-accent-bright transition-colors hover:text-accent-bright/70"
+              >
+                + Добавить вопрос
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {form.faq.map((item, i) => (
+                <div
+                  key={i}
+                  className="rounded-xl border border-text/8 bg-bg/40 p-4"
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <span className="text-xs font-medium text-text-muted">
+                      Вопрос {i + 1}
+                    </span>
+                    <RemoveButton onClick={() => removeFaq(i)} />
+                  </div>
+
+                  <input
+                    className={`${inputClass} mb-2`}
+                    value={item.q}
+                    onChange={(e) => updateFaq(i, "q", e.target.value)}
+                    placeholder="Вопрос..."
+                  />
+
+                  <textarea
+                    className={textareaClass}
+                    rows={3}
+                    value={item.a}
+                    onChange={(e) => updateFaq(i, "a", e.target.value)}
+                    placeholder="Ответ..."
+                  />
+                </div>
+              ))}
+
+              {form.faq.length === 0 && (
+                <p className="py-4 text-center text-sm text-text-muted/60">
+                  Нет вопросов — нажмите «Добавить вопрос»
+                </p>
+              )}
+            </div>
+          </FieldCard>
+
+          {/* Заключение */}
+          <FieldCard>
+            <SectionLabel>Заключение</SectionLabel>
+            <textarea
+              className={textareaClass}
+              rows={4}
+              value={form.conclusion}
+              onChange={(e) => setField("conclusion", e.target.value)}
+              placeholder="Итоговый абзац статьи..."
+            />
+          </FieldCard>
+
+          {/* Нижняя панель */}
+          <div className="flex items-center justify-between pt-2">
+            <Link
+              href="/admin/articles"
+              className="inline-flex items-center gap-2 text-sm text-text-muted transition-colors hover:text-text"
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path
+                  d="M10 6H2M5 9L2 6l3-3"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Отмена
+            </Link>
+
+            <div onClick={handleCreate}>
+              <CreateButton status={status} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

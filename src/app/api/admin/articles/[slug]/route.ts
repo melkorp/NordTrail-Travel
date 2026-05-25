@@ -1,34 +1,22 @@
 // src/app/api/admin/articles/[slug]/route.ts
 //
-// API route для сохранения статьи через GitHub API.
-// Vercel read-only filesystem — fs.writeFile не работает в продакшене.
-// Решение: коммитим файл напрямую в GitHub репозиторий через REST API.
-// GitHub Actions пересобирает сайт автоматически после коммита.
+// PUT /api/admin/articles/[slug] — обновить существующую статью
+// POST /api/admin/articles/[slug] — создать новую статью
+// Оба метода коммитят MDX-файл в GitHub.
 
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import matter from "gray-matter";
 import type { ArticleData } from "@/lib/types";
 
-// ─────────────────────────────────────────────────────────────
-// Конфиг из env — добавь в Vercel Dashboard → Settings → Env
-// GITHUB_TOKEN      — Personal Access Token с правом repo
-// GITHUB_REPO_OWNER — логин владельца: "melkorp"
-// GITHUB_REPO_NAME  — имя репозитория: "NordTrail-Travel"
-// GITHUB_BRANCH     — ветка: "main"
-// ─────────────────────────────────────────────────────────────
 const GH_TOKEN = process.env.GITHUB_TOKEN!;
 const GH_OWNER = process.env.GITHUB_REPO_OWNER!;
 const GH_REPO = process.env.GITHUB_REPO_NAME!;
 const GH_BRANCH = process.env.GITHUB_BRANCH ?? "main";
-
-// Базовый URL GitHub Contents API
 const GH_API = "https://api.github.com";
 
 // ─────────────────────────────────────────────────────────────
-// Получить текущий файл из GitHub
-// Возвращает { content: string (base64), sha: string }
-// sha нужен для обновления — GitHub требует его при PUT
+// Получить файл из GitHub
 // ─────────────────────────────────────────────────────────────
 async function getFileFromGitHub(
   filePath: string,
@@ -41,7 +29,6 @@ async function getFileFromGitHub(
       Accept: "application/vnd.github+json",
       "X-GitHub-Api-Version": "2022-11-28",
     },
-    // Не кэшируем — всегда берём актуальную версию
     cache: "no-store",
   });
 
@@ -54,27 +41,16 @@ async function getFileFromGitHub(
 
 // ─────────────────────────────────────────────────────────────
 // Закоммитить файл в GitHub
-// Если sha передан — обновляем существующий файл
-// Если sha не передан — создаём новый
+// sha передаём при обновлении, не передаём при создании
 // ─────────────────────────────────────────────────────────────
 async function commitFileToGitHub(
   filePath: string,
-  content: string, // обычная строка, не base64
+  content: string,
   message: string,
   sha?: string,
 ): Promise<void> {
   const url = `${GH_API}/repos/${GH_OWNER}/${GH_REPO}/contents/${filePath}`;
-
-  // GitHub API принимает контент только в base64
   const contentBase64 = Buffer.from(content, "utf-8").toString("base64");
-
-  const body = {
-    message,
-    content: contentBase64,
-    branch: GH_BRANCH,
-    // sha обязателен при обновлении существующего файла
-    ...(sha ? { sha } : {}),
-  };
 
   const res = await fetch(url, {
     method: "PUT",
@@ -84,7 +60,12 @@ async function commitFileToGitHub(
       "X-GitHub-Api-Version": "2022-11-28",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      message,
+      content: contentBase64,
+      branch: GH_BRANCH,
+      ...(sha ? { sha } : {}),
+    }),
   });
 
   if (!res.ok) {
@@ -96,97 +77,156 @@ async function commitFileToGitHub(
 }
 
 // ─────────────────────────────────────────────────────────────
-// PUT /api/admin/articles/[slug]
+// Собрать MDX-файл из ArticleData
+// Общая утилита для PUT и POST
 // ─────────────────────────────────────────────────────────────
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> },
-) {
-  // Проверяем авторизацию
+function buildMdxContent(body: ArticleData, markdownBody = ""): string {
+  return matter.stringify(markdownBody, {
+    slug: body.slug,
+    title: body.title,
+    category: body.category,
+    readTime: body.readTime,
+    dateIso: body.dateIso,
+    dateDisplay: body.dateDisplay,
+    author: body.author,
+    ...(body.image ? { image: body.image } : {}),
+    quickAnswer: body.quickAnswer,
+    sections: body.sections,
+    budgetTable: body.budgetTable,
+    faq: body.faq,
+    conclusion: body.conclusion,
+  });
+}
+
+// ─────────────────────────────────────────────────────────────
+// Проверка авторизации и env — общая для обоих методов
+// ─────────────────────────────────────────────────────────────
+async function checkAuth(): Promise<NextResponse | null> {
   const session = await getServerSession();
   if (!session) {
     return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
   }
-
-  // Проверяем наличие обязательных env-переменных
   if (!GH_TOKEN || !GH_OWNER || !GH_REPO) {
-    console.error("[CMS] Отсутствуют env-переменные GitHub");
     return NextResponse.json(
       { error: "Сервер не настроен: отсутствуют GitHub credentials" },
       { status: 500 },
     );
   }
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────
+// PUT — обновить существующую статью
+// ─────────────────────────────────────────────────────────────
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  const authError = await checkAuth();
+  if (authError) return authError;
 
   const { slug } = await params;
-
-  // Путь к файлу в репозитории (относительно корня)
   const filePath = `content/blog/${slug}.mdx`;
 
   try {
-    // Читаем тело запроса — новые данные статьи
     const body: ArticleData = await request.json();
 
-    // Получаем текущий файл из GitHub чтобы:
-    // 1. Сохранить markdown-часть (content после frontmatter)
-    // 2. Получить sha для обновления
+    // Получаем существующий файл — он должен существовать для PUT
     const existing = await getFileFromGitHub(filePath);
-
     if (!existing) {
       return NextResponse.json(
-        { error: `Файл ${filePath} не найден в репозитории` },
+        { error: `Файл ${filePath} не найден. Используйте POST для создания.` },
         { status: 404 },
       );
     }
 
-    // Декодируем base64 → строка → парсим через gray-matter
-    // Нам нужен только content (markdown после ---)
+    // Сохраняем markdown-часть существующего файла
     const rawContent = Buffer.from(
-      // GitHub возвращает base64 с переносами строк — убираем их
       existing.content.replace(/\n/g, ""),
       "base64",
     ).toString("utf-8");
-
     const { content: markdownBody } = matter(rawContent);
 
-    // Собираем новый MDX-файл:
-    // frontmatter из тела запроса + старый markdown
-    const newFileContent = matter.stringify(
-      markdownBody, // markdown-часть не трогаем
-      {
-        slug: body.slug,
-        title: body.title,
-        category: body.category,
-        readTime: body.readTime,
-        dateIso: body.dateIso,
-        dateDisplay: body.dateDisplay,
-        author: body.author,
-        // image опциональный — добавляем только если есть
-        ...(body.image ? { image: body.image } : {}),
-        quickAnswer: body.quickAnswer,
-        sections: body.sections,
-        budgetTable: body.budgetTable,
-        faq: body.faq,
-        conclusion: body.conclusion,
-      },
-    );
+    const newFileContent = buildMdxContent(body, markdownBody);
 
-    // Коммитим обновлённый файл в GitHub
     await commitFileToGitHub(
       filePath,
       newFileContent,
       `cms: обновление статьи "${body.title}"`,
-      existing.sha, // sha существующего файла — обязателен для обновления
+      existing.sha,
     );
 
-    console.log(`[CMS] Статья закоммичена в GitHub: ${filePath}`);
-
+    console.log(`[CMS] Статья обновлена: ${filePath}`);
     return NextResponse.json({ ok: true, slug });
   } catch (err) {
-    console.error(`[CMS] Ошибка сохранения ${slug}:`, err);
+    console.error(`[CMS] Ошибка обновления ${slug}:`, err);
     return NextResponse.json(
-      {
-        error: err instanceof Error ? err.message : "Неизвестная ошибка",
-      },
+      { error: err instanceof Error ? err.message : "Неизвестная ошибка" },
+      { status: 500 },
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// POST — создать новую статью
+// Возвращает 409 если файл уже существует
+// ─────────────────────────────────────────────────────────────
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ slug: string }> },
+) {
+  const authError = await checkAuth();
+  if (authError) return authError;
+
+  const { slug } = await params;
+  const filePath = `content/blog/${slug}.mdx`;
+
+  try {
+    const body: ArticleData = await request.json();
+
+    // Базовая валидация
+    if (!body.slug?.trim()) {
+      return NextResponse.json(
+        { error: "Slug не может быть пустым" },
+        { status: 400 },
+      );
+    }
+
+    if (!body.title?.trim()) {
+      return NextResponse.json(
+        { error: "Заголовок не может быть пустым" },
+        { status: 400 },
+      );
+    }
+
+    // Проверяем — файл не должен существовать
+    const existing = await getFileFromGitHub(filePath);
+    if (existing) {
+      return NextResponse.json(
+        {
+          error: `Статья со slug "${slug}" уже существует. Используйте PUT для обновления.`,
+        },
+        { status: 409 }, // 409 Conflict
+      );
+    }
+
+    // Создаём новый MDX-файл с пустым markdown-телом
+    // (весь контент в frontmatter — как у существующих статей)
+    const newFileContent = buildMdxContent(body, "");
+
+    // sha не передаём — GitHub создаст новый файл
+    await commitFileToGitHub(
+      filePath,
+      newFileContent,
+      `cms: создание статьи "${body.title}"`,
+    );
+
+    console.log(`[CMS] Статья создана: ${filePath}`);
+    return NextResponse.json({ ok: true, slug }, { status: 201 });
+  } catch (err) {
+    console.error(`[CMS] Ошибка создания ${slug}:`, err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Неизвестная ошибка" },
       { status: 500 },
     );
   }
