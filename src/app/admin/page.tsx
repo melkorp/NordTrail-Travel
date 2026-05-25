@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, Map, Image, ArrowUpRight } from "lucide-react";
+import { FileText, Map, Image, Settings, ArrowUpRight } from "lucide-react";
 
 // Конфигурация разделов админки
 const adminSections = [
@@ -23,6 +23,12 @@ const adminSections = [
     description: "Библиотека изображений, оптимизация и управление обложками",
     href: "/admin/media",
     icon: Image,
+  },
+  {
+    title: "Настройки",
+    description: "Редактирование названия, описания, цветовой схемы и пароля",
+    href: "/admin/settings",
+    icon: Settings,
   },
 ];
 

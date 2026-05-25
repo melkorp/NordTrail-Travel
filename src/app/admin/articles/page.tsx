@@ -104,6 +104,8 @@ export default async function AdminArticlesPage() {
             </svg>
             Новая статья
           </Link>
+
+          
         </div>
 
         {/* ── Хлебные крошки ──────────────────────────────── */}
