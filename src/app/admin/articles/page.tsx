@@ -90,13 +90,10 @@ export default async function AdminArticlesPage() {
             </p>
           </div>
 
-          {/* Кнопка новой статьи — пока заглушка */}
-          <button
-            disabled
-            title="В разработке"
-            className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl border border-accent-bright/30 bg-accent-bright/8 px-4 py-2.5 text-sm font-medium text-accent-bright opacity-50 transition-all"
+          <Link
+            href="/admin/articles/new"
+            className="inline-flex items-center gap-2 rounded-xl border border-accent-bright/30 bg-accent-bright/8 px-4 py-2.5 text-sm font-medium text-accent-bright transition-all hover:border-accent-bright/50 hover:bg-accent-bright/15"
           >
-            {/* Плюс */}
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path
                 d="M7 1v12M1 7h12"
@@ -106,7 +103,7 @@ export default async function AdminArticlesPage() {
               />
             </svg>
             Новая статья
-          </button>
+          </Link>
         </div>
 
         {/* ── Хлебные крошки ──────────────────────────────── */}
