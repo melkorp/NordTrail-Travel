@@ -51,7 +51,7 @@ function buildGoogleFontsUrl(heading: string, body: string): string {
   // Уникальные шрифты — heading и body могут совпадать
   const fonts = [...new Set([heading, body])];
   const families = fonts
-    .map((f) => `family=${f.replace(/ /g, "+")}:wght@400;500;600;700`)
+    .map((f) => `family=${f.replaceAll(" ", "+")}:wght@400;500;600;700`)
     .join("&");
   return `https://fonts.googleapis.com/css2?${families}&display=swap`;
 }
@@ -61,9 +61,9 @@ function buildGoogleFontsUrl(heading: string, body: string): string {
 // ─────────────────────────────────────────────────────────────
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   const settings = getSettings();
 
   const { accentColor, fontHeading, fontBody, fontSizeBase } = settings.theme;

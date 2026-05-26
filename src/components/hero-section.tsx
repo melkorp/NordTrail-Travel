@@ -21,7 +21,9 @@ interface HeroSectionProps {
   variant?: "calm" | "accent";
 }
 
-export default function HeroSection({ variant = "calm" }: HeroSectionProps) {
+export default function HeroSection({
+  variant = "calm",
+}: Readonly<HeroSectionProps>) {
   const isAccent = variant === "accent";
 
   return (

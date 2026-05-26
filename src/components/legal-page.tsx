@@ -7,7 +7,10 @@ interface LegalPageProps {
   children: React.ReactNode;
 }
 
-export default function LegalPage({ title, children }: LegalPageProps) {
+export default function LegalPage({
+  title,
+  children,
+}: Readonly<LegalPageProps>) {
   return (
     <article className="min-h-screen bg-bg text-text font-body antialiased selection:bg-accent-bright selection:text-bg">
       {/* Центрированный узкий контейнер для комфортного чтения юридических текстов */}
