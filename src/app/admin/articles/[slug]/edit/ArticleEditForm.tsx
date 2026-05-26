@@ -359,6 +359,25 @@ export default function ArticleEditForm({
                   placeholder="NordTrail Research Team"
                 />
               </div>
+
+              {/* Обложка статьи — добавить сюда ↓ */}
+              <div>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Обложка статьи (URL)
+                </label>
+                <input
+                  className={inputClass}
+                  value={form.image ?? ""}
+                  onChange={(e) => setField("image", e.target.value)}
+                  placeholder="/images/optimized/hero-bg-800.webp"
+                />
+                {/* Превью если URL задан */}
+                {form.image && (
+                  <p className="mt-1 truncate font-mono text-xs text-text-muted/60">
+                    {form.image}
+                  </p>
+                )}
+              </div>
             </div>
           </FieldCard>
 
@@ -376,11 +395,20 @@ export default function ArticleEditForm({
 
           {/* Секции статьи */}
           <FieldCard>
+            {/* Было: SectionLabel и кнопка внутри одного flex-div —
+                браузер иногда блокирует клик на кнопку рядом с <p>.
+                Исправление: кнопка в отдельном div над списком секций */}
             <div className="mb-3 flex items-center justify-between">
-              <SectionLabel>Секции статьи</SectionLabel>
+              {/* SectionLabel возвращает <p> — выносим текст напрямую */}
+              <p className="text-xs font-medium uppercase tracking-widest text-text-muted">
+                Секции статьи
+              </p>
               <button
                 type="button"
-                onClick={addSection}
+                onClick={(e) => {
+                  e.preventDefault(); // на всякий случай блокируем сплытие
+                  addSection();
+                }}
                 className="text-xs text-accent-bright transition-colors hover:text-accent-bright/70"
               >
                 + Добавить секцию
@@ -393,7 +421,6 @@ export default function ArticleEditForm({
                   key={i}
                   className="rounded-xl border border-text/8 bg-bg/40 p-4"
                 >
-                  {/* Номер секции */}
                   <div className="mb-3 flex items-center justify-between">
                     <span className="text-xs font-medium text-text-muted">
                       Секция {i + 1}
@@ -401,7 +428,6 @@ export default function ArticleEditForm({
                     <RemoveButton onClick={() => removeSection(i)} />
                   </div>
 
-                  {/* Заголовок секции */}
                   <input
                     className={`${inputClass} mb-2`}
                     value={section.heading}
@@ -411,7 +437,6 @@ export default function ArticleEditForm({
                     placeholder="Заголовок секции (H2)"
                   />
 
-                  {/* Текст секции */}
                   <textarea
                     className={textareaClass}
                     rows={4}
@@ -424,7 +449,6 @@ export default function ArticleEditForm({
                 </div>
               ))}
 
-              {/* Подсказка если секций нет */}
               {form.sections.length === 0 && (
                 <p className="py-4 text-center text-sm text-text-muted/60">
                   Нет секций — нажмите «Добавить секцию»
