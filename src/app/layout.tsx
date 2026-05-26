@@ -9,7 +9,7 @@ import "./globals.css";
 import Navigation from "../components/navigation";
 import Link from "next/link";
 import { getSettings } from "@/lib/settings";
-
+import CookieConsent from "../components/CookieConsent";
 // ─────────────────────────────────────────────────────────────
 // generateMetadata
 // ─────────────────────────────────────────────────────────────
@@ -144,6 +144,7 @@ export default function RootLayout({
             </Link>
           </div>
         </footer>
+        <CookieConsent />
       </body>
     </html>
   );
