@@ -1,8 +1,8 @@
 // src/app/layout.tsx
 //
 // Корневой layout — читает настройки из content/settings.json.
-// metadata генерируется динамически через generateMetadata.
-// accentColor передаётся как CSS-переменная --color-accent-bright.
+// Шрифты подгружаются из Google Fonts через <link> в <head>.
+// CSS-переменные применяются через инлайновый <style>.
 
 import type { Metadata } from "next";
 import "./globals.css";
@@ -11,13 +11,10 @@ import Link from "next/link";
 import { getSettings } from "@/lib/settings";
 
 // ─────────────────────────────────────────────────────────────
-// generateMetadata — динамические метаданные из settings.json
-// Вызывается при каждой сборке страницы на сервере
+// generateMetadata
 // ─────────────────────────────────────────────────────────────
 export async function generateMetadata(): Promise<Metadata> {
-  // Читаем настройки — синхронно внутри, но обёртка async для Next.js
   const settings = getSettings();
-
   const { title, description } = settings.site;
 
   return {
@@ -47,6 +44,19 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Строим URL для Google Fonts
+// Один запрос на оба шрифта — быстрее чем два отдельных
+// ─────────────────────────────────────────────────────────────
+function buildGoogleFontsUrl(heading: string, body: string): string {
+  // Уникальные шрифты — heading и body могут совпадать
+  const fonts = [...new Set([heading, body])];
+  const families = fonts
+    .map((f) => `family=${f.replace(/ /g, "+")}:wght@400;500;600;700`)
+    .join("&");
+  return `https://fonts.googleapis.com/css2?${families}&display=swap`;
+}
+
+// ─────────────────────────────────────────────────────────────
 // ROOT LAYOUT
 // ─────────────────────────────────────────────────────────────
 export default function RootLayout({
@@ -54,17 +64,24 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Читаем настройки для CSS-переменной и футера
-  // Синхронный вызов — layout не может быть async в Next.js 15
-  // при использовании generateMetadata в том же файле
   const settings = getSettings();
 
-  // accentColor из settings.json → CSS-переменная
-  // Переопределяет значение из globals.css только если задано в настройках
-  const accentColor = settings.theme.accentColor;
-
-  // Текст футера — из settings.json или дефолт
+  const { accentColor, fontHeading, fontBody, fontSizeBase } = settings.theme;
   const footerText = settings.footer.text;
+
+  // URL для Google Fonts — подгружаем оба шрифта одним запросом
+  const googleFontsUrl = buildGoogleFontsUrl(fontHeading, fontBody);
+
+  // CSS-переменные для всего сайта — переопределяют globals.css
+  const cssVars = `
+    :root {
+      --color-accent-bright: ${accentColor};
+      --font-heading: "${fontHeading}", sans-serif;
+      --font-body: "${fontBody}", serif;
+      --font-size-base: ${fontSizeBase};
+    }
+    html { font-size: ${fontSizeBase}; }
+  `.trim();
 
   return (
     <html lang="ru" className="bg-bg scroll-smooth">
@@ -74,21 +91,26 @@ export default function RootLayout({
           content="yPR572WBTIYrST5_MOVxNekvIknpEGVrGNH3HbD60b0"
         />
 
-        {/* CSS-переменная цвета акцента из settings.json
-            Инлайновый стиль перекрывает значение из globals.css
-            Работает без перезагрузки страницы после смены темы */}
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `:root { --color-accent-bright: ${accentColor}; }`,
-          }}
+        {/* Preconnect ускоряет загрузку Google Fonts */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
         />
+
+        {/* Шрифты из Google Fonts — подгружаются автоматически при смене */}
+        <link rel="stylesheet" href={googleFontsUrl} />
+
+        {/* CSS-переменные: акцент, шрифты, базовый размер */}
+        <style dangerouslySetInnerHTML={{ __html: cssVars }} />
       </head>
       <body className="antialiased min-h-screen font-body text-text">
         <Navigation />
 
         <main className="pt-16 md:pt-20">{children}</main>
 
-        {/* ── Футер — текст из settings.json ──────────────── */}
+        {/* ── Футер ───────────────────────────────────────── */}
         <footer className="border-t border-white/5 py-6 text-center text-xs text-text-muted">
           <p>
             {footerText}{" "}
@@ -101,7 +123,6 @@ export default function RootLayout({
             .
           </p>
 
-          {/* Навигация в футере — остаётся статической */}
           <div className="mt-2 flex justify-center gap-4">
             <Link
               href="/privacy-policy/"

@@ -5,7 +5,7 @@
 
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import type { SiteSettings } from "@/app/admin/settings/page";
+import type { SiteSettings } from "@/lib/settings";
 
 const GH_TOKEN = process.env.GITHUB_TOKEN!;
 const GH_OWNER = process.env.GITHUB_REPO_OWNER!;

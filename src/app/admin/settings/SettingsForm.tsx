@@ -1,23 +1,58 @@
 // src/app/admin/settings/SettingsForm.tsx
 "use client";
 
-// Клиентский компонент — форма редактирования настроек сайта.
-// Сохранение через PUT /api/admin/settings.
-
 import { useState } from "react";
 import Link from "next/link";
-import type { SiteSettings } from "./page";
+import type { SiteSettings } from "@/lib/settings";
 
 type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 // ─────────────────────────────────────────────────────────────
-// ПЕРЕИСПОЛЬЗУЕМЫЕ СТИЛИ
+// ВАРИАНТЫ ШРИФТОВ
+// ─────────────────────────────────────────────────────────────
+const HEADING_FONTS = [
+  { value: "Inter", label: "Inter" },
+  { value: "Manrope", label: "Manrope" },
+  { value: "Playfair Display", label: "Playfair Display" },
+  { value: "Cormorant Garamond", label: "Cormorant Garamond" },
+];
+
+const BODY_FONTS = [
+  { value: "Inter", label: "Inter" },
+  { value: "Lora", label: "Lora" },
+  { value: "Source Serif Pro", label: "Source Serif Pro" },
+  { value: "Libre Baskerville", label: "Libre Baskerville" },
+];
+
+const FONT_SIZES = [
+  { value: "14px", label: "14px — компактный" },
+  { value: "16px", label: "16px — стандарт" },
+  { value: "18px", label: "18px — крупный" },
+];
+
+// ─────────────────────────────────────────────────────────────
+// Строим URL для Google Fonts из выбранных шрифтов
+// ─────────────────────────────────────────────────────────────
+function buildGoogleFontsUrl(heading: string, body: string): string {
+  // Собираем уникальные шрифты (heading и body могут совпадать)
+  const fonts = [...new Set([heading, body])];
+  const families = fonts
+    .map((f) => `family=${f.replace(/ /g, "+")}:wght@400;500;600;700`)
+    .join("&");
+  return `https://fonts.googleapis.com/css2?${families}&display=swap`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// СТИЛИ
 // ─────────────────────────────────────────────────────────────
 const inputClass =
   "w-full rounded-xl border border-text/10 bg-surface/40 px-4 py-2.5 text-sm text-text placeholder-text-muted/50 outline-none transition-all focus:border-accent-bright/50 focus:bg-surface/70";
 
 const textareaClass =
   "w-full resize-none rounded-xl border border-text/10 bg-surface/40 px-4 py-2.5 text-sm text-text placeholder-text-muted/50 outline-none transition-all focus:border-accent-bright/50 focus:bg-surface/70";
+
+const selectClass =
+  "w-full rounded-xl border border-text/10 bg-surface/40 px-4 py-2.5 text-sm text-text outline-none transition-all focus:border-accent-bright/50 focus:bg-surface/70 cursor-pointer";
 
 // ─────────────────────────────────────────────────────────────
 // ВСПОМОГАТЕЛЬНЫЕ КОМПОНЕНТЫ
@@ -56,7 +91,6 @@ function FieldRow({
   );
 }
 
-// Кнопка сохранения — переиспользуется вверху и внизу
 function SaveButton({
   status,
   onClick,
@@ -92,53 +126,36 @@ function SaveButton({
 // ГЛАВНЫЙ КОМПОНЕНТ
 // ─────────────────────────────────────────────────────────────
 export default function SettingsForm({ settings }: { settings: SiteSettings }) {
-  // Состояние формы — глубокая копия настроек
   const [form, setForm] = useState<SiteSettings>(
     JSON.parse(JSON.stringify(settings)),
   );
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [errorMsg, setErrorMsg] = useState("");
-
-  // Показывать ли пароль открытым текстом
   const [showPassword, setShowPassword] = useState(false);
 
-  // ─────────────────────────────────────────────────────────
-  // Обновление вложенных полей
-  // setNested("site", "title", "NordTrail") → form.site.title = "NordTrail"
-  // ─────────────────────────────────────────────────────────
-  // Обновление вложенных полей
   function setNested<
     S extends keyof SiteSettings,
     F extends keyof SiteSettings[S],
   >(section: S, field: F, value: SiteSettings[S][F]) {
     setForm((prev) => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: value,
-      },
+      [section]: { ...prev[section], [field]: value },
     }));
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Сохранение через API route
-  // ─────────────────────────────────────────────────────────
   async function handleSave() {
     setStatus("saving");
     setErrorMsg("");
-
     try {
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
-
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error ?? `HTTP ${res.status}`);
       }
-
       setStatus("saved");
       setTimeout(() => setStatus("idle"), 3000);
     } catch (err) {
@@ -147,12 +164,18 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
     }
   }
 
-  // ─────────────────────────────────────────────────────────
-  // РЕНДЕР
-  // ─────────────────────────────────────────────────────────
+  // Превью шрифта — показываем прямо в форме через Google Fonts
+  const previewFontUrl = buildGoogleFontsUrl(
+    form.theme.fontHeading,
+    form.theme.fontBody,
+  );
+
   return (
     <div>
-      {/* ── Шапка с кнопкой сохранения ──────────────────── */}
+      {/* Подгружаем шрифты для превью в форме */}
+      <link rel="stylesheet" href={previewFontUrl} />
+
+      {/* ── Шапка ───────────────────────────────────────── */}
       <div className="mb-6 flex items-center justify-between">
         <p className="text-sm text-text-muted">
           Все поля обязательны, кроме пароля
@@ -160,7 +183,6 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
         <SaveButton status={status} onClick={handleSave} />
       </div>
 
-      {/* Сообщение об ошибке */}
       {status === "error" && errorMsg && (
         <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-400">
           {errorMsg}
@@ -204,7 +226,6 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
         {/* ── Подвал ──────────────────────────────────────── */}
         <FieldCard>
           <SectionLabel>Подвал (Footer)</SectionLabel>
-
           <FieldRow
             label="Текст подвала"
             hint="Копирайт и дополнительная информация"
@@ -222,14 +243,13 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
         {/* ── Тема оформления ─────────────────────────────── */}
         <FieldCard>
           <SectionLabel>Тема оформления</SectionLabel>
-
-          <FieldRow
-            label="Цвет акцента"
-            hint="HEX-код основного акцентного цвета (золото по умолчанию)"
-          >
-            <div className="flex items-center gap-3">
-              {/* Цветовой пикер */}
-              <div className="relative">
+          <div className="space-y-4">
+            {/* Цвет акцента */}
+            <FieldRow
+              label="Цвет акцента"
+              hint="HEX-код основного акцентного цвета (золото по умолчанию)"
+            >
+              <div className="flex items-center gap-3">
                 <input
                   type="color"
                   value={form.theme.accentColor}
@@ -239,72 +259,180 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
                   className="h-10 w-10 cursor-pointer rounded-xl border border-text/10 bg-transparent p-0.5 outline-none"
                   title="Выбрать цвет"
                 />
+                <input
+                  className={`${inputClass} font-mono uppercase`}
+                  value={form.theme.accentColor}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
+                      setNested("theme", "accentColor", val);
+                    }
+                  }}
+                  placeholder="#D4AF37"
+                  maxLength={7}
+                />
+                <div
+                  className="h-10 w-10 shrink-0 rounded-xl border border-text/10"
+                  style={{ backgroundColor: form.theme.accentColor }}
+                  title={form.theme.accentColor}
+                />
               </div>
 
-              {/* HEX-поле рядом с пикером */}
-              <input
-                className={`${inputClass} font-mono uppercase`}
-                value={form.theme.accentColor}
-                onChange={(e) => {
-                  // Принимаем только валидный HEX — # + 6 символов
-                  const val = e.target.value;
-                  if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
-                    setNested("theme", "accentColor", val);
-                  }
+              {/* Предустановленные цвета */}
+              <div className="mt-3">
+                <p className="mb-2 text-xs text-text-muted/60">
+                  Предустановленные:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { label: "Золото", value: "#D4AF37" },
+                    { label: "Синий", value: "#4DA8FF" },
+                    { label: "Мята", value: "#8FFFD1" },
+                    { label: "Коралл", value: "#FF6B6B" },
+                    { label: "Аметист", value: "#9B59B6" },
+                    { label: "Серебро", value: "#BDC3C7" },
+                  ].map((preset) => (
+                    <button
+                      key={preset.value}
+                      onClick={() =>
+                        setNested("theme", "accentColor", preset.value)
+                      }
+                      className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs transition-all ${
+                        form.theme.accentColor === preset.value
+                          ? "border-accent-bright/40 bg-accent-bright/10 text-accent-bright"
+                          : "border-text/10 text-text-muted hover:border-text/20 hover:text-text"
+                      }`}
+                    >
+                      <span
+                        className="h-3 w-3 rounded-full"
+                        style={{ backgroundColor: preset.value }}
+                      />
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </FieldRow>
+          </div>
+        </FieldCard>
+
+        {/* ── Типографика ─────────────────────────────────── */}
+        <FieldCard>
+          <SectionLabel>Типографика</SectionLabel>
+          <div className="space-y-4">
+            {/* Шрифт заголовков */}
+            <FieldRow
+              label="Шрифт заголовков"
+              hint="Применяется к H1–H4 и навигации"
+            >
+              <select
+                className={selectClass}
+                value={form.theme.fontHeading}
+                onChange={(e) =>
+                  setNested("theme", "fontHeading", e.target.value)
+                }
+              >
+                {HEADING_FONTS.map((f) => (
+                  <option key={f.value} value={f.value}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+
+              {/* Превью шрифта заголовков */}
+              <p
+                className="mt-2 text-lg text-text/80"
+                style={{
+                  fontFamily: `"${form.theme.fontHeading}", sans-serif`,
                 }}
-                placeholder="#D4AF37"
-                maxLength={7}
-              />
-
-              {/* Превью цвета */}
-              <div
-                className="h-10 w-10 shrink-0 rounded-xl border border-text/10"
-                style={{ backgroundColor: form.theme.accentColor }}
-                title={form.theme.accentColor}
-              />
-            </div>
-
-            {/* Предустановленные цвета */}
-            <div className="mt-3">
-              <p className="mb-2 text-xs text-text-muted/60">
-                Предустановленные:
+              >
+                Северные экспедиции — NordTrail Travel
               </p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { label: "Золото", value: "#D4AF37" },
-                  { label: "Синий", value: "#4DA8FF" },
-                  { label: "Мята", value: "#8FFFD1" },
-                  { label: "Коралл", value: "#FF6B6B" },
-                  { label: "Аметист", value: "#9B59B6" },
-                  { label: "Серебро", value: "#BDC3C7" },
-                ].map((preset) => (
+            </FieldRow>
+
+            {/* Шрифт текста */}
+            <FieldRow
+              label="Шрифт текста"
+              hint="Применяется к основному тексту, параграфам, описаниям"
+            >
+              <select
+                className={selectClass}
+                value={form.theme.fontBody}
+                onChange={(e) => setNested("theme", "fontBody", e.target.value)}
+              >
+                {BODY_FONTS.map((f) => (
+                  <option key={f.value} value={f.value}>
+                    {f.label}
+                  </option>
+                ))}
+              </select>
+
+              {/* Превью шрифта текста */}
+              <p
+                className="mt-2 text-sm text-text-muted leading-relaxed"
+                style={{ fontFamily: `"${form.theme.fontBody}", serif` }}
+              >
+                Фьорды, ледники, арктические острова и горные маршруты формируют
+                путешествие уровня полноценной экспедиции.
+              </p>
+            </FieldRow>
+
+            {/* Базовый размер шрифта */}
+            <FieldRow
+              label="Базовый размер шрифта"
+              hint="Влияет на масштаб всего текста на сайте"
+            >
+              <div className="flex gap-3">
+                {FONT_SIZES.map((size) => (
                   <button
-                    key={preset.value}
+                    key={size.value}
+                    type="button"
                     onClick={() =>
-                      setNested("theme", "accentColor", preset.value)
+                      setNested("theme", "fontSizeBase", size.value)
                     }
-                    className={`flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs transition-all ${
-                      form.theme.accentColor === preset.value
+                    className={`flex-1 rounded-xl border py-2.5 text-xs font-medium transition-all ${
+                      form.theme.fontSizeBase === size.value
                         ? "border-accent-bright/40 bg-accent-bright/10 text-accent-bright"
-                        : "border-text/10 text-text-muted hover:border-text/20 hover:text-text"
+                        : "border-text/10 bg-text/5 text-text-muted hover:border-text/20 hover:text-text"
                     }`}
                   >
-                    <span
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: preset.value }}
-                    />
-                    {preset.label}
+                    {size.label}
                   </button>
                 ))}
               </div>
+            </FieldRow>
+
+            {/* Общее превью типографики */}
+            <div className="rounded-xl border border-text/8 bg-bg/40 p-4">
+              <p className="mb-2 text-xs text-text-muted/60">
+                Превью комбинации шрифтов:
+              </p>
+              <p
+                className="text-xl font-bold text-text"
+                style={{
+                  fontFamily: `"${form.theme.fontHeading}", sans-serif`,
+                  fontSize: `calc(${form.theme.fontSizeBase} * 1.25)`,
+                }}
+              >
+                Заголовок статьи
+              </p>
+              <p
+                className="mt-1 text-text-muted leading-relaxed"
+                style={{
+                  fontFamily: `"${form.theme.fontBody}", serif`,
+                  fontSize: form.theme.fontSizeBase,
+                }}
+              >
+                Основной текст статьи — описание маршрута, советы, практическая
+                информация для путешественника.
+              </p>
             </div>
-          </FieldRow>
+          </div>
         </FieldCard>
 
-        {/* ── Настройки безопасности ──────────────────────── */}
+        {/* ── Безопасность ────────────────────────────────── */}
         <FieldCard>
           <SectionLabel>Безопасность</SectionLabel>
-
           <FieldRow
             label="Пароль администратора"
             hint="Оставьте пустым чтобы не менять текущий пароль"
@@ -318,8 +446,6 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
                 placeholder="Новый пароль"
                 autoComplete="new-password"
               />
-
-              {/* Кнопка показать/скрыть пароль */}
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
@@ -327,7 +453,6 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
                 title={showPassword ? "Скрыть пароль" : "Показать пароль"}
               >
                 {showPassword ? (
-                  // Иконка "глаз закрыт"
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path
                       d="M2 2l12 12M6.5 6.6A2 2 0 0 0 9.4 9.5M4.2 4.3A7 7 0 0 0 1 8s2.3 5 7 5a7 7 0 0 0 3.8-1.2M6 3.1A7 7 0 0 1 8 3c4.7 0 7 5 7 5a12 12 0 0 1-1.8 2.6"
@@ -337,7 +462,6 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
                     />
                   </svg>
                 ) : (
-                  // Иконка "глаз открыт"
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path
                       d="M1 8s2.3-5 7-5 7 5 7 5-2.3 5-7 5-7-5-7-5z"
@@ -357,7 +481,6 @@ export default function SettingsForm({ settings }: { settings: SiteSettings }) {
             </div>
           </FieldRow>
 
-          {/* Предупреждение про пароль */}
           <div className="mt-3 rounded-xl border border-accent-bright/15 bg-accent-bright/5 px-3 py-2.5">
             <p className="text-xs text-text-muted/80">
               Пароль хранится в репозитории — используй только для некритичных
