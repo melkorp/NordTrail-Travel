@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSlugs, getBySlug } from "@/lib/mdx";
 import type { ArticleData } from "@/lib/types";
-
+import ArticleRow from "./ArticleRow";
 // ─────────────────────────────────────────────────────────────
 // Загрузка всех статей из content/blog/*.mdx
 // ─────────────────────────────────────────────────────────────
@@ -24,43 +24,6 @@ async function getAllArticles(): Promise<ArticleData[]> {
   // Сортируем по дате — новые сверху
   return articles.sort(
     (a, b) => new Date(b.dateIso).getTime() - new Date(a.dateIso).getTime(),
-  );
-}
-
-// ─────────────────────────────────────────────────────────────
-// Бейдж категории — цвет зависит от категории
-// ─────────────────────────────────────────────────────────────
-function CategoryBadge({ category }: { category: string }) {
-  // Перевод английских категорий на русский
-  const categoryMap: Record<string, string> = {
-    Budget: "Бюджет",
-    Hiking: "Хайкинг",
-    Luxury: "Люкс",
-    Winter: "Зима",
-    "Solo Travel": "Соло",
-    Family: "Семья",
-  };
-  const categoryLabel = categoryMap[category] ?? category;
-
-  // Маппинг категорий на цвета темы (ключи — русские названия)
-  const styles: Record<string, string> = {
-    Бюджет: "border-accent-calm/30 text-accent-calm bg-accent-calm/5",
-    Хайкинг: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
-    Люкс: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
-    Зима: "border-accent-calm/30 text-accent-calm bg-accent-calm/5",
-    Соло: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
-    Семья: "border-accent-calm/30 text-accent-calm bg-accent-calm/5",
-  };
-
-  const style =
-    styles[categoryLabel] ?? "border-text/20 text-text-muted bg-text/5";
-
-  return (
-    <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${style}`}
-    >
-      {categoryLabel}
-    </span>
   );
 }
 
@@ -104,8 +67,6 @@ export default async function AdminArticlesPage() {
             </svg>
             Новая статья
           </Link>
-
-          
         </div>
 
         {/* ── Хлебные крошки ──────────────────────────────── */}
@@ -189,88 +150,7 @@ export default async function AdminArticlesPage() {
               {/* Строки статей */}
               <tbody>
                 {articles.map((article, i) => (
-                  <tr
-                    key={article.slug}
-                    className={`border-b border-text/5 transition-colors hover:bg-surface/30 ${
-                      i % 2 === 0 ? "bg-transparent" : "bg-surface/10"
-                    }`}
-                  >
-                    {/* Заголовок + slug */}
-                    <td className="px-5 py-4">
-                      <p className="font-medium text-text leading-snug">
-                        {article.title}
-                      </p>
-                      <p className="mt-0.5 text-xs text-text-muted">
-                        /{article.slug}/
-                      </p>
-                    </td>
-
-                    {/* Категория */}
-                    <td className="px-5 py-4">
-                      <CategoryBadge category={article.category} />
-                    </td>
-
-                    {/* Дата публикации */}
-                    <td className="px-5 py-4 text-text-muted">
-                      {article.dateDisplay}
-                    </td>
-
-                    {/* Время чтения */}
-                    <td className="px-5 py-4 text-text-muted">
-                      {article.readTime}
-                    </td>
-
-                    {/* Действия */}
-                    <td className="px-5 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        {/* Просмотр на сайте — открывает в новой вкладке */}
-                        <Link
-                          href={`/blog/${article.slug}/`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-text/10 bg-text/5 px-3 py-1.5 text-xs text-text-muted transition-all hover:border-text/20 hover:text-text"
-                        >
-                          <svg
-                            width="11"
-                            height="11"
-                            viewBox="0 0 11 11"
-                            fill="none"
-                          >
-                            <path
-                              d="M1 10L10 1M10 1H4M10 1v6"
-                              stroke="currentColor"
-                              strokeWidth="1.3"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                          Открыть
-                        </Link>
-
-                        {/* Редактировать — ссылка на форму редактирования */}
-                        <Link
-                          href={`/admin/articles/${article.slug}/edit`}
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-accent-bright/30 bg-accent-bright/8 px-3 py-1.5 text-xs font-medium text-accent-bright transition-all hover:border-accent-bright/50 hover:bg-accent-bright/15"
-                        >
-                          <svg
-                            width="11"
-                            height="11"
-                            viewBox="0 0 11 11"
-                            fill="none"
-                          >
-                            <path
-                              d="M7.5 1.5l2 2L3 10H1V8L7.5 1.5z"
-                              stroke="currentColor"
-                              strokeWidth="1.3"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                          Редактировать
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
+                  <ArticleRow key={article.slug} article={article} index={i} />
                 ))}
               </tbody>
             </table>
