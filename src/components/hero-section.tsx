@@ -55,7 +55,9 @@ export default function HeroSection({
           variants={gentleFade}
           className="text-lg md:text-xl font-body text-text-muted mb-10 leading-relaxed text-balance"
         >
-          Эксклюзивные маршруты в сердце северной дикой природы
+          Практические гиды по Исландии, Норвегии, Японии, Грузии, Альпам,
+          Камчатке, Кольскому, Алтаю и Байкалу — сезоны, бюджеты, маршруты для
+          самостоятельного планирования.
         </motion.p>
 
         <motion.div

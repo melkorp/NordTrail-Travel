@@ -49,8 +49,10 @@ export default function AboutPage() {
           transition={{ delay: 0.1 }}
           className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto leading-relaxed"
         >
-          Мы превращаем путешествие в тщательно продуманную северную
-          экспедицию...
+          NordTrail Travel — информационный ресурс о северных и горных
+          путешествиях. Мы собираем и структурируем данные о направлениях,
+          сезонах, бюджетах и маршрутах, чтобы помочь путешественникам
+          самостоятельно планировать поездки.
         </motion.p>
       </section>
 
@@ -83,7 +85,7 @@ export default function AboutPage() {
               },
             ].map((item, i) => (
               <motion.div
-                key={i}
+                key={item.title}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, amount: 0.2 }}

@@ -70,8 +70,8 @@ export default function ContactPage() {
           transition={{ delay: 0.1 }}
           className="text-text-muted mb-10 leading-relaxed"
         >
-          Мы отвечаем лично в течение 24 часов. Для срочных вопросов используйте
-          Telegram или WhatsApp.
+          По вопросам сотрудничества, приобретения сайта или размещения
+          материалов свяжитесь с нами.
         </motion.p>
 
         {/* Золотой разделитель */}
@@ -126,9 +126,9 @@ export default function ContactPage() {
             { icon: Globe, href: "https://linkedin.com", label: "LinkedIn" },
             { icon: Play, href: "https://youtube.com", label: "YouTube" },
             { icon: AtSign, href: "https://twitter.com", label: "X / Twitter" },
-          ].map((social, i) => (
+          ].map((social) => (
             <a
-              key={i}
+              key={social.label}
               href={social.href}
               target="_blank"
               rel="noopener noreferrer"
