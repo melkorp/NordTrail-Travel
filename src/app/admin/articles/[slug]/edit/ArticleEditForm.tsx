@@ -587,6 +587,62 @@ export default function ArticleEditForm({
             />
           </FieldCard>
 
+          {/* Crosslinks — связанные материалы */}
+          <FieldCard>
+            <SectionLabel>Связанные материалы (перелинковка)</SectionLabel>
+            <div className="space-y-3">
+              {(form.crosslinks || []).map((link, i) => (
+                <div key={i} className="flex gap-2 items-start">
+                  <input
+                    className={inputClass}
+                    value={link.label}
+                    onChange={(e) => {
+                      const updated = [...(form.crosslinks || [])];
+                      updated[i] = { ...updated[i], label: e.target.value };
+                      setField("crosslinks", updated);
+                    }}
+                    placeholder="Текст ссылки"
+                  />
+                  <input
+                    className={inputClass}
+                    value={link.href}
+                    onChange={(e) => {
+                      const updated = [...(form.crosslinks || [])];
+                      updated[i] = { ...updated[i], href: e.target.value };
+                      setField("crosslinks", updated);
+                    }}
+                    placeholder="/destinations/..."
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const updated = (form.crosslinks || []).filter(
+                        (_, j) => j !== i,
+                      );
+                      setField("crosslinks", updated);
+                    }}
+                    className="text-red-400 hover:text-red-300 text-sm px-2 py-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [
+                    ...(form.crosslinks || []),
+                    { label: "", href: "" },
+                  ];
+                  setField("crosslinks", updated);
+                }}
+                className="text-sm text-accent-bright hover:underline"
+              >
+                + Добавить ссылку
+              </button>
+            </div>
+          </FieldCard>
+
           {/* Нижняя кнопка сохранения — дублируем для удобства */}
           <div className="flex items-center justify-between pt-2">
             <Link
