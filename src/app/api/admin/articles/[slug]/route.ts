@@ -74,6 +74,7 @@ function buildMdxContent(body: ArticleData, markdownBody = ""): string {
     budgetTable: body.budgetTable,
     faq: body.faq,
     conclusion: body.conclusion,
+    ...(body.crosslinks ? { crosslinks: body.crosslinks } : {}),
   });
 }
 
