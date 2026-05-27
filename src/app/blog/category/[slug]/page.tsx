@@ -6,6 +6,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { buildBreadcrumbsJsonLd } from "@/lib/breadcrumbs";
 import type { ArticleData } from "../../[slug]/page";
 
 // ─────────────────────────────────────────────────────────────
@@ -221,66 +222,81 @@ export default async function CategoryPage({
   );
 
   return (
-    <main className="min-h-screen bg-bg text-text">
-      {/* ── Хедер категории ─────────────────────────────────── */}
-      <section className="mx-auto max-w-4xl px-6 pb-12 pt-20">
-        {/* Хлебные крошки */}
-        <nav className="mb-8 flex items-center gap-2 text-xs text-text-muted">
-          <Link href="/" className="transition-colors hover:text-primary">
-            NordTrail
-          </Link>
-          <span>/</span>
-          <Link href="/blog/" className="transition-colors hover:text-primary">
-            Блог
-          </Link>
-          <span>/</span>
-          <span className="text-text/70">{cat.h1}</span>
-        </nav>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: buildBreadcrumbsJsonLd([
+            { name: "Главная", url: "/" },
+            { name: "Блог", url: "/blog/" },
+            { name: cat.h1 },
+          ]),
+        }}
+      />
+      <main className="min-h-screen bg-bg text-text">
+        {/* ── Хедер категории ─────────────────────────────────── */}
+        <section className="mx-auto max-w-4xl px-6 pb-12 pt-20">
+          {/* Хлебные крошки */}
+          <nav className="mb-8 flex items-center gap-2 text-xs text-text-muted">
+            <Link href="/" className="transition-colors hover:text-primary">
+              NordTrail
+            </Link>
+            <span>/</span>
+            <Link
+              href="/blog/"
+              className="transition-colors hover:text-primary"
+            >
+              Блог
+            </Link>
+            <span>/</span>
+            <span className="text-text/70">{cat.h1}</span>
+          </nav>
 
-        {/* H1 с золотым подчёркиванием */}
-        <div className="mb-4">
-          <h1 className="inline font-heading text-3xl font-bold leading-tight text-text sm:text-4xl">
-            {cat.h1}
-          </h1>
-          {/* Подчёркивание: accent-bright → accent градиент */}
-          <div className="mt-3 h-px w-24 bg-linear-to-r from-accent-bright to-accent" />
-        </div>
-
-        <p className="mt-4 max-w-xl text-base leading-relaxed text-text-muted">
-          {cat.subtitle}
-        </p>
-      </section>
-
-      {/* ── Сетка статей ────────────────────────────────────── */}
-      <section className="mx-auto max-w-4xl px-6 pb-24">
-        {articles.length > 0 ? (
-          <>
-            {/* Счётчик */}
-            <p className="mb-6 text-sm text-text-muted/75">
-              {articles.length} {articles.length === 1 ? "статья" : "статей"} в
-              категории
-            </p>
-
-            {/* Карточки */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              {articles.map((article) => (
-                <ArticleCard key={article.slug} article={article} />
-              ))}
-            </div>
-          </>
-        ) : (
-          /* Заглушка если статей нет */
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-text/8 bg-surface/30 py-20 text-center">
-            <div className="mb-4 text-4xl text-text-muted">◎</div>
-            <p className="font-heading text-lg font-bold text-text-muted">
-              Скоро
-            </p>
-            <p className="mt-2 text-sm text-text-muted/75">
-              Статьи этой категории появятся в ближайшее время
-            </p>
+          {/* H1 с золотым подчёркиванием */}
+          <div className="mb-4">
+            <h1 className="inline font-heading text-3xl font-bold leading-tight text-text sm:text-4xl">
+              {cat.h1}
+            </h1>
+            {/* Подчёркивание: accent-bright → accent градиент */}
+            <div className="mt-3 h-px w-24 bg-linear-to-r from-accent-bright to-accent" />
           </div>
-        )}
-      </section>
-    </main>
+
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-text-muted">
+            {cat.subtitle}
+          </p>
+        </section>
+
+        {/* ── Сетка статей ────────────────────────────────────── */}
+        <section className="mx-auto max-w-4xl px-6 pb-24">
+          {articles.length > 0 ? (
+            <>
+              {/* Счётчик */}
+              <p className="mb-6 text-sm text-text-muted/75">
+                {articles.length} {articles.length === 1 ? "статья" : "статей"}{" "}
+                в категории
+              </p>
+
+              {/* Карточки */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {articles.map((article) => (
+                  <ArticleCard key={article.slug} article={article} />
+                ))}
+              </div>
+            </>
+          ) : (
+            /* Заглушка если статей нет */
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-text/8 bg-surface/30 py-20 text-center">
+              <div className="mb-4 text-4xl text-text-muted">◎</div>
+              <p className="font-heading text-lg font-bold text-text-muted">
+                Скоро
+              </p>
+              <p className="mt-2 text-sm text-text-muted/75">
+                Статьи этой категории появятся в ближайшее время
+              </p>
+            </div>
+          )}
+        </section>
+      </main>
+    </>
   );
 }

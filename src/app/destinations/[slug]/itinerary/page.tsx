@@ -7,6 +7,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { buildBreadcrumbsJsonLd } from "@/lib/breadcrumbs";
 
 // ─────────────────────────────────────────────────────────────
 // ТИПЫ
@@ -1521,6 +1522,20 @@ export default async function ItineraryPage({
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: buildBreadcrumbsJsonLd([
+            { name: "Главная", url: "/" },
+            { name: "Направления", url: "/destinations" },
+            { name: data.destinationName, url: `/destinations/${slug}` },
+            {
+              name: "Маршрут",
+              url: `/destinations/${slug}/itinerary`,
+            },
+          ]),
+        }}
+      />
       <JsonLd data={data} />
 
       <main className="min-h-screen bg-bg text-text">

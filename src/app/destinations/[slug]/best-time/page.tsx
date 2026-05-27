@@ -7,6 +7,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { buildBreadcrumbsJsonLd } from "@/lib/breadcrumbs";
 
 // ─────────────────────────────────────────────────────────────
 // ТИПЫ
@@ -1170,6 +1171,20 @@ export default async function BestTimePage({
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: buildBreadcrumbsJsonLd([
+            { name: "Главная", url: "/" },
+            { name: "Направления", url: "/destinations" },
+            { name: data.destinationName, url: `/destinations/${slug}` },
+            {
+              name: "Лучшее время для посещения",
+              url: `/destinations/${slug}/best-time`,
+            },
+          ]),
+        }}
+      />
       <JsonLd data={data} />
 
       <main className="min-h-screen bg-bg text-text">
