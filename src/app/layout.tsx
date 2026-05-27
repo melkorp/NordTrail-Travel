@@ -86,6 +86,17 @@ export default function RootLayout({
   return (
     <html lang="ru" className="bg-bg scroll-smooth">
       <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "NordTrail Travel",
+              url: "https://nord-trail-travel.vercel.app",
+            }),
+          }}
+        />
         <meta
           name="google-site-verification"
           content="yPR572WBTIYrST5_MOVxNekvIknpEGVrGNH3HbD60b0"
