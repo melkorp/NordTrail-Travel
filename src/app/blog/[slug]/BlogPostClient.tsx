@@ -423,31 +423,30 @@ export default function BlogPostClient({ article }: { article: ArticleData }) {
           </h2>
           <p className="text-text-muted leading-relaxed">{conclusion}</p>
         </motion.section>
-      </div>
-
-      {/* ── Связанные материалы (внутренние ссылки) ──────────────────── */}
-      {crosslinks && crosslinks.length > 0 && (
-        <div className="mt-8 pt-6 border-t border-white/5">
-          <p className="text-sm font-heading text-text-muted mb-3">
-            Связанные материалы:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {crosslinks.map((link, i) => (
-              <span key={link.href} className="flex items-center gap-2">
-                <Link
-                  href={link.href}
-                  className="text-sm text-accent-bright hover:underline"
-                >
-                  {link.label}
-                </Link>
-                {i < crosslinks.length - 1 && (
-                  <span className="text-text-muted">·</span>
-                )}
-              </span>
-            ))}
+        {/* ── Связанные материалы (внутренние ссылки) ──────────────────── */}
+        {crosslinks && crosslinks.length > 0 && (
+          <div className="mt-8 pt-6 border-t border-white/5">
+            <p className="text-sm font-heading text-text-muted mb-3">
+              Связанные материалы:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {crosslinks.map((link, i) => (
+                <span key={link.href} className="flex items-center gap-2">
+                  <Link
+                    href={link.href}
+                    className="text-sm text-accent-bright hover:underline"
+                  >
+                    {link.label}
+                  </Link>
+                  {i < crosslinks.length - 1 && (
+                    <span className="text-text-muted">·</span>
+                  )}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* ── Назад в блог ────────────────────────────────────── */}
       <div className="px-6 pb-24 max-w-3xl mx-auto">
