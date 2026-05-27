@@ -125,6 +125,7 @@ export default function BlogPostClient({ article }: { article: ArticleData }) {
     budgetTable,
     faq,
     conclusion,
+    crosslinks,
   } = article;
 
   const baseUrl = "https://melkorp.github.io/NordTrail-Travel";
@@ -424,34 +425,29 @@ export default function BlogPostClient({ article }: { article: ArticleData }) {
         </motion.section>
       </div>
 
-      {/* ── Популярные направления (внутренние ссылки) ──────────────────── */}
-      <div className="mt-8 pt-6 border-t border-white/5">
-        <p className="text-sm font-heading text-text-muted mb-3">
-          Популярные направления:
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href="/destinations/iceland/"
-            className="text-sm text-accent-bright hover:underline"
-          >
-            Исландия
-          </Link>
-          <span className="text-text-muted">·</span>
-          <Link
-            href="/destinations/norway/"
-            className="text-sm text-accent-bright hover:underline"
-          >
-            Норвегия
-          </Link>
-          <span className="text-text-muted">·</span>
-          <Link
-            href="/destinations/japan/"
-            className="text-sm text-accent-bright hover:underline"
-          >
-            Япония
-          </Link>
+      {/* ── Связанные материалы (внутренние ссылки) ──────────────────── */}
+      {crosslinks && crosslinks.length > 0 && (
+        <div className="mt-8 pt-6 border-t border-white/5">
+          <p className="text-sm font-heading text-text-muted mb-3">
+            Связанные материалы:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {crosslinks.map((link, i) => (
+              <span key={link.href} className="flex items-center gap-2">
+                <Link
+                  href={link.href}
+                  className="text-sm text-accent-bright hover:underline"
+                >
+                  {link.label}
+                </Link>
+                {i < crosslinks.length - 1 && (
+                  <span className="text-text-muted">·</span>
+                )}
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Назад в блог ────────────────────────────────────── */}
       <div className="px-6 pb-24 max-w-3xl mx-auto">

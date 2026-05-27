@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-05-27T16:42:45.650Z",
+  "project": "nordtrail-travel",
+  "summary": {
+    "totalImages": 2,
+    "totalIssues": 0,
+    "withAlt": 2,
+    "withoutAlt": 0,
+    "emptyAlt": 0,
+    "genericAlt": 0,
+    "badPhrases": 0,
+    "tooLong": 0,
+    "mdxImages": 0,
+    "dataImages": 0,
+    "imageNoAlt": 0
+  },
+  "files": []
+}

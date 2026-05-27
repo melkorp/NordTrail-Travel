@@ -2,6 +2,11 @@
 // Единый источник типов для всего проекта.
 // Импортируй отсюда вместо локальных определений.
 
+export interface Crosslink {
+  label: string;
+  href: string;
+}
+
 export interface ArticleData {
   slug: string;
   title: string;
@@ -16,6 +21,7 @@ export interface ArticleData {
   budgetTable: { item: string; low: string; premium: string }[];
   faq: { q: string; a: string }[];
   conclusion: string;
+  crosslinks?: Crosslink[];
 }
 
 export interface Destination {
