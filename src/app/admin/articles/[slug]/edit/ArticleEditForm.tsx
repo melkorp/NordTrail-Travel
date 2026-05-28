@@ -5,7 +5,7 @@
 // Получает данные статьи как пропсы от серверного page.tsx.
 // Сохранение через API route /api/admin/articles/[slug].
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import type { ArticleData } from "@/lib/types";
 
@@ -30,7 +30,7 @@ const textareaClass =
   "w-full resize-none rounded-xl border border-text/10 bg-surface/40 px-4 py-2.5 text-sm text-text placeholder-text-muted/50 outline-none transition-all focus:border-accent-bright/50 focus:bg-surface/70";
 
 // Заголовок секции формы
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function SectionLabel({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <p className="mb-3 text-xs font-medium uppercase tracking-widest text-text-muted">
       {children}
@@ -39,7 +39,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 // Карточка-обёртка для группы полей
-function FieldCard({ children }: { children: React.ReactNode }) {
+function FieldCard({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="rounded-2xl border border-text/8 bg-surface/20 p-5">
       {children}
@@ -48,7 +48,7 @@ function FieldCard({ children }: { children: React.ReactNode }) {
 }
 
 // Кнопка удаления строки в списке
-function RemoveButton({ onClick }: { onClick: () => void }) {
+function RemoveButton({ onClick }: Readonly<{ onClick: () => void }>) {
   return (
     <button
       type="button"
@@ -79,6 +79,16 @@ export default function ArticleEditForm({
 }) {
   // Состояние формы — копия данных статьи
   const [form, setForm] = useState<ArticleData>({ ...article });
+
+  // Список URL для выпадающего списка перелинковки
+  const [urlList, setUrlList] = useState<{ path: string; label: string }[]>([]);
+
+  useEffect(() => {
+    fetch("/api/urls")
+      .then((res) => res.json())
+      .then((data) => setUrlList(data.urls || []))
+      .catch(() => setUrlList([]));
+  }, []);
 
   // Статус сохранения
   const [status, setStatus] = useState<SaveStatus>("idle");
@@ -592,7 +602,7 @@ export default function ArticleEditForm({
             <SectionLabel>Связанные материалы (перелинковка)</SectionLabel>
             <div className="space-y-3">
               {(form.crosslinks || []).map((link, i) => (
-                <div key={i} className="flex gap-2 items-start">
+                <div key={link.label || i} className="flex gap-2 items-start">
                   <input
                     className={inputClass}
                     value={link.label}
@@ -603,7 +613,7 @@ export default function ArticleEditForm({
                     }}
                     placeholder="Текст ссылки"
                   />
-                  <input
+                  <select
                     className={inputClass}
                     value={link.href}
                     onChange={(e) => {
@@ -611,8 +621,14 @@ export default function ArticleEditForm({
                       updated[i] = { ...updated[i], href: e.target.value };
                       setField("crosslinks", updated);
                     }}
-                    placeholder="/destinations/..."
-                  />
+                  >
+                    <option value="">Выберите страницу...</option>
+                    {urlList.map((url) => (
+                      <option key={url.path} value={url.path}>
+                        {url.label}
+                      </option>
+                    ))}
+                  </select>
                   <button
                     type="button"
                     onClick={() => {
