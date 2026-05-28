@@ -6,7 +6,7 @@
 // Сохранение через POST /api/admin/articles/[slug].
 // После успешного создания — редирект на страницу редактирования.
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ArticleData } from "@/lib/types";
@@ -114,6 +114,19 @@ function CreateButton({ status }: { status: SaveStatus }) {
 // ─────────────────────────────────────────────────────────────
 export default function ArticleCreateForm() {
   const [form, setForm] = useState<ArticleData>({ ...EMPTY_ARTICLE });
+
+  const [urlList, setUrlList] = useState<{ path: string; label: string }[]>([]);
+  const urlsLoaded = useRef(false);
+
+  useEffect(() => {
+    if (!urlsLoaded.current) {
+      urlsLoaded.current = true;
+      fetch("/api/urls")
+        .then((res) => res.json())
+        .then((data) => setUrlList(data.urls || []))
+        .catch(() => {});
+    }
+  }, []);
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -720,7 +733,7 @@ export default function ArticleCreateForm() {
             <SectionLabel>Связанные материалы (перелинковка)</SectionLabel>
             <div className="space-y-3">
               {(form.crosslinks || []).map((link, i) => (
-                <div key={i} className="flex gap-2 items-start">
+                <div key={`crosslink-${i}`} className="flex gap-2 items-start">
                   <input
                     className={inputClass}
                     value={link.label}
@@ -731,7 +744,7 @@ export default function ArticleCreateForm() {
                     }}
                     placeholder="Текст ссылки"
                   />
-                  <input
+                  <select
                     className={inputClass}
                     value={link.href}
                     onChange={(e) => {
@@ -739,8 +752,14 @@ export default function ArticleCreateForm() {
                       updated[i] = { ...updated[i], href: e.target.value };
                       setField("crosslinks", updated);
                     }}
-                    placeholder="/destinations/..."
-                  />
+                  >
+                    <option value="">Выберите страницу...</option>
+                    {urlList.map((url) => (
+                      <option key={url.path} value={url.path}>
+                        {url.label}
+                      </option>
+                    ))}
+                  </select>
                   <button
                     type="button"
                     onClick={() => {
