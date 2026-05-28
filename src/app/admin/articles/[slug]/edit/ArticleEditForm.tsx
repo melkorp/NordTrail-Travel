@@ -606,7 +606,7 @@ export default function ArticleEditForm({
             <SectionLabel>Связанные материалы (перелинковка)</SectionLabel>
             <div className="space-y-3">
               {(form.crosslinks || []).map((link, i) => (
-                <div key={link.label || i} className="flex gap-2 items-start">
+                <div key={`crosslink-${i}`} className="flex gap-2 items-start">
                   <input
                     className={inputClass}
                     value={link.label}
@@ -641,7 +641,7 @@ export default function ArticleEditForm({
                       );
                       setField("crosslinks", updated);
                     }}
-                    className="text-red-400 hover:text-red-300 text-sm px-2 py-1"
+                    className="text-red-400 hover:text-red-300 text-sm px-2 py-1 shrink-0"
                   >
                     ✕
                   </button>
