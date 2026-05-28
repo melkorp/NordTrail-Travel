@@ -5,7 +5,7 @@
 // Получает данные статьи как пропсы от серверного page.tsx.
 // Сохранение через API route /api/admin/articles/[slug].
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import type { ArticleData } from "@/lib/types";
 
@@ -80,14 +80,18 @@ export default function ArticleEditForm({
   // Состояние формы — копия данных статьи
   const [form, setForm] = useState<ArticleData>({ ...article });
 
-  // Список URL для выпадающего списка перелинковки
+  // Список URL для выпадающего списка перелинковки (загружается один раз)
   const [urlList, setUrlList] = useState<{ path: string; label: string }[]>([]);
+  const urlsLoaded = useRef(false);
 
   useEffect(() => {
-    fetch("/api/urls")
-      .then((res) => res.json())
-      .then((data) => setUrlList(data.urls || []))
-      .catch(() => setUrlList([]));
+    if (!urlsLoaded.current) {
+      urlsLoaded.current = true;
+      fetch("/api/urls")
+        .then((res) => res.json())
+        .then((data) => setUrlList(data.urls || []))
+        .catch(() => {});
+    }
   }, []);
 
   // Статус сохранения
