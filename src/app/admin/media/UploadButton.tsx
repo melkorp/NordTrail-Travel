@@ -1,101 +1,128 @@
 // src/app/admin/media/UploadButton.tsx
 "use client";
 
-// Клиентский компонент — кнопка загрузки изображения.
-// Открывает диалог выбора файла, отправляет через FormData,
-// показывает прогресс и результат.
-
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type UploadStatus = "idle" | "uploading" | "success" | "error";
+// Максимум файлов за раз — ограничение на клиенте
+const MAX_FILES = 10;
+
+// Статус одного файла в очереди
+interface FileResult {
+  name: string;
+  ok: boolean;
+  error?: string;
+}
 
 export default function UploadButton() {
-  const [status, setStatus] = useState<UploadStatus>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [uploadedName, setUploadedName] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [results, setResults] = useState<FileResult[]>([]);
+  const [progress, setProgress] = useState<{
+    done: number;
+    total: number;
+  } | null>(null);
 
-  // Скрытый input[type=file] — триггерим клик программно
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Для обновления страницы после загрузки
   const router = useRouter();
 
   // ─────────────────────────────────────────────────────────
-  // Обработка выбора файла
+  // Обработка множественного выбора файлов
   // ─────────────────────────────────────────────────────────
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
 
-    setStatus("uploading");
-    setErrorMsg("");
-    setUploadedName("");
+    // Ограничиваем на клиенте — берём первые MAX_FILES
+    const files = Array.from(fileList).slice(0, MAX_FILES);
 
-    try {
-      // Формируем FormData — API route ожидает поле "file"
-      const formData = new FormData();
-      formData.append("file", file);
+    setIsUploading(true);
+    setResults([]);
+    setProgress({ done: 0, total: files.length });
 
-      const res = await fetch("/api/admin/media/upload", {
-        method: "POST",
-        body: formData,
-        // Content-Type НЕ указываем — браузер сам добавит boundary для multipart
-      });
+    const accumulated: FileResult[] = [];
 
-      const data = await res.json();
+    // Загружаем каждый файл отдельным запросом
+    // Параллельно — быстрее, но не перегружаем GitHub API
+    await Promise.all(
+      files.map(async (file, i) => {
+        const formData = new FormData();
+        formData.append("file", file);
 
-      if (!res.ok) {
-        throw new Error(data.error ?? `HTTP ${res.status}`);
-      }
+        try {
+          const res = await fetch("/api/admin/media/upload", {
+            method: "POST",
+            body: formData,
+          });
 
-      setStatus("success");
-      setUploadedName(data.name);
+          const data = await res.json().catch(() => ({}));
 
-      // Сбрасываем input чтобы можно было загрузить тот же файл повторно
-      if (inputRef.current) inputRef.current.value = "";
+          if (!res.ok) {
+            accumulated.push({
+              name: file.name,
+              ok: false,
+              error: data.error ?? `HTTP ${res.status}`,
+            });
+          } else {
+            accumulated.push({ name: data.name ?? file.name, ok: true });
+          }
+        } catch (err) {
+          accumulated.push({
+            name: file.name,
+            ok: false,
+            error: err instanceof Error ? err.message : "Ошибка сети",
+          });
+        }
 
-      // Обновляем страницу через 2 секунды чтобы показать уведомление
-      setTimeout(() => {
-        setStatus("idle");
-        // router.refresh() обновляет серверные данные без полной перезагрузки
-        router.refresh();
-      }, 2500);
-    } catch (err) {
-      setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Неизвестная ошибка");
-      if (inputRef.current) inputRef.current.value = "";
-    }
+        // Обновляем прогресс после каждого файла
+        setProgress({ done: i + 1, total: files.length });
+      }),
+    );
+
+    setResults(accumulated);
+    setIsUploading(false);
+    setProgress(null);
+
+    // Сбрасываем input
+    if (inputRef.current) inputRef.current.value = "";
+
+    // Обновляем список изображений
+    router.refresh();
+
+    // Сбрасываем результаты через 5 секунд
+    setTimeout(() => setResults([]), 5000);
   }
+
+  const successCount = results.filter((r) => r.ok).length;
+  const errorCount = results.filter((r) => !r.ok).length;
+  const hasResults = results.length > 0;
 
   return (
     <div className="flex flex-col items-end gap-2">
-      {/* Скрытый input — принимает только изображения */}
+      {/* Скрытый input — multiple для множественного выбора */}
       <input
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/jpg,image/png,image/webp"
+        multiple
         onChange={handleFileChange}
         className="hidden"
       />
 
-      {/* Видимая кнопка — клик открывает диалог выбора файла */}
+      {/* Видимая кнопка — не блокируем во время загрузки */}
       <button
         onClick={() => inputRef.current?.click()}
-        disabled={status === "uploading"}
         className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${
-          status === "uploading"
-            ? "cursor-wait border border-text/10 bg-surface/30 text-text-muted"
-            : status === "success"
+          isUploading
+            ? "border border-text/10 bg-surface/30 text-text-muted"
+            : hasResults && errorCount === 0
               ? "border border-accent/30 bg-accent/10 text-accent"
-              : status === "error"
+              : hasResults && errorCount > 0
                 ? "border border-red-500/30 bg-red-500/10 text-red-400"
                 : "border border-accent-bright/30 bg-accent-bright/8 text-accent-bright hover:border-accent-bright/50 hover:bg-accent-bright/15"
         }`}
       >
-        {/* Иконка меняется в зависимости от статуса */}
-        {status === "uploading" ? (
-          // Спиннер во время загрузки
+        {/* Иконка */}
+        {isUploading ? (
           <svg
             width="14"
             height="14"
@@ -114,7 +141,7 @@ export default function UploadButton() {
               strokeLinecap="round"
             />
           </svg>
-        ) : status === "success" ? (
+        ) : hasResults && errorCount === 0 ? (
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path
               d="M2 7l4 4 6-6"
@@ -136,22 +163,57 @@ export default function UploadButton() {
           </svg>
         )}
 
-        {status === "uploading" && "Загрузка..."}
-        {status === "success" && "Загружено!"}
-        {status === "error" && "Ошибка"}
-        {status === "idle" && "Загрузить изображение"}
+        {isUploading
+          ? progress
+            ? `Загрузка ${progress.done}/${progress.total}...`
+            : "Загрузка..."
+          : hasResults && errorCount === 0
+            ? `Загружено ${successCount}`
+            : hasResults && errorCount > 0
+              ? `${successCount} ок / ${errorCount} ошибок`
+              : "Загрузить изображения"}
       </button>
 
-      {/* Уведомление об успехе */}
-      {status === "success" && uploadedName && (
-        <p className="text-right text-xs text-accent/80">
-          {uploadedName} → GitHub Actions оптимизирует за 2–3 мин
-        </p>
+      {/* Прогресс-бар */}
+      {isUploading && progress && (
+        <div className="w-full max-w-xs">
+          <div className="h-1 w-full rounded-full bg-surface/60">
+            <div
+              className="h-1 rounded-full bg-accent-bright/70 transition-all duration-300"
+              style={{
+                width: `${(progress.done / progress.total) * 100}%`,
+              }}
+            />
+          </div>
+        </div>
       )}
 
-      {/* Сообщение об ошибке */}
-      {status === "error" && errorMsg && (
-        <p className="max-w-xs text-right text-xs text-red-400">{errorMsg}</p>
+      {/* Список результатов */}
+      {hasResults && (
+        <div className="w-full max-w-xs space-y-1">
+          {results.map((r) => (
+            <p
+              key={r.name}
+              className={`truncate text-right text-xs ${
+                r.ok ? "text-accent/80" : "text-red-400"
+              }`}
+              title={r.error}
+            >
+              {r.ok ? "✓" : "✗"} {r.name}
+              {r.error && (
+                <span className="ml-1 text-text-muted/60">— {r.error}</span>
+              )}
+            </p>
+          ))}
+
+          {/* Итог если больше одного файла */}
+          {results.length > 1 && (
+            <p className="text-right text-xs text-text-muted/60">
+              {successCount > 0 &&
+                `${successCount} загружено → GitHub Actions оптимизирует за 2–3 мин`}
+            </p>
+          )}
+        </div>
       )}
     </div>
   );

@@ -14,9 +14,9 @@ import type { ArticleData } from "@/lib/types";
 // ─────────────────────────────────────────────────────────────
 // ТИПЫ
 // ─────────────────────────────────────────────────────────────
-type Section = ArticleData["sections"][number];
-type BudgetRow = ArticleData["budgetTable"][number];
-type FaqItem = ArticleData["faq"][number];
+type Section = ArticleData["sections"][number] & { _key?: string };
+type BudgetRow = ArticleData["budgetTable"][number] & { _key?: string };
+type FaqItem = ArticleData["faq"][number] & { _key?: string };
 type SaveStatus = "idle" | "saving" | "success" | "error";
 
 // ─────────────────────────────────────────────────────────────
@@ -27,7 +27,7 @@ const EMPTY_ARTICLE: ArticleData = {
   title: "",
   category: "Hiking",
   readTime: "8 min read",
-  dateIso: new Date().toISOString().split("T")[0], // сегодняшняя дата
+  dateIso: new Date().toISOString().split("T")[0],
   dateDisplay: "",
   author: "NordTrail Research Team",
   image: "",
@@ -49,9 +49,58 @@ const textareaClass =
   "w-full resize-none rounded-xl border border-text/10 bg-surface/40 px-4 py-2.5 text-sm text-text placeholder-text-muted/50 outline-none transition-all focus:border-accent-bright/50 focus:bg-surface/70";
 
 // ─────────────────────────────────────────────────────────────
+// Транслитерация — вынесена наружу
+// ─────────────────────────────────────────────────────────────
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[а-яё]/g, (ch) => {
+      const map: Record<string, string> = {
+        а: "a",
+        б: "b",
+        в: "v",
+        г: "g",
+        д: "d",
+        е: "e",
+        ё: "yo",
+        ж: "zh",
+        з: "z",
+        и: "i",
+        й: "y",
+        к: "k",
+        л: "l",
+        м: "m",
+        н: "n",
+        о: "o",
+        п: "p",
+        р: "r",
+        с: "s",
+        т: "t",
+        у: "u",
+        ф: "f",
+        х: "h",
+        ц: "ts",
+        ч: "ch",
+        ш: "sh",
+        щ: "sch",
+        ъ: "",
+        ы: "y",
+        ь: "",
+        э: "e",
+        ю: "yu",
+        я: "ya",
+      };
+      return map[ch] ?? ch;
+    })
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+// ─────────────────────────────────────────────────────────────
 // ВСПОМОГАТЕЛЬНЫЕ КОМПОНЕНТЫ
 // ─────────────────────────────────────────────────────────────
-function SectionLabel({ children }: { children: React.ReactNode }) {
+
+function SectionLabel({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <p className="mb-3 text-xs font-medium uppercase tracking-widest text-text-muted">
       {children}
@@ -59,7 +108,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-function FieldCard({ children }: { children: React.ReactNode }) {
+function FieldCard({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="rounded-2xl border border-text/8 bg-surface/20 p-5">
       {children}
@@ -67,7 +116,7 @@ function FieldCard({ children }: { children: React.ReactNode }) {
   );
 }
 
-function RemoveButton({ onClick }: { onClick: () => void }) {
+function RemoveButton({ onClick }: Readonly<{ onClick: () => void }>) {
   return (
     <button
       type="button"
@@ -86,20 +135,25 @@ function RemoveButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-function CreateButton({ status }: { status: SaveStatus }) {
+function getCreateButtonStyle(status: SaveStatus): string {
+  if (status === "saving") {
+    return "cursor-wait border border-text/10 bg-surface/30 text-text-muted";
+  }
+  if (status === "success") {
+    return "border border-accent/30 bg-accent/10 text-accent";
+  }
+  if (status === "error") {
+    return "border border-red-500/30 bg-red-500/10 text-red-400";
+  }
+  return "border border-accent-bright/40 bg-accent-bright/10 text-accent-bright hover:bg-accent-bright/20";
+}
+
+function CreateButton({ status }: Readonly<{ status: SaveStatus }>) {
   return (
     <button
       type="button"
       disabled={status === "saving"}
-      className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${
-        status === "saving"
-          ? "cursor-wait border border-text/10 bg-surface/30 text-text-muted"
-          : status === "success"
-            ? "border border-accent/30 bg-accent/10 text-accent"
-            : status === "error"
-              ? "border border-red-500/30 bg-red-500/10 text-red-400"
-              : "border border-accent-bright/40 bg-accent-bright/10 text-accent-bright hover:bg-accent-bright/20"
-      }`}
+      className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${getCreateButtonStyle(status)}`}
     >
       {status === "saving" && "Создание..."}
       {status === "success" && "✓ Создано"}
@@ -112,11 +166,15 @@ function CreateButton({ status }: { status: SaveStatus }) {
 // ─────────────────────────────────────────────────────────────
 // ГЛАВНЫЙ КОМПОНЕНТ
 // ─────────────────────────────────────────────────────────────
+
 export default function ArticleCreateForm() {
   const [form, setForm] = useState<ArticleData>({ ...EMPTY_ARTICLE });
-
   const [urlList, setUrlList] = useState<{ path: string; label: string }[]>([]);
   const urlsLoaded = useRef(false);
+  const [status, setStatus] = useState<SaveStatus>("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [slugManual, setSlugManual] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!urlsLoaded.current) {
@@ -127,63 +185,6 @@ export default function ArticleCreateForm() {
         .catch(() => {});
     }
   }, []);
-  const [status, setStatus] = useState<SaveStatus>("idle");
-  const [errorMsg, setErrorMsg] = useState("");
-
-  const router = useRouter();
-
-  // ─────────────────────────────────────────────────────────
-  // Slug генерируется автоматически из заголовка
-  // "Лучшие треки Norway" → "luchshie-treki-norway"
-  // Пользователь может переопределить вручную
-  // ─────────────────────────────────────────────────────────
-  const [slugManual, setSlugManual] = useState(false);
-
-  function generateSlug(title: string): string {
-    return title
-      .toLowerCase()
-      .replace(/[а-яё]/g, (ch) => {
-        // Транслитерация русских букв
-        const map: Record<string, string> = {
-          а: "a",
-          б: "b",
-          в: "v",
-          г: "g",
-          д: "d",
-          е: "e",
-          ё: "yo",
-          ж: "zh",
-          з: "z",
-          и: "i",
-          й: "y",
-          к: "k",
-          л: "l",
-          м: "m",
-          н: "n",
-          о: "o",
-          п: "p",
-          р: "r",
-          с: "s",
-          т: "t",
-          у: "u",
-          ф: "f",
-          х: "h",
-          ц: "ts",
-          ч: "ch",
-          ш: "sh",
-          щ: "sch",
-          ъ: "",
-          ы: "y",
-          ь: "",
-          э: "e",
-          ю: "yu",
-          я: "ya",
-        };
-        return map[ch] ?? ch;
-      })
-      .replace(/[^a-z0-9]+/g, "-") // спецсимволы → дефис
-      .replace(/^-|-$/g, ""); // дефисы по краям
-  }
 
   // Обновление простых полей
   function setField<K extends keyof ArticleData>(
@@ -192,7 +193,6 @@ export default function ArticleCreateForm() {
   ) {
     setForm((prev) => {
       const next = { ...prev, [key]: value };
-      // Автогенерация slug из title если пользователь не задал вручную
       if (key === "title" && !slugManual) {
         next.slug = generateSlug(value as string);
       }
@@ -200,9 +200,7 @@ export default function ArticleCreateForm() {
     });
   }
 
-  // ─────────────────────────────────────────────────────────
   // Секции
-  // ─────────────────────────────────────────────────────────
   function updateSection(index: number, field: keyof Section, value: string) {
     setForm((prev) => {
       const sections = [...prev.sections];
@@ -212,9 +210,14 @@ export default function ArticleCreateForm() {
   }
 
   function addSection() {
+    const newSection: Section = {
+      heading: "",
+      content: "",
+      _key: crypto.randomUUID(),
+    };
     setForm((prev) => ({
       ...prev,
-      sections: [...prev.sections, { heading: "", content: "" }],
+      sections: [...prev.sections, newSection],
     }));
   }
 
@@ -225,9 +228,7 @@ export default function ArticleCreateForm() {
     }));
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Таблица бюджета
-  // ─────────────────────────────────────────────────────────
+  // Бюджет
   function updateBudgetRow(
     index: number,
     field: keyof BudgetRow,
@@ -243,7 +244,10 @@ export default function ArticleCreateForm() {
   function addBudgetRow() {
     setForm((prev) => ({
       ...prev,
-      budgetTable: [...prev.budgetTable, { item: "", low: "", premium: "" }],
+      budgetTable: [
+        ...prev.budgetTable,
+        { item: "", low: "", premium: "", _key: crypto.randomUUID() },
+      ],
     }));
   }
 
@@ -254,9 +258,7 @@ export default function ArticleCreateForm() {
     }));
   }
 
-  // ─────────────────────────────────────────────────────────
   // FAQ
-  // ─────────────────────────────────────────────────────────
   function updateFaq(index: number, field: keyof FaqItem, value: string) {
     setForm((prev) => {
       const faq = [...prev.faq];
@@ -268,7 +270,7 @@ export default function ArticleCreateForm() {
   function addFaq() {
     setForm((prev) => ({
       ...prev,
-      faq: [...prev.faq, { q: "", a: "" }],
+      faq: [...prev.faq, { q: "", a: "", _key: crypto.randomUUID() }],
     }));
   }
 
@@ -279,9 +281,7 @@ export default function ArticleCreateForm() {
     }));
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Валидация перед отправкой
-  // ─────────────────────────────────────────────────────────
+  // Валидация
   function validate(): string | null {
     if (!form.slug.trim()) return "Slug не может быть пустым";
     if (!/^[a-z0-9-]+$/.test(form.slug))
@@ -293,9 +293,7 @@ export default function ArticleCreateForm() {
     return null;
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Создание статьи через POST /api/admin/articles/[slug]
-  // ─────────────────────────────────────────────────────────
+  // Создание
   async function handleCreate() {
     const validationError = validate();
     if (validationError) {
@@ -309,7 +307,7 @@ export default function ArticleCreateForm() {
 
     try {
       const res = await fetch(`/api/admin/articles/${form.slug}`, {
-        method: "POST", // POST = создание, PUT = обновление
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
@@ -322,7 +320,6 @@ export default function ArticleCreateForm() {
 
       setStatus("success");
 
-      // Редиректим на страницу редактирования созданной статьи
       setTimeout(() => {
         router.push(`/admin/articles/${form.slug}/edit`);
       }, 1000);
@@ -332,13 +329,11 @@ export default function ArticleCreateForm() {
     }
   }
 
-  // ─────────────────────────────────────────────────────────
   // РЕНДЕР
-  // ─────────────────────────────────────────────────────────
   return (
     <main className="min-h-screen bg-bg text-text">
       <div className="mx-auto max-w-4xl px-6 py-12">
-        {/* ── Хлебные крошки ────────────────────────────── */}
+        {/* Хлебные крошки */}
         <nav className="mb-6 flex items-center gap-2 text-xs text-text-muted">
           <Link href="/admin" className="transition-colors hover:text-primary">
             Админка
@@ -354,7 +349,7 @@ export default function ArticleCreateForm() {
           <span className="text-text/70">Новая статья</span>
         </nav>
 
-        {/* ── Шапка ─────────────────────────────────────── */}
+        {/* Шапка */}
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
             <h1 className="font-heading text-2xl font-bold text-text">
@@ -368,20 +363,23 @@ export default function ArticleCreateForm() {
             </p>
           </div>
 
-          {/* Кнопка создания — форма submit */}
-          <div onClick={handleCreate}>
+          <button
+            type="button"
+            onClick={handleCreate}
+            className="bg-transparent border-0 p-0"
+          >
             <CreateButton status={status} />
-          </div>
+          </button>
         </div>
 
-        {/* Сообщение об ошибке */}
+        {/* Ошибка */}
         {status === "error" && errorMsg && (
           <div className="mb-6 rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-sm text-red-400">
             {errorMsg}
           </div>
         )}
 
-        {/* Подсказка про slug */}
+        {/* Подсказка slug */}
         <div className="mb-6 rounded-xl border border-accent-bright/15 bg-accent-bright/5 px-4 py-3">
           <p className="text-xs text-text-muted">
             Slug генерируется автоматически из заголовка. После создания статьи
@@ -389,31 +387,28 @@ export default function ArticleCreateForm() {
           </p>
         </div>
 
-        {/* ── ФОРМА ─────────────────────────────────────── */}
+        {/* ФОРМА */}
         <div className="space-y-6">
           {/* Основные поля */}
           <FieldCard>
             <SectionLabel>Основная информация</SectionLabel>
             <div className="space-y-3">
-              {/* Заголовок — из него генерируется slug */}
-              <div>
-                <label className="mb-1.5 block text-xs text-text-muted">
-                  Заголовок
-                </label>
+              {/* Заголовок */}
+              <label className="mb-1.5 block text-xs text-text-muted">
+                Заголовок
                 <input
-                  className={inputClass}
+                  className={`${inputClass} mt-1.5`}
                   value={form.title}
                   onChange={(e) => setField("title", e.target.value)}
                   placeholder="Лучшие треки Norway для самостоятельной экспедиции"
                   autoFocus
                 />
-              </div>
+              </label>
 
-              {/* Slug — автозаполняется, можно переопределить */}
+              {/* Slug */}
               <div>
                 <label className="mb-1.5 flex items-center justify-between text-xs text-text-muted">
                   <span>Slug (URL)</span>
-                  {/* Переключатель ручного ввода */}
                   <button
                     type="button"
                     onClick={() => setSlugManual((v) => !v)}
@@ -427,13 +422,10 @@ export default function ArticleCreateForm() {
                   </button>
                 </label>
                 <input
-                  className={`${inputClass} font-mono ${
-                    slugManual ? "" : "opacity-70"
-                  }`}
+                  className={`${inputClass} font-mono ${slugManual ? "" : "opacity-70"}`}
                   value={form.slug}
                   onChange={(e) => {
                     setSlugManual(true);
-                    // Только безопасные символы
                     setField(
                       "slug",
                       e.target.value
@@ -445,7 +437,6 @@ export default function ArticleCreateForm() {
                   placeholder="norway-hiking-guide"
                   readOnly={!slugManual}
                 />
-                {/* Превью URL */}
                 {form.slug && (
                   <p className="mt-1 text-xs text-text-muted/60">
                     URL: /blog/{form.slug}/
@@ -455,12 +446,10 @@ export default function ArticleCreateForm() {
 
               {/* Категория и время чтения */}
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1.5 block text-xs text-text-muted">
-                    Категория
-                  </label>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Категория
                   <select
-                    className={inputClass}
+                    className={`${inputClass} mt-1.5`}
                     value={form.category}
                     onChange={(e) => setField("category", e.target.value)}
                   >
@@ -477,60 +466,52 @@ export default function ArticleCreateForm() {
                       </option>
                     ))}
                   </select>
-                </div>
+                </label>
 
-                <div>
-                  <label className="mb-1.5 block text-xs text-text-muted">
-                    Время чтения
-                  </label>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Время чтения
                   <input
-                    className={inputClass}
+                    className={`${inputClass} mt-1.5`}
                     value={form.readTime}
                     onChange={(e) => setField("readTime", e.target.value)}
                     placeholder="8 min read"
                   />
-                </div>
+                </label>
               </div>
 
-              {/* Дата ISO и дата отображения */}
+              {/* Даты */}
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1.5 block text-xs text-text-muted">
-                    Дата (ISO: YYYY-MM-DD)
-                  </label>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Дата (ISO: YYYY-MM-DD)
                   <input
                     type="date"
-                    className={inputClass}
+                    className={`${inputClass} mt-1.5`}
                     value={form.dateIso}
                     onChange={(e) => setField("dateIso", e.target.value)}
                   />
-                </div>
+                </label>
 
-                <div>
-                  <label className="mb-1.5 block text-xs text-text-muted">
-                    Дата (отображение)
-                  </label>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Дата (отображение)
                   <input
-                    className={inputClass}
+                    className={`${inputClass} mt-1.5`}
                     value={form.dateDisplay}
                     onChange={(e) => setField("dateDisplay", e.target.value)}
                     placeholder="20 мая 2026"
                   />
-                </div>
+                </label>
               </div>
 
               {/* Автор */}
-              <div>
-                <label className="mb-1.5 block text-xs text-text-muted">
-                  Автор
-                </label>
+              <label className="mb-1.5 block text-xs text-text-muted">
+                Автор
                 <input
-                  className={inputClass}
+                  className={`${inputClass} mt-1.5`}
                   value={form.author}
                   onChange={(e) => setField("author", e.target.value)}
                   placeholder="NordTrail Research Team"
                 />
-              </div>
+              </label>
             </div>
           </FieldCard>
 
@@ -562,7 +543,7 @@ export default function ArticleCreateForm() {
             <div className="space-y-4">
               {form.sections.map((section, i) => (
                 <div
-                  key={i}
+                  key={(section as Section)._key ?? `section-${i}`}
                   className="rounded-xl border border-text/8 bg-bg/40 p-4"
                 >
                   <div className="mb-3 flex items-center justify-between">
@@ -601,7 +582,7 @@ export default function ArticleCreateForm() {
             </div>
           </FieldCard>
 
-          {/* Таблица бюджета */}
+          {/* Бюджет */}
           <FieldCard>
             <div className="mb-3 flex items-center justify-between">
               <SectionLabel>Таблица бюджета</SectionLabel>
@@ -630,7 +611,7 @@ export default function ArticleCreateForm() {
             <div className="space-y-2">
               {form.budgetTable.map((row, i) => (
                 <div
-                  key={i}
+                  key={(row as BudgetRow)._key ?? `budget-${i}`}
                   className="grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-2"
                 >
                   <input
@@ -681,7 +662,7 @@ export default function ArticleCreateForm() {
             <div className="space-y-4">
               {form.faq.map((item, i) => (
                 <div
-                  key={i}
+                  key={(item as FaqItem)._key ?? `faq-${i}`}
                   className="rounded-xl border border-text/8 bg-bg/40 p-4"
                 >
                   <div className="mb-3 flex items-center justify-between">
@@ -728,12 +709,15 @@ export default function ArticleCreateForm() {
             />
           </FieldCard>
 
-          {/* Crosslinks — связанные материалы */}
+          {/* Crosslinks */}
           <FieldCard>
             <SectionLabel>Связанные материалы (перелинковка)</SectionLabel>
             <div className="space-y-3">
               {(form.crosslinks || []).map((link, i) => (
-                <div key={`crosslink-${i}`} className="flex gap-2 items-start">
+                <div
+                  key={`crosslink-${link.href || i}`}
+                  className="flex gap-2 items-start"
+                >
                   <input
                     className={inputClass}
                     value={link.label}
@@ -808,9 +792,13 @@ export default function ArticleCreateForm() {
               Отмена
             </Link>
 
-            <div onClick={handleCreate}>
+            <button
+              type="button"
+              onClick={handleCreate}
+              className="bg-transparent border-0 p-0"
+            >
               <CreateButton status={status} />
-            </div>
+            </button>
           </div>
         </div>
       </div>

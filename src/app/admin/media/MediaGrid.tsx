@@ -5,14 +5,19 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { ImageFile } from "./page";
-import { formatBytes } from "@/lib/format";
+import { formatBytes } from "../../../lib/format";
 
-// ── Получить базовое имя без суффикса и расширения ──────────
+// ─────────────────────────────────────────────────────────────
+// Утилита — базовое имя без суффикса размера и расширения
+// "hero-bg-1600.webp" → "hero-bg"
+// ─────────────────────────────────────────────────────────────
 function getBaseName(name: string): string {
   return name.replace(/\.[^.]+$/, "").replace(/-(800|1600)$/, "");
 }
 
-// ── Модалка подтверждения удаления одного файла ─────────────
+// ─────────────────────────────────────────────────────────────
+// Модалка подтверждения удаления одного файла
+// ─────────────────────────────────────────────────────────────
 function DeleteModal({
   name,
   onConfirm,
@@ -24,62 +29,73 @@ function DeleteModal({
   onCancel: () => void;
   isDeleting: boolean;
 }>) {
+  const base = getBaseName(name);
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm"
-      onClick={isDeleting ? undefined : onCancel}
-      role="dialog"
-      aria-modal="true"
-      onKeyDown={(e) => {
-        if (e.key === "Escape" && !isDeleting) onCancel();
-      }}
-    >
+    <dialog open className="fixed inset-0 z-50 m-0 border-0 bg-transparent p-0">
       <div
-        className="mx-4 w-full max-w-sm rounded-2xl border border-text/10 bg-surface/90 p-6 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        className="flex h-full w-full items-center justify-center bg-bg/80 backdrop-blur-sm"
+        onClick={isDeleting ? undefined : onCancel}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && !isDeleting) onCancel();
+        }}
+        role="presentation"
       >
-        <h3 className="font-heading text-lg font-bold text-text">
-          Удалить изображение?
-        </h3>
-        <p className="mt-2 text-sm text-text-muted">
-          Будут удалены все версии файла:
-        </p>
-        <div className="mt-3 rounded-xl border border-text/8 bg-bg/50 p-3">
-          <p className="font-mono text-xs text-text-muted/80 leading-relaxed">
-            {name}
-            <br />
-            {getBaseName(name)}-800.webp
-            <br />
-            {getBaseName(name)}-1600.webp
-            <br />
-            {getBaseName(name)}-800.avif
-            <br />
-            {getBaseName(name)}-1600.avif
+        <div
+          className="mx-4 w-full max-w-sm rounded-2xl border border-text/10 bg-surface/90 p-6 shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 className="font-heading text-lg font-bold text-text">
+            Удалить изображение?
+          </h3>
+          <p className="mt-2 text-sm text-text-muted">
+            Будут удалены все версии файла:
           </p>
-        </div>
-        <p className="mt-3 text-xs text-text-muted/60">Действие необратимо.</p>
-        <div className="mt-5 flex gap-3">
-          <button
-            onClick={onCancel}
-            disabled={isDeleting}
-            className="flex-1 rounded-xl border border-text/10 bg-text/5 py-2.5 text-sm text-text-muted transition-all hover:text-text"
-          >
-            Отмена
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isDeleting}
-            className={`flex-1 rounded-xl border py-2.5 text-sm font-medium transition-all ${isDeleting ? "cursor-wait border-text/10 bg-surface/30 text-text-muted" : "border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20"}`}
-          >
-            {isDeleting ? "Удаление..." : "Удалить"}
-          </button>
+          <div className="mt-3 rounded-xl border border-text/8 bg-bg/50 p-3">
+            <p className="font-mono text-xs leading-relaxed text-text-muted/80">
+              {name}
+              <br />
+              {base}-800.webp
+              <br />
+              {base}-1600.webp
+              <br />
+              {base}-800.avif
+              <br />
+              {base}-1600.avif
+            </p>
+          </div>
+          <p className="mt-3 text-xs text-text-muted/60">
+            Действие необратимо.
+          </p>
+          <div className="mt-5 flex gap-3">
+            <button
+              onClick={onCancel}
+              disabled={isDeleting}
+              className="flex-1 rounded-xl border border-text/10 bg-text/5 py-2.5 text-sm text-text-muted transition-all hover:text-text"
+            >
+              Отмена
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={isDeleting}
+              className={`flex-1 rounded-xl border py-2.5 text-sm font-medium transition-all ${
+                isDeleting
+                  ? "cursor-wait border-text/10 bg-surface/30 text-text-muted"
+                  : "border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20"
+              }`}
+            >
+              {isDeleting ? "Удаление..." : "Удалить"}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
 
-// ── Модалка подтверждения МАССОВОГО удаления ────────────────
+// ─────────────────────────────────────────────────────────────
+// Модалка подтверждения массового удаления
+// ─────────────────────────────────────────────────────────────
 function BulkDeleteModal({
   names,
   onConfirm,
@@ -94,79 +110,90 @@ function BulkDeleteModal({
   progress: { done: number; total: number } | null;
 }>) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm"
-      onClick={isDeleting ? undefined : onCancel}
-      role="dialog"
-      aria-modal="true"
-      onKeyDown={(e) => {
-        if (e.key === "Escape" && !isDeleting) onCancel();
-      }}
-    >
+    <dialog open className="fixed inset-0 z-50 m-0 border-0 bg-transparent p-0">
       <div
-        className="mx-4 w-full max-w-md rounded-2xl border border-text/10 bg-surface/90 p-6 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
+        className="flex h-full w-full items-center justify-center bg-bg/80 backdrop-blur-sm"
+        onClick={isDeleting ? undefined : onCancel}
+        onKeyDown={(e) => {
+          if (e.key === "Escape" && !isDeleting) onCancel();
+        }}
+        role="presentation"
       >
-        <h3 className="font-heading text-lg font-bold text-text">
-          Удалить {names.length}{" "}
-          {names.length === 1 ? "изображение" : "изображения"}?
-        </h3>
-        <p className="mt-2 text-sm text-text-muted">
-          Будут удалены все версии выбранных файлов:
-        </p>
-        <div className="mt-3 max-h-40 overflow-y-auto rounded-xl border border-text/8 bg-bg/50 p-3">
-          {names.map((name) => (
-            <p
-              key={name}
-              className="font-mono text-xs text-text-muted/80 leading-relaxed"
-            >
-              {name}
-            </p>
-          ))}
-        </div>
-        <p className="mt-3 text-xs text-text-muted/60">
-          Действие необратимо. Файлы удаляются последовательно через GitHub API.
-        </p>
-        {isDeleting && progress && (
-          <div className="mt-4">
-            <div className="mb-1.5 flex justify-between text-xs text-text-muted">
-              <span>Удаление...</span>
-              <span>
-                {progress.done} / {progress.total}
-              </span>
-            </div>
-            <div className="h-1.5 w-full rounded-full bg-surface/60">
-              <div
-                className="h-1.5 rounded-full bg-accent-bright/70 transition-all duration-300"
-                style={{ width: `${(progress.done / progress.total) * 100}%` }}
-              />
-            </div>
+        <div
+          className="mx-4 w-full max-w-md rounded-2xl border border-text/10 bg-surface/90 p-6 shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h3 className="font-heading text-lg font-bold text-text">
+            Удалить {names.length}{" "}
+            {names.length === 1 ? "изображение" : "изображения"}?
+          </h3>
+          <p className="mt-2 text-sm text-text-muted">
+            Будут удалены все версии выбранных файлов:
+          </p>
+          <div className="mt-3 max-h-40 overflow-y-auto rounded-xl border border-text/8 bg-bg/50 p-3">
+            {names.map((n) => (
+              <p
+                key={n}
+                className="font-mono text-xs leading-relaxed text-text-muted/80"
+              >
+                {n}
+              </p>
+            ))}
           </div>
-        )}
-        <div className="mt-5 flex gap-3">
-          <button
-            onClick={onCancel}
-            disabled={isDeleting}
-            className="flex-1 rounded-xl border border-text/10 bg-text/5 py-2.5 text-sm text-text-muted transition-all hover:text-text disabled:opacity-50"
-          >
-            Отмена
-          </button>
-          <button
-            onClick={onConfirm}
-            disabled={isDeleting}
-            className={`flex-1 rounded-xl border py-2.5 text-sm font-medium transition-all ${isDeleting ? "cursor-wait border-text/10 bg-surface/30 text-text-muted" : "border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20"}`}
-          >
-            {isDeleting
-              ? `Удаляю ${progress?.done ?? 0}/${progress?.total ?? names.length}...`
-              : `Удалить ${names.length}`}
-          </button>
+          <p className="mt-3 text-xs text-text-muted/60">
+            Действие необратимо. Файлы удаляются через GitHub API.
+          </p>
+
+          {isDeleting && progress && (
+            <div className="mt-4">
+              <div className="mb-1.5 flex justify-between text-xs text-text-muted">
+                <span>Удаление...</span>
+                <span>
+                  {progress.done} / {progress.total}
+                </span>
+              </div>
+              <div className="h-1.5 w-full rounded-full bg-surface/60">
+                <div
+                  className="h-1.5 rounded-full bg-accent-bright/70 transition-all duration-300"
+                  style={{
+                    width: `${(progress.done / progress.total) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          <div className="mt-5 flex gap-3">
+            <button
+              onClick={onCancel}
+              disabled={isDeleting}
+              className="flex-1 rounded-xl border border-text/10 bg-text/5 py-2.5 text-sm text-text-muted transition-all hover:text-text disabled:opacity-50"
+            >
+              Отмена
+            </button>
+            <button
+              onClick={onConfirm}
+              disabled={isDeleting}
+              className={`flex-1 rounded-xl border py-2.5 text-sm font-medium transition-all ${
+                isDeleting
+                  ? "cursor-wait border-text/10 bg-surface/30 text-text-muted"
+                  : "border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20"
+              }`}
+            >
+              {isDeleting
+                ? `Удаляю ${progress?.done ?? 0}/${progress?.total ?? names.length}...`
+                : `Удалить ${names.length}`}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
 
-// ── Карточка одного изображения ─────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// Карточка изображения — с чекбоксом
+// ─────────────────────────────────────────────────────────────
 function ImageCard({
   image,
   isSelected,
@@ -184,13 +211,9 @@ function ImageCard({
   const [deleteError, setDeleteError] = useState("");
 
   async function handleCopy() {
-    try {
-      await navigator.clipboard.writeText(image.url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
+    await navigator.clipboard.writeText(image.url).catch(() => null);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   }
 
   async function handleDelete() {
@@ -228,8 +251,13 @@ function ImageCard({
           isDeleting={isDeleting}
         />
       )}
+
       <div
-        className={`group relative overflow-hidden rounded-2xl border bg-surface/20 transition-all duration-300 ${isSelected ? "border-accent-bright/50 bg-accent-bright/5 shadow-[0_0_0_2px_rgba(212,175,55,0.2)]" : "border-text/8 hover:border-text/15 hover:bg-surface/40"}`}
+        className={`group relative overflow-hidden rounded-2xl border bg-surface/20 transition-all duration-300 ${
+          isSelected
+            ? "border-accent-bright/50 bg-accent-bright/5 shadow-[0_0_0_2px_rgba(212,175,55,0.2)]"
+            : "border-text/8 hover:border-text/15 hover:bg-surface/40"
+        }`}
       >
         <div className="relative h-40 w-full overflow-hidden bg-surface/50">
           <Image
@@ -246,7 +274,11 @@ function ImageCard({
           </span>
           <button
             onClick={() => onSelect(image.name)}
-            className={`absolute left-2 top-2 flex h-5 w-5 items-center justify-center rounded-md border transition-all ${isSelected ? "border-accent-bright bg-accent-bright text-bg" : "border-text/30 bg-bg/70 text-transparent opacity-0 backdrop-blur-sm group-hover:opacity-100 hover:border-accent-bright/60"}`}
+            className={`absolute left-2 top-2 flex h-5 w-5 items-center justify-center rounded-md border transition-all ${
+              isSelected
+                ? "border-accent-bright bg-accent-bright text-bg"
+                : "border-text/30 bg-bg/70 text-transparent opacity-0 backdrop-blur-sm group-hover:opacity-100 hover:border-accent-bright/60"
+            }`}
             title={isSelected ? "Снять выделение" : "Выбрать"}
           >
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -275,6 +307,7 @@ function ImageCard({
             </svg>
           </button>
         </div>
+
         <div className="p-3">
           <p
             className="truncate text-xs font-medium text-text"
@@ -297,7 +330,11 @@ function ImageCard({
           <div className="mt-2 flex gap-2">
             <button
               onClick={handleCopy}
-              className={`flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${copied ? "border-accent/30 bg-accent/10 text-accent" : "border-text/10 bg-text/5 text-text-muted hover:border-accent-bright/30 hover:bg-accent-bright/8 hover:text-accent-bright"}`}
+              className={`flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all ${
+                copied
+                  ? "border-accent/30 bg-accent/10 text-accent"
+                  : "border-text/10 bg-text/5 text-text-muted hover:border-accent-bright/30 hover:bg-accent-bright/8 hover:text-accent-bright"
+              }`}
             >
               {copied ? "✓ Скопировано" : "Копировать URL"}
             </button>
@@ -323,7 +360,9 @@ function ImageCard({
   );
 }
 
-// ── СЕТКА С ФИЛЬТРАМИ И МАССОВЫМ УДАЛЕНИЕМ ──────────────────
+// ─────────────────────────────────────────────────────────────
+// СЕТКА С ФИЛЬТРАМИ И МАССОВЫМ УДАЛЕНИЕМ
+// ─────────────────────────────────────────────────────────────
 type Filter = "all" | "avif" | "webp";
 
 export default function MediaGrid({
@@ -340,6 +379,7 @@ export default function MediaGrid({
     total: number;
   } | null>(null);
   const [bulkError, setBulkError] = useState("");
+
   const router = useRouter();
 
   function toggleSelect(name: string) {
@@ -351,9 +391,22 @@ export default function MediaGrid({
     });
   }
 
+  const filtered = images
+    .filter((img) => {
+      const matchesFormat = filter === "all" || img.ext === filter;
+      const matchesSearch = img.name
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      return matchesFormat && matchesSearch;
+    })
+    .toSorted((a, b) => a.name.localeCompare(b.name));
+
   function toggleSelectAll() {
-    if (selected.size === filtered.length) setSelected(new Set());
-    else setSelected(new Set(filtered.map((img) => img.name)));
+    if (selected.size === filtered.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map((img) => img.name)));
+    }
   }
 
   function handleDeleted(name: string) {
@@ -374,7 +427,9 @@ export default function MediaGrid({
     setIsBulkDeleting(true);
     setBulkProgress({ done: 0, total: names.length });
     setBulkError("");
+
     const failed: string[] = [];
+
     for (let i = 0; i < names.length; i++) {
       try {
         const res = await fetch("/api/admin/media/delete", {
@@ -395,24 +450,21 @@ export default function MediaGrid({
       }
       setBulkProgress({ done: i + 1, total: names.length });
     }
+
     setIsBulkDeleting(false);
     setShowBulkConfirm(false);
     setBulkProgress(null);
     setSelected(new Set(failed));
+
     if (failed.length > 0) {
       setBulkError(
         `Не удалось удалить ${failed.length} файл(ов): ${failed.join(", ")}`,
       );
       setTimeout(() => setBulkError(""), 6000);
     }
+
     router.refresh();
   }
-
-  const filtered = images.filter((img) => {
-    const matchesFormat = filter === "all" || img.ext === filter;
-    const matchesSearch = img.name.toLowerCase().includes(search.toLowerCase());
-    return matchesFormat && matchesSearch;
-  });
 
   const filterButtons: { value: Filter; label: string }[] = [
     { value: "all", label: `Все (${images.length})` },
@@ -442,6 +494,7 @@ export default function MediaGrid({
           progress={bulkProgress}
         />
       )}
+
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <div className="flex rounded-xl border border-text/8 bg-surface/20 p-1">
           {filterButtons.map((btn) => (
@@ -451,12 +504,17 @@ export default function MediaGrid({
                 setFilter(btn.value);
                 setSelected(new Set());
               }}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${filter === btn.value ? "bg-accent-bright/15 text-accent-bright" : "text-text-muted hover:text-text"}`}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                filter === btn.value
+                  ? "bg-accent-bright/15 text-accent-bright"
+                  : "text-text-muted hover:text-text"
+              }`}
             >
               {btn.label}
             </button>
           ))}
         </div>
+
         <input
           type="search"
           placeholder="Поиск по имени..."
@@ -467,19 +525,26 @@ export default function MediaGrid({
           }}
           className="rounded-xl border border-text/10 bg-surface/40 px-4 py-2 text-sm text-text placeholder-text-muted/50 outline-none transition-all focus:border-accent-bright/40 focus:bg-surface/70"
         />
+
         {filtered.length !== images.length && (
           <p className="text-xs text-text-muted">
             Показано: {filtered.length} из {images.length}
           </p>
         )}
+
         {filtered.length > 0 && (
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={toggleSelectAll}
-              className={`rounded-xl border px-3 py-2 text-xs font-medium transition-all ${allFilteredSelected ? "border-accent-bright/40 bg-accent-bright/10 text-accent-bright" : "border-text/10 bg-text/5 text-text-muted hover:border-text/20 hover:text-text"}`}
+              className={`rounded-xl border px-3 py-2 text-xs font-medium transition-all ${
+                allFilteredSelected
+                  ? "border-accent-bright/40 bg-accent-bright/10 text-accent-bright"
+                  : "border-text/10 bg-text/5 text-text-muted hover:border-text/20 hover:text-text"
+              }`}
             >
               {allFilteredSelected ? "Снять все" : "Выбрать все"}
             </button>
+
             {selected.size > 0 && (
               <button
                 onClick={() => setShowBulkConfirm(true)}
@@ -500,11 +565,13 @@ export default function MediaGrid({
           </div>
         )}
       </div>
+
       {bulkError && (
         <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-xs text-red-400">
           {bulkError}
         </div>
       )}
+
       {selected.size > 0 && (
         <div className="mb-4 flex items-center gap-2 rounded-xl border border-accent-bright/15 bg-accent-bright/5 px-4 py-2.5">
           <p className="text-xs text-accent-bright">
@@ -518,6 +585,7 @@ export default function MediaGrid({
           </button>
         </div>
       )}
+
       {filtered.length === 0 ? (
         <div className="rounded-2xl border border-text/8 bg-surface/20 py-12 text-center">
           <p className="text-sm text-text-muted">
