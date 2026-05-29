@@ -112,6 +112,7 @@ function buildMdxContent(body: Destination, markdownBody = ""): string {
     name: body.name,
     h1: body.h1,
     quickAnswer: body.quickAnswer,
+    image: body.image,
     bestSeason: body.bestSeason,
     budget: body.budget,
     difficulty: body.difficulty,
