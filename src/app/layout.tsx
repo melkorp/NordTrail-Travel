@@ -24,6 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
+      url: "https://nord-trail-travel.vercel.app",
       images: [
         {
           url: "/images/optimized/og-main-1600.webp",
