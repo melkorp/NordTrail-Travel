@@ -9,14 +9,13 @@ import { formatBytes } from "../../../lib/format";
 
 // ─────────────────────────────────────────────────────────────
 // Утилита — базовое имя без суффикса размера и расширения
-// "hero-bg-1600.webp" → "hero-bg"
 // ─────────────────────────────────────────────────────────────
 function getBaseName(name: string): string {
   return name.replace(/\.[^.]+$/, "").replace(/-(800|1600)$/, "");
 }
 
 // ─────────────────────────────────────────────────────────────
-// Модалка подтверждения удаления одного файла
+// Модалка удаления одного файла
 // ─────────────────────────────────────────────────────────────
 function DeleteModal({
   name,
@@ -95,20 +94,19 @@ function DeleteModal({
 }
 
 // ─────────────────────────────────────────────────────────────
-// Модалка подтверждения массового удаления
+// Модалка массового удаления
+// Прогресс-бар убран — теперь один запрос, не цикл
 // ─────────────────────────────────────────────────────────────
 function BulkDeleteModal({
   names,
   onConfirm,
   onCancel,
   isDeleting,
-  progress,
 }: Readonly<{
   names: string[];
   onConfirm: () => void;
   onCancel: () => void;
   isDeleting: boolean;
-  progress: { done: number; total: number } | null;
 }>) {
   return (
     <dialog open className="fixed inset-0 z-50 m-0 border-0 bg-transparent p-0">
@@ -143,25 +141,33 @@ function BulkDeleteModal({
             ))}
           </div>
           <p className="mt-3 text-xs text-text-muted/60">
-            Действие необратимо. Файлы удаляются через GitHub API.
+            Действие необратимо. Все файлы удаляются одним коммитом.
           </p>
 
-          {isDeleting && progress && (
-            <div className="mt-4">
-              <div className="mb-1.5 flex justify-between text-xs text-text-muted">
-                <span>Удаление...</span>
-                <span>
-                  {progress.done} / {progress.total}
-                </span>
-              </div>
-              <div className="h-1.5 w-full rounded-full bg-surface/60">
-                <div
-                  className="h-1.5 rounded-full bg-accent-bright/70 transition-all duration-300"
-                  style={{
-                    width: `${(progress.done / progress.total) * 100}%`,
-                  }}
+          {/* Индикатор ожидания — один запрос, не цикл */}
+          {isDeleting && (
+            <div className="mt-4 flex items-center gap-2">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 14 14"
+                fill="none"
+                className="animate-spin text-accent-bright/70"
+              >
+                <circle
+                  cx="7"
+                  cy="7"
+                  r="5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeDasharray="20"
+                  strokeDashoffset="10"
+                  strokeLinecap="round"
                 />
-              </div>
+              </svg>
+              <span className="text-xs text-text-muted">
+                Удаление одним коммитом...
+              </span>
             </div>
           )}
 
@@ -182,9 +188,7 @@ function BulkDeleteModal({
                   : "border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20"
               }`}
             >
-              {isDeleting
-                ? `Удаляю ${progress?.done ?? 0}/${progress?.total ?? names.length}...`
-                : `Удалить ${names.length}`}
+              {isDeleting ? "Удаляю..." : `Удалить ${names.length}`}
             </button>
           </div>
         </div>
@@ -194,7 +198,7 @@ function BulkDeleteModal({
 }
 
 // ─────────────────────────────────────────────────────────────
-// Карточка изображения — с чекбоксом
+// Карточка изображения — без изменений
 // ─────────────────────────────────────────────────────────────
 function ImageCard({
   image,
@@ -227,7 +231,7 @@ function ImageCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: image.name }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as { error?: string };
       if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
       onDeleted(image.name);
     } catch (err) {
@@ -376,10 +380,6 @@ export default function MediaGrid({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [showBulkConfirm, setShowBulkConfirm] = useState(false);
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
-  const [bulkProgress, setBulkProgress] = useState<{
-    done: number;
-    total: number;
-  } | null>(null);
   const [bulkError, setBulkError] = useState("");
 
   const router = useRouter();
@@ -424,48 +424,50 @@ export default function MediaGrid({
     router.refresh();
   }
 
+  // ─────────────────────────────────────────────────────────
+  // Массовое удаление — ОДИН запрос → ОДИН коммит
+  // Раньше: цикл из N запросов → N коммитов → гонка с Actions
+  // Теперь: POST /api/admin/media/delete → Tree API → 1 коммит
+  // ─────────────────────────────────────────────────────────
   async function handleBulkDelete() {
     const names = Array.from(selected);
     setIsBulkDeleting(true);
-    setBulkProgress({ done: 0, total: names.length });
     setBulkError("");
 
-    const failed: string[] = [];
+    try {
+      const res = await fetch("/api/admin/media/delete", {
+        method: "POST", // POST = массовое, DELETE = одиночное
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ names }),
+      });
 
-    for (let i = 0; i < names.length; i++) {
-      try {
-        const res = await fetch("/api/admin/media/delete", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name: names[i] }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.error ?? `HTTP ${res.status}`);
-        }
-        const baseName = getBaseName(names[i]);
-        setImages((prev) =>
-          prev.filter((img) => !getBaseName(img.name).startsWith(baseName)),
-        );
-      } catch {
-        failed.push(names[i]);
+      const data = (await res.json()) as {
+        ok?: boolean;
+        deleted?: string[];
+        error?: string;
+      };
+
+      if (!res.ok || !data.ok) {
+        throw new Error(data.error ?? `HTTP ${res.status}`);
       }
-      setBulkProgress({ done: i + 1, total: names.length });
-    }
 
-    setIsBulkDeleting(false);
-    setShowBulkConfirm(false);
-    setBulkProgress(null);
-    setSelected(new Set(failed));
+      // Убираем удалённые файлы из локального стейта
+      const deletedBases = new Set((data.deleted ?? []).map((b) => b));
 
-    if (failed.length > 0) {
+      setImages((prev) =>
+        prev.filter((img) => !deletedBases.has(getBaseName(img.name))),
+      );
+      setSelected(new Set());
+      router.refresh();
+    } catch (err) {
       setBulkError(
-        `Не удалось удалить ${failed.length} файл(ов): ${failed.join(", ")}`,
+        err instanceof Error ? err.message : "Неизвестная ошибка при удалении",
       );
       setTimeout(() => setBulkError(""), 6000);
     }
 
-    router.refresh();
+    setIsBulkDeleting(false);
+    setShowBulkConfirm(false);
   }
 
   const filterButtons: { value: Filter; label: string }[] = [
@@ -493,10 +495,10 @@ export default function MediaGrid({
             if (!isBulkDeleting) setShowBulkConfirm(false);
           }}
           isDeleting={isBulkDeleting}
-          progress={bulkProgress}
         />
       )}
 
+      {/* ── Панель фильтров ─────────────────────────────── */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
         <div className="flex rounded-xl border border-text/8 bg-surface/20 p-1">
           {filterButtons.map((btn) => (
@@ -568,12 +570,14 @@ export default function MediaGrid({
         )}
       </div>
 
+      {/* Ошибка */}
       {bulkError && (
         <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-xs text-red-400">
           {bulkError}
         </div>
       )}
 
+      {/* Подсказка о выбранных */}
       {selected.size > 0 && (
         <div className="mb-4 flex items-center gap-2 rounded-xl border border-accent-bright/15 bg-accent-bright/5 px-4 py-2.5">
           <p className="text-xs text-accent-bright">
@@ -588,6 +592,7 @@ export default function MediaGrid({
         </div>
       )}
 
+      {/* Сетка */}
       {filtered.length === 0 ? (
         <div className="rounded-2xl border border-text/8 bg-surface/20 py-12 text-center">
           <p className="text-sm text-text-muted">
