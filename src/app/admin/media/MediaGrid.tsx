@@ -39,11 +39,12 @@ function DeleteModal({
         onKeyDown={(e) => {
           if (e.key === "Escape" && !isDeleting) onCancel();
         }}
-        role="presentation"
+        tabIndex={-1}
       >
         <div
           className="mx-4 w-full max-w-sm rounded-2xl border border-text/10 bg-surface/90 p-6 shadow-2xl"
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={() => {}}
         >
           <h3 className="font-heading text-lg font-bold text-text">
             Удалить изображение?
@@ -117,11 +118,12 @@ function BulkDeleteModal({
         onKeyDown={(e) => {
           if (e.key === "Escape" && !isDeleting) onCancel();
         }}
-        role="presentation"
+        tabIndex={-1}
       >
         <div
           className="mx-4 w-full max-w-md rounded-2xl border border-text/10 bg-surface/90 p-6 shadow-2xl"
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={() => {}}
         >
           <h3 className="font-heading text-lg font-bold text-text">
             Удалить {names.length}{" "}
