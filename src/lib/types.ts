@@ -29,6 +29,7 @@ export interface Destination {
   name: string;
   h1: string;
   quickAnswer: string;
+  image?: string;
   bestSeason: string;
   budget: string;
   difficulty: string;

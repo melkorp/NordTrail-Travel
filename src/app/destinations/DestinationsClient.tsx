@@ -3,6 +3,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import type { Destination } from "@/lib/types";
 import { buildBreadcrumbsJsonLd } from "@/lib/breadcrumbs";
 
@@ -69,10 +70,26 @@ export default function DestinationsClient({
                 >
                   <Link
                     href={`/destinations/${dest.slug}/`}
-                    className="group relative h-full bg-surface border border-white/5 hover:border-accent-bright/50 hover:-translate-y-px transition-all duration-500 rounded-sm p-8 flex flex-col justify-between overflow-hidden"
+                    className="group relative h-full bg-surface border border-white/5 hover:border-accent-bright/50 hover:-translate-y-px transition-all duration-500 rounded-2xl overflow-hidden flex flex-col"
                   >
-                    <div className="absolute inset-0 bg-linear-to-b from-transparent to-accent-bright/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                    <div className="relative z-10">
+                    {/* Изображение */}
+                    <div className="relative h-48 w-full overflow-hidden shrink-0">
+                      {dest.image ? (
+                        <Image
+                          src={dest.image}
+                          alt={dest.name}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 bg-linear-to-b from-surface/60 to-bg" />
+                      )}
+                      <div className="absolute inset-0 bg-bg/30 group-hover:bg-bg/10 transition-colors duration-500" />
+                    </div>
+
+                    {/* Текст */}
+                    <div className="relative z-10 p-6 flex flex-col flex-1">
                       <h2 className="text-2xl font-heading text-text group-hover:text-accent-bright transition-colors duration-500 mb-2 tracking-tight">
                         {dest.name}
                       </h2>
@@ -94,11 +111,11 @@ export default function DestinationsClient({
                           )}
                         </div>
                       )}
+                      <span className="relative z-10 text-xs font-heading uppercase tracking-widest text-accent-bright/80 mt-auto pt-4 flex items-center gap-3">
+                        Открыть маршрут
+                        <span className="block w-3 h-px bg-accent-bright group-hover:w-6 transition-all duration-500" />
+                      </span>
                     </div>
-                    <span className="relative z-10 text-xs font-heading uppercase tracking-widest text-accent-bright/80 mt-8 flex items-center gap-3">
-                      Открыть маршрут
-                      <span className="block w-3 h-px bg-accent-bright group-hover:w-6 transition-all duration-500" />
-                    </span>
                   </Link>
                 </motion.div>
               ))}

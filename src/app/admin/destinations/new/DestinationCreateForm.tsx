@@ -26,6 +26,7 @@ const EMPTY_DESTINATION: Destination = {
   name: "",
   h1: "",
   quickAnswer: "",
+  image: "",
   bestSeason: "",
   budget: "средний",
   difficulty: "среднее",
@@ -405,6 +406,28 @@ export default function DestinationCreateForm() {
                   onChange={(e) => setField("h1", e.target.value)}
                   placeholder="Путешествие в Исландию: маршруты, цены, советы 2026"
                 />
+              </div>
+
+              {/* Изображение */}
+              <div>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Изображение
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    className={inputClass}
+                    value={form.image ?? ""}
+                    onChange={(e) => setField("image", e.target.value)}
+                    placeholder="/images/optimized/..."
+                  />
+                  <Link
+                    href="/admin/media"
+                    target="_blank"
+                    className="shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-text/10 bg-surface/40 px-3 py-2.5 text-xs text-text-muted transition-all hover:border-accent-bright/50 hover:text-accent-bright"
+                  >
+                    Медиа
+                  </Link>
+                </div>
               </div>
 
               {/* Лучший сезон */}
