@@ -1,15 +1,11 @@
 // src/app/api/admin/media/upload/route.ts
 //
 // POST /api/admin/media/upload
-// Принимает до 10 файлов через FormData (ключ "file" повторяется).
-// Все файлы коммитятся ОДНИМ коммитом через GitHub Tree API —
-// это исключает гонку с GitHub Actions при параллельных загрузках.
+// Принимает JSON: { files: Array<{ name, type, size, base64 }> }
+// Все файлы коммитятся ОДНИМ коммитом через GitHub Tree API.
 //
-// Алгоритм:
-// 1. Загружаем каждый файл как blob → получаем sha блоба
-// 2. Создаём tree с указанием всех блобов
-// 3. Создаём commit поверх текущего HEAD
-// 4. Обновляем ref ветки на новый commit
+// JSON вместо FormData — надёжно работает на Vercel serverless,
+// исключает проблемы с парсингом multipart/form-data.
 
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -20,7 +16,6 @@ const GH_REPO = process.env.GITHUB_REPO_NAME!;
 const GH_BRANCH = process.env.GITHUB_BRANCH ?? "main";
 const GH_API = "https://api.github.com";
 
-// Допустимые форматы — Set для O(1) проверки
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
   "image/jpg",
@@ -28,11 +23,21 @@ const ALLOWED_TYPES = new Set([
   "image/webp",
 ]);
 
-const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_SIZE = 10 * 1024 * 1024;
 const MAX_FILES = 10;
 
 // ─────────────────────────────────────────────────────────────
-// Общие заголовки для GitHub API
+// Тип входящего файла
+// ─────────────────────────────────────────────────────────────
+interface IncomingFile {
+  name: string;
+  type: string;
+  size: number;
+  base64: string;
+}
+
+// ─────────────────────────────────────────────────────────────
+// GitHub API helpers
 // ─────────────────────────────────────────────────────────────
 function ghHeaders(): HeadersInit {
   return {
@@ -43,9 +48,6 @@ function ghHeaders(): HeadersInit {
   };
 }
 
-// ─────────────────────────────────────────────────────────────
-// Sanitize имени файла
-// ─────────────────────────────────────────────────────────────
 function sanitizeName(name: string): string {
   return name
     .toLowerCase()
@@ -54,57 +56,35 @@ function sanitizeName(name: string): string {
     .replace(/^-|-$/g, "");
 }
 
-// ─────────────────────────────────────────────────────────────
-// Шаг 1: Загрузить файл как blob, получить sha
-// GitHub хранит контент отдельно от tree — сначала создаём blob
-// ─────────────────────────────────────────────────────────────
-async function createBlob(contentBase64: string): Promise<string> {
+// Создать blob, получить sha
+async function createBlob(base64: string): Promise<string> {
   const res = await fetch(`${GH_API}/repos/${GH_OWNER}/${GH_REPO}/git/blobs`, {
     method: "POST",
     headers: ghHeaders(),
-    body: JSON.stringify({
-      content: contentBase64,
-      encoding: "base64",
-    }),
+    body: JSON.stringify({ content: base64, encoding: "base64" }),
   });
-
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(
-      `Blob create failed: ${res.status} — ${err.message ?? "unknown"}`,
-    );
+    throw new Error(`Blob failed: ${res.status} — ${err.message ?? "unknown"}`);
   }
-
-  const data = await res.json();
-  return data.sha as string;
+  return ((await res.json()) as { sha: string }).sha;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Шаг 2: Получить SHA текущего HEAD ветки
-// ─────────────────────────────────────────────────────────────
+// Получить SHA текущего HEAD
 async function getHeadSha(): Promise<string> {
   const res = await fetch(
     `${GH_API}/repos/${GH_OWNER}/${GH_REPO}/git/ref/heads/${GH_BRANCH}`,
     { headers: ghHeaders(), cache: "no-store" },
   );
-
-  if (!res.ok) throw new Error(`Get HEAD failed: ${res.status}`);
+  if (!res.ok) throw new Error(`HEAD failed: ${res.status}`);
   const data = await res.json();
-  return data.object.sha as string;
+  return (data as { object: { sha: string } }).object.sha;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Шаг 3: Создать tree с несколькими файлами
-// base_tree — текущее дерево, новые файлы добавляются поверх
-// ─────────────────────────────────────────────────────────────
-interface TreeEntry {
-  path: string; // путь в репозитории
-  blobSha: string; // sha блоба
-}
-
+// Создать tree
 async function createTree(
   baseTreeSha: string,
-  entries: TreeEntry[],
+  entries: { path: string; blobSha: string }[],
 ): Promise<string> {
   const res = await fetch(`${GH_API}/repos/${GH_OWNER}/${GH_REPO}/git/trees`, {
     method: "POST",
@@ -113,27 +93,20 @@ async function createTree(
       base_tree: baseTreeSha,
       tree: entries.map((e) => ({
         path: e.path,
-        mode: "100644", // обычный файл
+        mode: "100644",
         type: "blob",
         sha: e.blobSha,
       })),
     }),
   });
-
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(
-      `Tree create failed: ${res.status} — ${err.message ?? "unknown"}`,
-    );
+    throw new Error(`Tree failed: ${res.status} — ${err.message ?? "unknown"}`);
   }
-
-  const data = await res.json();
-  return data.sha as string;
+  return ((await res.json()) as { sha: string }).sha;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Шаг 4: Создать commit
-// ─────────────────────────────────────────────────────────────
+// Создать commit
 async function createCommit(
   message: string,
   treeSha: string,
@@ -144,28 +117,19 @@ async function createCommit(
     {
       method: "POST",
       headers: ghHeaders(),
-      body: JSON.stringify({
-        message,
-        tree: treeSha,
-        parents: [parentSha],
-      }),
+      body: JSON.stringify({ message, tree: treeSha, parents: [parentSha] }),
     },
   );
-
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(
-      `Commit create failed: ${res.status} — ${err.message ?? "unknown"}`,
+      `Commit failed: ${res.status} — ${err.message ?? "unknown"}`,
     );
   }
-
-  const data = await res.json();
-  return data.sha as string;
+  return ((await res.json()) as { sha: string }).sha;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Шаг 5: Переместить ref ветки на новый commit
-// ─────────────────────────────────────────────────────────────
+// Обновить ref ветки
 async function updateRef(commitSha: string): Promise<void> {
   const res = await fetch(
     `${GH_API}/repos/${GH_OWNER}/${GH_REPO}/git/refs/heads/${GH_BRANCH}`,
@@ -175,20 +139,18 @@ async function updateRef(commitSha: string): Promise<void> {
       body: JSON.stringify({ sha: commitSha, force: false }),
     },
   );
-
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     throw new Error(
-      `Update ref failed: ${res.status} — ${err.message ?? "unknown"}`,
+      `Ref update failed: ${res.status} — ${err.message ?? "unknown"}`,
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────
-// POST /api/admin/media/upload
+// POST handler
 // ─────────────────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
-  // Авторизация
   const session = await getServerSession();
   if (!session) {
     return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
@@ -202,102 +164,93 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const formData = await request.formData();
+    const body = (await request.json()) as { files?: IncomingFile[] };
+    const incoming = body.files;
 
-    // Собираем все файлы под ключом "file"
-    const rawFiles = formData.getAll("file") as File[];
-
-    if (rawFiles.length === 0) {
+    if (!Array.isArray(incoming) || incoming.length === 0) {
       return NextResponse.json({ error: "Файлы не переданы" }, { status: 400 });
     }
 
-    // Ограничиваем количество на сервере
-    const files = rawFiles.slice(0, MAX_FILES);
+    // Ограничиваем на сервере
+    const files = incoming.slice(0, MAX_FILES);
 
-    // ── Валидация каждого файла ──────────────────────────
+    // ── Валидация ────────────────────────────────────────
     interface ValidFile {
-      file: File;
+      incoming: IncomingFile;
       safeName: string;
       filePath: string;
     }
 
     const validFiles: ValidFile[] = [];
-    const validationErrors: { name: string; error: string }[] = [];
+    const errorResults: { name: string; ok: false; error: string }[] = [];
 
-    for (const file of files) {
-      if (!ALLOWED_TYPES.has(file.type)) {
-        validationErrors.push({
-          name: file.name,
-          error: "Недопустимый формат. Разрешены: JPG, PNG, WebP",
+    for (const f of files) {
+      if (!ALLOWED_TYPES.has(f.type)) {
+        errorResults.push({
+          name: f.name,
+          ok: false,
+          error: "Недопустимый формат",
         });
         continue;
       }
-
-      if (file.size > MAX_SIZE) {
-        validationErrors.push({
-          name: file.name,
-          error: "Файл слишком большой. Максимум: 10 MB",
+      if (f.size > MAX_SIZE) {
+        errorResults.push({
+          name: f.name,
+          ok: false,
+          error: "Файл слишком большой (максимум 10 MB)",
         });
         continue;
       }
-
-      const safeName = sanitizeName(file.name);
+      if (!f.base64 || typeof f.base64 !== "string") {
+        errorResults.push({
+          name: f.name,
+          ok: false,
+          error: "Некорректные данные файла",
+        });
+        continue;
+      }
+      const safeName = sanitizeName(f.name);
       validFiles.push({
-        file,
+        incoming: f,
         safeName,
         filePath: `public/images/originals/${safeName}`,
       });
     }
 
-    // Если все файлы невалидны — возвращаем ошибки сразу
     if (validFiles.length === 0) {
-      return NextResponse.json(
-        {
-          results: validationErrors.map((e) => ({
-            name: e.name,
-            ok: false,
-            error: e.error,
-          })),
-        },
-        { status: 400 },
-      );
+      return NextResponse.json({ results: errorResults }, { status: 400 });
     }
 
-    // ── Загружаем все файлы как blobs параллельно ────────
-    // Blobs не зависят друг от друга — можно параллельно
+    // ── Создаём blobs параллельно ────────────────────────
+    // Blobs stateless — параллельность безопасна
     const blobResults = await Promise.all(
       validFiles.map(async (vf) => {
-        const arrayBuffer = await vf.file.arrayBuffer();
-        const contentBase64 = Buffer.from(arrayBuffer).toString("base64");
-        const blobSha = await createBlob(contentBase64);
+        const blobSha = await createBlob(vf.incoming.base64);
         return { ...vf, blobSha };
       }),
     );
 
-    // ── Один коммит со всеми файлами ────────────────────
-    // Получаем HEAD один раз — все файлы идут в один коммит
+    // ── Один коммит для всех файлов ──────────────────────
     const headSha = await getHeadSha();
 
-    const treeEntries: TreeEntry[] = blobResults.map((b) => ({
-      path: b.filePath,
-      blobSha: b.blobSha,
-    }));
-
-    const treeSha = await createTree(headSha, treeEntries);
+    const treeSha = await createTree(
+      headSha,
+      blobResults.map((b) => ({ path: b.filePath, blobSha: b.blobSha })),
+    );
 
     const commitMessage =
       validFiles.length === 1
-        ? `media: загрузка изображения "${validFiles[0].safeName}"`
-        : `media: загрузка ${validFiles.length} изображений (${validFiles.map((f) => f.safeName).join(", ")})`;
+        ? `media: загрузка "${validFiles[0].safeName}"`
+        : `media: загрузка ${validFiles.length} изображений`;
 
     const commitSha = await createCommit(commitMessage, treeSha, headSha);
     await updateRef(commitSha);
 
     console.log(
-      `[CMS] Загружено ${validFiles.length} изображений одним коммитом: ${commitSha}`,
+      `[CMS] ${validFiles.length} файл(ов) в одном коммите: ${commitSha}`,
     );
 
-    // ── Формируем ответ ──────────────────────────────────
+    // ── Результаты ───────────────────────────────────────
     const successResults = blobResults.map((b) => {
       const base = b.safeName.replace(/\.[^.]+$/, "");
       return {
@@ -313,18 +266,9 @@ export async function POST(request: NextRequest) {
       };
     });
 
-    const errorResults = validationErrors.map((e) => ({
-      name: e.name,
-      ok: false,
-      error: e.error,
-    }));
-
-    // 207 Multi-Status если часть файлов не прошла валидацию
-    const status = errorResults.length > 0 ? 207 : 200;
-
     return NextResponse.json(
       { results: [...successResults, ...errorResults] },
-      { status },
+      { status: errorResults.length > 0 ? 207 : 200 },
     );
   } catch (err) {
     console.error("[CMS] Ошибка загрузки:", err);
