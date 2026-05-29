@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const { title, description } = settings.site;
 
   return {
-    metadataBase: new URL("https://melkorp.github.io/NordTrail-Travel"),
+    metadataBase: new URL("https://nord-trail-travel.vercel.app"),
     title,
     description,
     openGraph: {
