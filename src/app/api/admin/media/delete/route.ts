@@ -97,7 +97,6 @@ async function createTreeWithDeletions(
         path,
         mode: "100644",
         type: "blob",
-        // sha: null — GitHub удаляет этот путь из дерева
         sha: null,
       })),
     }),
