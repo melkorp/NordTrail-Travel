@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ArticleData } from "@/lib/types";
 
-function CategoryBadge({ category }: { category: string }) {
+function CategoryBadge({ category }: Readonly<{ category: string }>) {
   const styles: Record<string, string> = {
     Budget: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
     Hiking: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
@@ -40,13 +40,13 @@ function DeleteModal({
   isDeleting,
   onConfirm,
   onCancel,
-}: {
+}: Readonly<{
   title: string;
   slug: string;
   isDeleting: boolean;
   onConfirm: () => void;
   onCancel: () => void;
-}) {
+}>) {
   return (
     // Оверлей — клик вне карточки отменяет удаление
     <div
@@ -110,13 +110,13 @@ function DeleteModal({
 export default function ArticleRow({
   article,
   index,
-}: {
+}: Readonly<{
   article: Pick<
     ArticleData,
     "slug" | "title" | "category" | "readTime" | "dateDisplay"
   >;
   index: number;
-}) {
+}>) {
   const [showModal, setShowModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");

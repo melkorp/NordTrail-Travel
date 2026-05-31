@@ -11,9 +11,9 @@ import ArticleEditForm from "./ArticleEditForm";
 
 export default async function EditArticlePage({
   params,
-}: {
+}: Readonly<{
   params: Promise<{ slug: string }>;
-}) {
+}>) {
   // Проверяем сессию — неавторизованных отправляем на /admin
   const session = await getServerSession();
   if (!session) redirect("/admin");

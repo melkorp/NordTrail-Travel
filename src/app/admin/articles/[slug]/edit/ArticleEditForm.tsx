@@ -67,16 +67,26 @@ function RemoveButton({ onClick }: Readonly<{ onClick: () => void }>) {
   );
 }
 
+function getSaveButtonStyle(status: SaveStatus): string {
+  if (status === "saving")
+    return "cursor-wait border border-text/10 bg-surface/30 text-text-muted";
+  if (status === "saved")
+    return "border border-accent/30 bg-accent/10 text-accent";
+  if (status === "error")
+    return "border border-red-500/30 bg-red-500/10 text-red-400";
+  return "border border-accent-bright/40 bg-accent-bright/10 text-accent-bright hover:bg-accent-bright/20";
+}
+
 // ─────────────────────────────────────────────────────────────
 // ГЛАВНЫЙ КОМПОНЕНТ
 // ─────────────────────────────────────────────────────────────
 export default function ArticleEditForm({
   article,
   slug,
-}: {
+}: Readonly<{
   article: ArticleData;
   slug: string;
-}) {
+}>) {
   // Состояние формы — копия данных статьи
   const [form, setForm] = useState<ArticleData>({ ...article });
 
@@ -207,7 +217,6 @@ export default function ArticleEditForm({
       }
 
       setStatus("saved");
-      // Сбрасываем статус через 3 секунды
       setTimeout(() => setStatus("idle"), 3000);
     } catch (err) {
       setStatus("error");
@@ -252,15 +261,7 @@ export default function ArticleEditForm({
           <button
             onClick={handleSave}
             disabled={status === "saving"}
-            className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${
-              status === "saving"
-                ? "cursor-wait border border-text/10 bg-surface/30 text-text-muted"
-                : status === "saved"
-                  ? "border border-accent/30 bg-accent/10 text-accent"
-                  : status === "error"
-                    ? "border border-red-500/30 bg-red-500/10 text-red-400"
-                    : "border border-accent-bright/40 bg-accent-bright/10 text-accent-bright hover:bg-accent-bright/20"
-            }`}
+            className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${getSaveButtonStyle(status)}`}
           >
             {status === "saving" && "Сохранение..."}
             {status === "saved" && "✓ Сохранено"}
@@ -283,26 +284,22 @@ export default function ArticleEditForm({
             <SectionLabel>Основная информация</SectionLabel>
             <div className="space-y-3">
               {/* Заголовок */}
-              <div>
-                <label className="mb-1.5 block text-xs text-text-muted">
-                  Заголовок
-                </label>
+              <label className="mb-1.5 block text-xs text-text-muted">
+                Заголовок
                 <input
-                  className={inputClass}
+                  className={`${inputClass} mt-1.5`}
                   value={form.title}
                   onChange={(e) => setField("title", e.target.value)}
                   placeholder="Заголовок статьи"
                 />
-              </div>
+              </label>
 
               {/* Два поля в ряд: категория и время чтения */}
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1.5 block text-xs text-text-muted">
-                    Категория
-                  </label>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Категория
                   <select
-                    className={inputClass}
+                    className={`${inputClass} mt-1.5`}
                     value={form.category}
                     onChange={(e) => setField("category", e.target.value)}
                   >
@@ -319,79 +316,68 @@ export default function ArticleEditForm({
                       </option>
                     ))}
                   </select>
-                </div>
+                </label>
 
-                <div>
-                  <label className="mb-1.5 block text-xs text-text-muted">
-                    Время чтения
-                  </label>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Время чтения
                   <input
-                    className={inputClass}
+                    className={`${inputClass} mt-1.5`}
                     value={form.readTime}
                     onChange={(e) => setField("readTime", e.target.value)}
                     placeholder="8 min read"
                   />
-                </div>
+                </label>
               </div>
 
               {/* Два поля в ряд: дата ISO и дата отображения */}
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1.5 block text-xs text-text-muted">
-                    Дата (ISO: YYYY-MM-DD)
-                  </label>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Дата (ISO: YYYY-MM-DD)
                   <input
                     type="date"
-                    className={inputClass}
+                    className={`${inputClass} mt-1.5`}
                     value={form.dateIso}
                     onChange={(e) => setField("dateIso", e.target.value)}
                   />
-                </div>
+                </label>
 
-                <div>
-                  <label className="mb-1.5 block text-xs text-text-muted">
-                    Дата (отображение)
-                  </label>
+                <label className="mb-1.5 block text-xs text-text-muted">
+                  Дата (отображение)
                   <input
-                    className={inputClass}
+                    className={`${inputClass} mt-1.5`}
                     value={form.dateDisplay}
                     onChange={(e) => setField("dateDisplay", e.target.value)}
                     placeholder="15 мая 2026"
                   />
-                </div>
+                </label>
               </div>
 
               {/* Автор */}
-              <div>
-                <label className="mb-1.5 block text-xs text-text-muted">
-                  Автор
-                </label>
+              <label className="mb-1.5 block text-xs text-text-muted">
+                Автор
                 <input
-                  className={inputClass}
+                  className={`${inputClass} mt-1.5`}
                   value={form.author}
                   onChange={(e) => setField("author", e.target.value)}
                   placeholder="NordTrail Research Team"
                 />
-              </div>
+              </label>
 
-              {/* Обложка статьи — добавить сюда ↓ */}
-              <div>
-                <label className="mb-1.5 block text-xs text-text-muted">
-                  Обложка статьи (URL)
-                </label>
+              {/* Обложка статьи */}
+              <label className="mb-1.5 block text-xs text-text-muted">
+                Обложка статьи (URL)
                 <input
-                  className={inputClass}
+                  className={`${inputClass} mt-1.5`}
                   value={form.image ?? ""}
                   onChange={(e) => setField("image", e.target.value)}
                   placeholder="/images/optimized/hero-bg-800.webp"
                 />
-                {/* Превью если URL задан */}
-                {form.image && (
-                  <p className="mt-1 truncate font-mono text-xs text-text-muted/60">
-                    {form.image}
-                  </p>
-                )}
-              </div>
+              </label>
+              {form.image && (
+                <p className="mt-1 truncate font-mono text-xs text-text-muted/60">
+                  {form.image}
+                </p>
+              )}
             </div>
           </FieldCard>
 
@@ -409,18 +395,14 @@ export default function ArticleEditForm({
 
           {/* Секции статьи */}
           <FieldCard>
-            {/* Было: SectionLabel и кнопка внутри одного flex-div —
-                браузер иногда блокирует клик на кнопку рядом с <p>.
-                Исправление: кнопка в отдельном div над списком секций */}
             <div className="mb-3 flex items-center justify-between">
-              {/* SectionLabel возвращает <p> — выносим текст напрямую */}
               <p className="text-xs font-medium uppercase tracking-widest text-text-muted">
                 Секции статьи
               </p>
               <button
                 type="button"
                 onClick={(e) => {
-                  e.preventDefault(); // на всякий случай блокируем сплытие
+                  e.preventDefault();
                   addSection();
                 }}
                 className="text-xs text-accent-bright transition-colors hover:text-accent-bright/70"
@@ -432,7 +414,7 @@ export default function ArticleEditForm({
             <div className="space-y-4">
               {form.sections.map((section, i) => (
                 <div
-                  key={i}
+                  key={`section-${i}`}
                   className="rounded-xl border border-text/8 bg-bg/40 p-4"
                 >
                   <div className="mb-3 flex items-center justify-between">
@@ -441,7 +423,6 @@ export default function ArticleEditForm({
                     </span>
                     <RemoveButton onClick={() => removeSection(i)} />
                   </div>
-
                   <input
                     className={`${inputClass} mb-2`}
                     value={section.heading}
@@ -450,7 +431,6 @@ export default function ArticleEditForm({
                     }
                     placeholder="Заголовок секции (H2)"
                   />
-
                   <textarea
                     className={textareaClass}
                     rows={4}
@@ -462,7 +442,6 @@ export default function ArticleEditForm({
                   />
                 </div>
               ))}
-
               {form.sections.length === 0 && (
                 <p className="py-4 text-center text-sm text-text-muted/60">
                   Нет секций — нажмите «Добавить секцию»
@@ -483,8 +462,6 @@ export default function ArticleEditForm({
                 + Добавить строку
               </button>
             </div>
-
-            {/* Заголовки колонок таблицы */}
             {form.budgetTable.length > 0 && (
               <div className="mb-2 grid grid-cols-[1fr_1fr_1fr_auto] gap-2 px-1">
                 {["Пункт", "Бюджетно", "Премиум", ""].map((h) => (
@@ -497,11 +474,10 @@ export default function ArticleEditForm({
                 ))}
               </div>
             )}
-
             <div className="space-y-2">
               {form.budgetTable.map((row, i) => (
                 <div
-                  key={i}
+                  key={`budget-${i}`}
                   className="grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-2"
                 >
                   <input
@@ -527,7 +503,6 @@ export default function ArticleEditForm({
                   <RemoveButton onClick={() => removeBudgetRow(i)} />
                 </div>
               ))}
-
               {form.budgetTable.length === 0 && (
                 <p className="py-4 text-center text-sm text-text-muted/60">
                   Нет строк — нажмите «Добавить строку»
@@ -548,11 +523,10 @@ export default function ArticleEditForm({
                 + Добавить вопрос
               </button>
             </div>
-
             <div className="space-y-4">
               {form.faq.map((item, i) => (
                 <div
-                  key={i}
+                  key={`faq-${i}`}
                   className="rounded-xl border border-text/8 bg-bg/40 p-4"
                 >
                   <div className="mb-3 flex items-center justify-between">
@@ -561,16 +535,12 @@ export default function ArticleEditForm({
                     </span>
                     <RemoveButton onClick={() => removeFaq(i)} />
                   </div>
-
-                  {/* Вопрос */}
                   <input
                     className={`${inputClass} mb-2`}
                     value={item.q}
                     onChange={(e) => updateFaq(i, "q", e.target.value)}
                     placeholder="Вопрос..."
                   />
-
-                  {/* Ответ */}
                   <textarea
                     className={textareaClass}
                     rows={3}
@@ -580,7 +550,6 @@ export default function ArticleEditForm({
                   />
                 </div>
               ))}
-
               {form.faq.length === 0 && (
                 <p className="py-4 text-center text-sm text-text-muted/60">
                   Нет вопросов — нажмите «Добавить вопрос»
@@ -601,7 +570,7 @@ export default function ArticleEditForm({
             />
           </FieldCard>
 
-          {/* Crosslinks — связанные материалы */}
+          {/* Crosslinks */}
           <FieldCard>
             <SectionLabel>Связанные материалы (перелинковка)</SectionLabel>
             <div className="space-y-3">
@@ -611,9 +580,9 @@ export default function ArticleEditForm({
                     className={inputClass}
                     value={link.label}
                     onChange={(e) => {
-                      const updated = [...(form.crosslinks || [])];
-                      updated[i] = { ...updated[i], label: e.target.value };
-                      setField("crosslinks", updated);
+                      const u = [...(form.crosslinks || [])];
+                      u[i] = { ...u[i], label: e.target.value };
+                      setField("crosslinks", u);
                     }}
                     placeholder="Текст ссылки"
                   />
@@ -621,9 +590,9 @@ export default function ArticleEditForm({
                     className={inputClass}
                     value={link.href}
                     onChange={(e) => {
-                      const updated = [...(form.crosslinks || [])];
-                      updated[i] = { ...updated[i], href: e.target.value };
-                      setField("crosslinks", updated);
+                      const u = [...(form.crosslinks || [])];
+                      u[i] = { ...u[i], href: e.target.value };
+                      setField("crosslinks", u);
                     }}
                   >
                     <option value="">Выберите страницу...</option>
@@ -636,10 +605,10 @@ export default function ArticleEditForm({
                   <button
                     type="button"
                     onClick={() => {
-                      const updated = (form.crosslinks || []).filter(
-                        (_, j) => j !== i,
+                      setField(
+                        "crosslinks",
+                        (form.crosslinks || []).filter((_, j) => j !== i),
                       );
-                      setField("crosslinks", updated);
                     }}
                     className="text-red-400 hover:text-red-300 text-sm px-2 py-1 shrink-0"
                   >
@@ -650,11 +619,10 @@ export default function ArticleEditForm({
               <button
                 type="button"
                 onClick={() => {
-                  const updated = [
+                  setField("crosslinks", [
                     ...(form.crosslinks || []),
                     { label: "", href: "" },
-                  ];
-                  setField("crosslinks", updated);
+                  ]);
                 }}
                 className="text-sm text-accent-bright hover:underline"
               >
@@ -663,7 +631,7 @@ export default function ArticleEditForm({
             </div>
           </FieldCard>
 
-          {/* Нижняя кнопка сохранения — дублируем для удобства */}
+          {/* Нижняя кнопка сохранения */}
           <div className="flex items-center justify-between pt-2">
             <Link
               href="/admin/articles"
@@ -680,19 +648,10 @@ export default function ArticleEditForm({
               </svg>
               Вернуться к списку
             </Link>
-
             <button
               onClick={handleSave}
               disabled={status === "saving"}
-              className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${
-                status === "saving"
-                  ? "cursor-wait border border-text/10 bg-surface/30 text-text-muted"
-                  : status === "saved"
-                    ? "border border-accent/30 bg-accent/10 text-accent"
-                    : status === "error"
-                      ? "border border-red-500/30 bg-red-500/10 text-red-400"
-                      : "border border-accent-bright/40 bg-accent-bright/10 text-accent-bright hover:bg-accent-bright/20"
-              }`}
+              className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${getSaveButtonStyle(status)}`}
             >
               {status === "saving" && "Сохранение..."}
               {status === "saved" && "✓ Сохранено"}

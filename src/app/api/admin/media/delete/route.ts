@@ -94,11 +94,17 @@ function findMatchingFilePaths(
   baseName: string,
 ): string[] {
   // Escape special regex characters in baseName
-  const baseNameEscaped = baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const baseNameEscaped = baseName.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    String.raw`\$&`,
+  );
 
   // Pattern: baseName.ext or baseName-DIGITS.ext
   // This matches: hero-bg.jpg, hero-bg-800.webp, hero-bg-1600.avif, etc.
-  const pattern = new RegExp(`^${baseNameEscaped}(?:-(\\d+))?\\.\\w+$`, "i");
+  const pattern = new RegExp(
+    String.raw`^${baseNameEscaped}(?:-(\d+))?\.\w+$`,
+    "i",
+  );
 
   return treeItems
     .filter((item) => {
@@ -171,7 +177,8 @@ async function createTreeWithDeletions(
     };
     throw new Error(
       `Tree create failed: ${res.status} — ${err.message ?? "unknown"}. ` +
-        `Only delete paths that exist in the tree. ${err.documentation_url ? `See: ${err.documentation_url}` : ""}`,
+        "Only delete paths that exist in the tree." +
+        (err.documentation_url ? ` See: ${err.documentation_url}` : ""),
     );
   }
 
