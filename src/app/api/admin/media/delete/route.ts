@@ -1,13 +1,4 @@
 // src/app/api/admin/media/delete/route.ts
-//
-// DELETE /api/admin/media/delete
-//   Body: { name: string } — удаляет один файл (одиночное удаление из карточки).
-//   Использует старый подход (отдельный коммит) — вызывается редко.
-//
-// POST /api/admin/media/delete
-//   Body: { names: string[] } — удаляет несколько файлов ОДНИМ коммитом.
-//   Использует GitHub Tree API: sha: null = удалить файл из дерева.
-//   Один коммит → Actions триггерится один раз → нет гонки.
 
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
@@ -17,6 +8,26 @@ const GH_OWNER = process.env.GITHUB_REPO_OWNER!;
 const GH_REPO = process.env.GITHUB_REPO_NAME!;
 const GH_BRANCH = process.env.GITHUB_BRANCH ?? "main";
 const GH_API = "https://api.github.com";
+
+// ─────────────────────────────────────────────────────────────
+// Type definitions
+// ─────────────────────────────────────────────────────────────
+
+interface GitHubTreeItem {
+  path: string;
+  mode: string;
+  type: "blob" | "tree" | "commit";
+  sha: string;
+  url?: string;
+  size?: number;
+}
+
+interface GitHubTreeResponse {
+  sha: string;
+  url: string;
+  tree: GitHubTreeItem[];
+  truncated: boolean;
+}
 
 // ─────────────────────────────────────────────────────────────
 // Общие заголовки
@@ -41,20 +52,66 @@ function getBaseName(name: string): string {
   return stripExtension(name).replace(/-(800|1600)$/, "");
 }
 
-// Все пути файлов связанных с одним изображением:
-// оригиналы (все расширения) + оптимизированные версии
-function getAllFilePaths(baseName: string): string[] {
-  const origExts = ["jpg", "jpeg", "png", "webp"];
-  const originals = origExts.map(
-    (ext) => `public/images/originals/${baseName}.${ext}`,
-  );
-  const optimized = [
-    `public/images/optimized/${baseName}-800.webp`,
-    `public/images/optimized/${baseName}-1600.webp`,
-    `public/images/optimized/${baseName}-800.avif`,
-    `public/images/optimized/${baseName}-1600.avif`,
-  ];
-  return [...originals, ...optimized];
+// ─────────────────────────────────────────────────────────────
+// НОВОЕ: Получить все файлы из репозитория, которые соответствуют baseName
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * Fetch complete tree from GitHub with recursive=1
+ * This gets all files at all depths, not just top level
+ */
+async function fetchCompleteTree(treeSha: string): Promise<GitHubTreeItem[]> {
+  const url = `${GH_API}/repos/${GH_OWNER}/${GH_REPO}/git/trees/${treeSha}?recursive=1`;
+
+  const res = await fetch(url, {
+    headers: ghHeaders(),
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch tree: ${res.status} ${res.statusText}`);
+  }
+
+  const data = (await res.json()) as GitHubTreeResponse;
+
+  // GitHub truncates at 10,000 items by default
+  if (data.truncated) {
+    console.warn(
+      `[CMS] Tree truncated at ${data.tree.length} items. Consider paginating or filtering.`,
+    );
+  }
+
+  return data.tree;
+}
+
+/**
+ * Find all files in tree that match a baseName
+ * Matches: baseName.jpg, baseName-800.webp, baseName-1600.avif, etc.
+ * Only returns files that actually exist in the tree
+ */
+function findMatchingFilePaths(
+  treeItems: GitHubTreeItem[],
+  baseName: string,
+): string[] {
+  // Escape special regex characters in baseName
+  const baseNameEscaped = baseName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  // Pattern: baseName.ext or baseName-DIGITS.ext
+  // This matches: hero-bg.jpg, hero-bg-800.webp, hero-bg-1600.avif, etc.
+  const pattern = new RegExp(`^${baseNameEscaped}(?:-(\\d+))?\\.\\w+$`, "i");
+
+  return treeItems
+    .filter((item) => {
+      // Only match blobs (files), not trees (directories)
+      if (item.type !== "blob") return false;
+
+      // Get the filename from the full path
+      const fileName = item.path.split("/").pop();
+      if (!fileName) return false;
+
+      return pattern.test(fileName);
+    })
+    .map((item) => item.path);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -88,6 +145,11 @@ async function createTreeWithDeletions(
   baseTreeSha: string,
   filePaths: string[],
 ): Promise<string> {
+  if (filePaths.length === 0) {
+    // No files to delete, return the same tree SHA
+    return baseTreeSha;
+  }
+
   const res = await fetch(`${GH_API}/repos/${GH_OWNER}/${GH_REPO}/git/trees`, {
     method: "POST",
     headers: ghHeaders(),
@@ -101,12 +163,18 @@ async function createTreeWithDeletions(
       })),
     }),
   });
+
   if (!res.ok) {
-    const err = (await res.json().catch(() => ({}))) as { message?: string };
+    const err = (await res.json().catch(() => ({}))) as {
+      message?: string;
+      documentation_url?: string;
+    };
     throw new Error(
-      `Tree create failed: ${res.status} — ${err.message ?? "unknown"}`,
+      `Tree create failed: ${res.status} — ${err.message ?? "unknown"}. ` +
+        `Only delete paths that exist in the tree. ${err.documentation_url ? `See: ${err.documentation_url}` : ""}`,
     );
   }
+
   const data = (await res.json()) as { sha: string };
   return data.sha;
 }
@@ -184,8 +252,6 @@ function isSafeName(name: string): boolean {
 // ─────────────────────────────────────────────────────────────
 // DELETE — удалить один файл (одиночное удаление из карточки)
 // Body: { name: "hero-bg-1600.webp" }
-// Использует старый подход — отдельный коммит на каждый файл.
-// Вызывается редко (один клик на одну карточку).
 // ─────────────────────────────────────────────────────────────
 export async function DELETE(request: NextRequest) {
   const authError = await checkAuth();
@@ -210,11 +276,31 @@ export async function DELETE(request: NextRequest) {
     }
 
     const baseName = getBaseName(name);
-    const filePaths = getAllFilePaths(baseName);
 
-    // Один коммит даже для одиночного удаления — через Tree API
+    // Получаем реальное дерево репозитория
     const headSha = await getHeadSha();
     const baseTreeSha = await getTreeSha(headSha);
+    const treeItems = await fetchCompleteTree(baseTreeSha);
+
+    // Ищем только файлы, которые реально существуют
+    const filePaths = findMatchingFilePaths(treeItems, baseName);
+
+    if (filePaths.length === 0) {
+      console.log(`[CMS] Файлы для ${baseName} не найдены в дереве`);
+      return NextResponse.json({
+        ok: true,
+        deleted: baseName,
+        notFound: true,
+        message: "Файлы уже удалены или не существуют",
+      });
+    }
+
+    console.log(
+      `[CMS] Найдено ${filePaths.length} файлов для удаления:`,
+      filePaths,
+    );
+
+    // Создаём коммит с реальными файлами
     const newTreeSha = await createTreeWithDeletions(baseTreeSha, filePaths);
     const commitSha = await createCommit(
       `media: удаление изображения "${baseName}"`,
@@ -223,8 +309,17 @@ export async function DELETE(request: NextRequest) {
     );
     await updateRef(commitSha);
 
-    console.log(`[CMS] Удалено: ${baseName} → ${commitSha}`);
-    return NextResponse.json({ ok: true, deleted: baseName });
+    console.log(
+      `[CMS] Успешно удалено ${filePaths.length} файлов: ${baseName} → ${commitSha}`,
+    );
+
+    return NextResponse.json({
+      ok: true,
+      deleted: baseName,
+      deletedCount: filePaths.length,
+      deletedFiles: filePaths,
+      commitSha,
+    });
   } catch (err) {
     console.error("[CMS] Ошибка удаления:", err);
     return NextResponse.json(
@@ -237,9 +332,6 @@ export async function DELETE(request: NextRequest) {
 // ─────────────────────────────────────────────────────────────
 // POST — удалить несколько файлов ОДНИМ коммитом
 // Body: { names: string[] }
-// Все файлы (оригиналы + оптимизированные версии) удаляются
-// из дерева через sha: null в одном Tree API коммите.
-// Один коммит → Actions триггерится один раз → нет гонки.
 // ─────────────────────────────────────────────────────────────
 export async function POST(request: NextRequest) {
   const authError = await checkAuth();
@@ -265,42 +357,72 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Собираем все пути всех файлов всех изображений
-    // Set убирает дубликаты если несколько names имеют одно base
+    // Получаем реальное дерево репозитория один раз
+    const headSha = await getHeadSha();
+    const baseTreeSha = await getTreeSha(headSha);
+    const treeItems = await fetchCompleteTree(baseTreeSha);
+
+    // Собираем все пути всех файлов всех изображений, которые реально существуют
     const allPaths = new Set<string>();
     const baseNames: string[] = [];
+    const notFoundBaseNames: string[] = [];
 
     for (const name of names) {
       const baseName = getBaseName(name);
       baseNames.push(baseName);
-      for (const path of getAllFilePaths(baseName)) {
-        allPaths.add(path);
+
+      const matchedPaths = findMatchingFilePaths(treeItems, baseName);
+
+      if (matchedPaths.length === 0) {
+        notFoundBaseNames.push(baseName);
+      } else {
+        for (const path of matchedPaths) {
+          allPaths.add(path);
+        }
       }
     }
 
     const filePaths = Array.from(allPaths);
 
+    if (filePaths.length === 0) {
+      console.log(`[CMS] Файлы для удаления не найдены`);
+      return NextResponse.json({
+        ok: true,
+        deleted: [],
+        notFound: true,
+        message: "Файлы уже удалены или не существуют",
+        notFoundBaseNames,
+      });
+    }
+
+    console.log(
+      `[CMS] Найдено ${filePaths.length} файлов для удаления в ${baseNames.length} изображениях`,
+    );
+
     // Один коммит для всех удалений
-    const headSha = await getHeadSha();
-    const baseTreeSha = await getTreeSha(headSha);
     const newTreeSha = await createTreeWithDeletions(baseTreeSha, filePaths);
 
+    const deletedBaseNames = baseNames.filter(
+      (bn) => !notFoundBaseNames.includes(bn),
+    );
     const commitMessage =
-      baseNames.length === 1
-        ? `media: удаление изображения "${baseNames[0]}"`
-        : `media: удаление ${baseNames.length} изображений (${baseNames.join(", ")})`;
+      deletedBaseNames.length === 1
+        ? `media: удаление изображения "${deletedBaseNames[0]}"`
+        : `media: удаление ${deletedBaseNames.length} изображений`;
 
     const commitSha = await createCommit(commitMessage, newTreeSha, headSha);
     await updateRef(commitSha);
 
     console.log(
-      `[CMS] Удалено ${baseNames.length} изображений одним коммитом: ${commitSha}`,
+      `[CMS] Удалено ${deletedBaseNames.length} изображений одним коммитом (${filePaths.length} файлов): ${commitSha}`,
     );
 
     return NextResponse.json({
       ok: true,
-      deleted: baseNames,
-      commitSha,
+      deleted: deletedBaseNames,
+      deletedCount: filePaths.length,
+      deletedFiles: filePaths,
+      commitSha: commitSha,
     });
   } catch (err) {
     console.error("[CMS] Ошибка массового удаления:", err);
