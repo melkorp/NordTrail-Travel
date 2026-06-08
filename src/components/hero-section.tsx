@@ -3,16 +3,28 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { Mountain, Compass, MapPin, ArrowRight } from "lucide-react";
 
 // Медленное появление без резких скачков
 const gentleFade = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.7,
+      duration: 0.8,
       ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
+    },
+  },
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.3,
     },
   },
 };
@@ -28,68 +40,114 @@ export default function HeroSection({
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 bg-bg overflow-hidden">
+      {/* Фоновое изображение с эффектом */}
       <div className="fixed inset-0">
         <Image
           src="/images/optimized/hero-bg-1600.webp"
           alt="Норвежские фьорды на рассвете"
           fill
-          className="object-cover"
+          className="object-cover opacity-40"
           priority
         />
-        <div className="absolute inset-0 bg-linear-to-b from-bg/60 via-bg/40 to-bg/80" />
+        {/* Градиентные оверлеи */}
+        <div className="absolute inset-0 bg-gradient-to-b from-bg/80 via-bg/60 to-bg/90" />
+        <div className="absolute inset-0 bg-gradient-to-r from-accent-cyan/10 via-transparent to-accent-purple/10" />
+
+        {/* Анимированные градиентные сферы */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-cyan/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-purple/20 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
-      <div className="relative z-10 text-center max-w-3xl mx-auto">
+      {/* Контент */}
+      <motion.div
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+        className="relative z-10 text-center max-w-5xl mx-auto"
+      >
+        {/* Бейдж */}
+        <motion.div variants={gentleFade} className="mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card">
+            <div className="w-2 h-2 rounded-full bg-accent-cyan animate-pulse" />
+            <span className="text-sm font-medium text-text-secondary">
+              Премиум путешествия 2026
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Заголовок */}
         <motion.h1
-          initial="hidden"
-          animate="visible"
           variants={gentleFade}
-          className="text-5xl md:text-7xl font-heading font-semibold text-text mb-4 tracking-tighter text-balance"
+          className="text-6xl md:text-8xl font-heading font-bold text-text mb-6 tracking-tighter text-balance"
         >
-          NordTrail Travel
+          <span className="bg-gradient-to-r from-accent-cyan via-accent-blue to-accent-purple bg-clip-text text-transparent">
+            NordTrail
+          </span>
+          <br />
+          <span className="text-text">Travel</span>
         </motion.h1>
 
+        {/* Описание */}
         <motion.p
-          initial="hidden"
-          animate="visible"
           variants={gentleFade}
-          className="text-lg md:text-xl font-body text-text-muted mb-10 leading-relaxed text-balance"
+          className="text-xl md:text-2xl font-body text-text-secondary mb-12 leading-relaxed text-balance max-w-3xl mx-auto"
         >
-          Практические гиды по Исландии, Норвегии, Японии, Грузии, Альпам,
-          Камчатке, Кольскому, Алтаю и Байкалу — сезоны, бюджеты, маршруты для
-          самостоятельного планирования.
+          Практические гиды по{" "}
+          <span className="text-accent-cyan font-medium">Исландии</span>,{" "}
+          <span className="text-accent-blue font-medium">Норвегии</span>,{" "}
+          <span className="text-accent-purple font-medium">Японии</span> и
+          другим северным направлениям — сезоны, бюджеты, маршруты.
         </motion.p>
 
+        {/* Кнопки */}
         <motion.div
-          initial="hidden"
-          animate="visible"
           variants={gentleFade}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
+          className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
         >
           <Link
             href="/destinations/"
-            className={`px-8 py-4 font-heading text-sm tracking-widest uppercase font-medium rounded-sm transition-all duration-500 ${
-              isAccent
-                ? "bg-accent-bright text-bg hover:shadow-[0_0_25px_rgba(212,175,55,0.3)] hover:-translate-y-px"
-                : "bg-accent-calm text-bg hover:bg-accent-bright/90"
-            }`}
+            className="group relative px-8 py-4 font-heading text-sm tracking-widest uppercase font-medium rounded-xl gradient-button text-white overflow-hidden"
           >
-            Выбрать маршрут
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              Выбрать маршрут
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </span>
           </Link>
 
           <Link
             href="/about/"
-            className={`px-8 py-4 font-heading text-sm tracking-widest uppercase font-medium rounded-sm border transition-all duration-500 ${
-              isAccent
-                ? "border-accent-bright text-accent-bright hover:shadow-[0_0_15px_rgba(212,175,55,0.15)] hover:border-accent-bright/80"
-                : "border-text/20 text-text/70 hover:border-accent-calm hover:text-accent-calm"
-            }`}
+            className="px-8 py-4 font-heading text-sm tracking-widest uppercase font-medium rounded-xl glass-card text-text hover:text-accent-cyan transition-all duration-300"
           >
             О нас
           </Link>
         </motion.div>
-      </div>
 
+        {/* Статистика */}
+        <motion.div
+          variants={gentleFade}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto"
+        >
+          <div className="glass-card rounded-2xl p-6 text-center">
+            <Mountain className="w-8 h-8 mx-auto mb-3 text-accent-cyan" />
+            <div className="text-3xl font-bold text-text mb-1">9+</div>
+            <div className="text-sm text-text-muted">Направлений</div>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 text-center">
+            <Compass className="w-8 h-8 mx-auto mb-3 text-accent-blue" />
+            <div className="text-3xl font-bold text-text mb-1">50+</div>
+            <div className="text-sm text-text-muted">Маршрутов</div>
+          </div>
+
+          <div className="glass-card rounded-2xl p-6 text-center">
+            <MapPin className="w-8 h-8 mx-auto mb-3 text-accent-purple" />
+            <div className="text-3xl font-bold text-text mb-1">100%</div>
+            <div className="text-sm text-text-muted">Авторские гиды</div>
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* Декоративный элемент снизу */}
       {isAccent && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -100,7 +158,7 @@ export default function HeroSection({
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 w-px h-12 bg-linear-to-b from-accent-bright/60 to-transparent"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 w-px h-12 bg-gradient-to-b from-accent-cyan/60 to-transparent"
         />
       )}
     </section>

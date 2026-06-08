@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const navLinks = [
   { name: "Главная", href: "/" },
@@ -20,24 +20,20 @@ export default function Navigation() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Ждём монтирования на клиенте, чтобы избежать ошибок гидратации
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Отслеживаем скролл
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Закрываем мобильное меню при смене маршрута
   useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
 
-  // Блокируем скролл страницы при открытом меню
   useEffect(() => {
     document.body.style.overflow = isMobileOpen ? "hidden" : "";
     return () => {
@@ -49,7 +45,7 @@ export default function Navigation() {
     <motion.header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? "bg-bg/90 backdrop-blur-md border-b border-white/5"
+          ? "glass-card border-b border-white/10"
           : "bg-transparent backdrop-blur-sm"
       }`}
     >
@@ -57,7 +53,7 @@ export default function Navigation() {
         {/* Логотип */}
         <Link
           href="/"
-          className="font-heading font-semibold text-text text-lg tracking-tight hover:text-accent-bright transition-colors duration-500"
+          className="font-heading font-bold text-xl tracking-tight bg-gradient-to-r from-accent-cyan to-accent-purple bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300"
         >
           NordTrail
         </Link>
@@ -70,17 +66,17 @@ export default function Navigation() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`relative font-heading text-sm tracking-wide transition-all duration-500 hover:-translate-y-px ${
+                  className={`relative font-heading text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 ${
                     isActive
-                      ? "text-accent-bright"
-                      : "text-text/70 hover:text-text"
+                      ? "text-accent-cyan"
+                      : "text-text-secondary hover:text-text"
                   }`}
                 >
                   {link.name}
                   {isActive && (
                     <motion.span
                       layoutId="activeNav"
-                      className="absolute -bottom-1 left-0 right-0 h-px bg-accent-bright"
+                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-cyan to-accent-purple rounded-full"
                     />
                   )}
                 </Link>
@@ -92,7 +88,7 @@ export default function Navigation() {
         {/* Гамбургер */}
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="md:hidden text-text/70 hover:text-accent-bright p-2"
+          className="md:hidden text-text-secondary hover:text-accent-cyan p-2 transition-colors"
           aria-label="Открыть меню"
           aria-expanded={isMobileOpen}
           aria-controls="mobile-menu"
@@ -110,7 +106,7 @@ export default function Navigation() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            className="md:hidden bg-bg/95 backdrop-blur-md border-b border-white/5"
+            className="md:hidden glass-card border-b border-white/10"
           >
             <ul className="px-6 py-4 flex flex-col gap-2">
               {navLinks.map((link) => {
@@ -119,10 +115,10 @@ export default function Navigation() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className={`block py-3 font-heading text-base ${
+                      className={`block py-3 font-heading text-base transition-all duration-300 ${
                         isActive
-                          ? "text-accent-bright border-l-2 border-accent-bright pl-4"
-                          : "text-text/70 hover:text-text hover:pl-4 border-l-2 border-transparent"
+                          ? "text-accent-cyan border-l-2 border-accent-cyan pl-4 bg-accent-cyan/5"
+                          : "text-text-secondary hover:text-text hover:pl-4 border-l-2 border-transparent"
                       }`}
                     >
                       {link.name}
