@@ -117,7 +117,7 @@ export default function RootLayout({
         {/* CSS-переменные: акцент, шрифты, базовый размер */}
         <style dangerouslySetInnerHTML={{ __html: cssVars }} />
       </head>
-      <body className="antialiased min-h-screen font-body text-text">
+      <body className="antialiased min-h-screen font-body text-text main-site">
         <Navigation />
 
         <main className="pt-16 md:pt-20">{children}</main>

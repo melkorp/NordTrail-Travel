@@ -3,8 +3,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lora:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
-/* Тема «Arctic Aurora 2026» — современные градиенты и glassmorphism */
-@theme {
+/* ============================================
+   ТЕМА «ARCTIC AURORA 2026» — ТОЛЬКО ДЛЯ ОСНОВНОГО САЙТА
+   ============================================ */
+
+/* Применяем стили только к основному сайту (не к админке) */
+body:not(.admin-page) {
   --color-bg: #0a0e1a;
   --color-bg-secondary: #0f1419;
   --color-surface: rgba(15, 20, 25, 0.6);
@@ -17,34 +21,9 @@
   --color-text-secondary: #cbd5e1;
   --color-text-muted: #64748b;
   --color-border: rgba(148, 163, 184, 0.1);
-  --font-heading: "Inter", system-ui, sans-serif;
-  --font-body: "Lora", system-ui, serif;
-}
 
-/* Базовые стили: сброс, типографика, выделение текста */
-@layer base {
-  body {
-    @apply bg-bg text-text font-body antialiased selection:bg-accent-cyan/30 selection:text-text;
-    background: linear-gradient(135deg, #0a0e1a 0%, #0f1419 50%, #0a0e1a 100%);
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-heading tracking-tight leading-none;
-  }
-}
-
-/* Анимированный градиентный фон */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -2;
-  background:
+  background: linear-gradient(135deg, #0a0e1a 0%, #0f1419 50%, #0a0e1a 100%);
+  background-image:
     radial-gradient(
       circle at 20% 50%,
       rgba(6, 182, 212, 0.15) 0%,
@@ -60,11 +39,11 @@ body::before {
       rgba(59, 130, 246, 0.1) 0%,
       transparent 50%
     );
-  animation: gradientShift 20s ease infinite;
+  background-attachment: fixed;
 }
 
-/* Зернистая текстура для глубины */
-body::after {
+/* Зернистая текстура — только для основного сайта */
+body:not(.admin-page)::before {
   content: "";
   position: fixed;
   inset: 0;
@@ -74,62 +53,49 @@ body::after {
   pointer-events: none;
 }
 
-@keyframes gradientShift {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.1);
-  }
-}
-
-/* Glassmorphism карточки */
-.glass-card {
-  background: var(--color-surface);
+/* Glassmorphism карточки — только для основного сайта */
+body:not(.admin-page) .glass-card-light {
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow:
-    0 8px 32px 0 rgba(0, 0, 0, 0.37),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-}
-
-.glass-card:hover {
-  background: var(--color-surface-hover);
-  border-color: rgba(6, 182, 212, 0.3);
-  box-shadow:
-    0 8px 32px 0 rgba(6, 182, 212, 0.15),
+    0 8px 32px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Градиентные кнопки */
-.gradient-button {
-  background: linear-gradient(
-    135deg,
-    var(--color-accent-cyan) 0%,
-    var(--color-accent-blue) 50%,
-    var(--color-accent-purple) 100%
-  );
-  background-size: 200% 200%;
-  animation: gradientShift 3s ease infinite;
-  transition: all 0.3s ease;
-}
-
-.gradient-button:hover {
-  transform: translateY(-2px);
+body:not(.admin-page) .glass-card-light:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(6, 182, 212, 0.4);
   box-shadow:
-    0 10px 40px rgba(6, 182, 212, 0.4),
-    0 0 60px rgba(139, 92, 246, 0.3);
+    0 20px 40px rgba(6, 182, 212, 0.2),
+    0 0 60px rgba(6, 182, 212, 0.1),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
 }
 
-/* Неоновое свечение */
-.neon-glow {
-  box-shadow:
-    0 0 20px rgba(6, 182, 212, 0.5),
-    0 0 40px rgba(6, 182, 212, 0.3),
-    0 0 60px rgba(6, 182, 212, 0.1);
+/* Текст с glow эффектом */
+body:not(.admin-page) .text-glow {
+  text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+}
+
+/* ============================================
+   БАЗОВЫЕ СТИЛИ — ДЛЯ ВСЕГО САЙТА
+   ============================================ */
+
+@layer base {
+  body {
+    @apply font-sans antialiased selection:bg-cyan-400 selection:text-slate-900;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-sans tracking-tight leading-none;
+  }
 }
 
 /* Плавный скролл */
@@ -143,14 +109,14 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg);
+  background: var(--color-bg, #0a0e1a);
 }
 
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(
     180deg,
-    var(--color-accent-cyan),
-    var(--color-accent-purple)
+    var(--color-accent-cyan, #06b6d4),
+    var(--color-accent-purple, #8b5cf6)
   );
   border-radius: 5px;
 }
@@ -158,8 +124,8 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(
     180deg,
-    var(--color-accent-blue),
-    var(--color-accent-pink)
+    var(--color-accent-blue, #3b82f6),
+    var(--color-accent-pink, #ec4899)
   );
 }
 
@@ -177,45 +143,4 @@ html {
 
 .animate-fade-in-up {
   animation: fadeInUp 0.8s ease-out forwards;
-}
-
-/* Пульсирующий градиент */
-@keyframes pulse-glow {
-  0%,
-  100% {
-    box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.7);
-  }
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
-}
-
-/* Светлые воздушные карточки */
-.glass-card-light {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.glass-card-light:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(6, 182, 212, 0.4);
-  box-shadow:
-    0 20px 40px rgba(6, 182, 212, 0.2),
-    0 0 60px rgba(6, 182, 212, 0.1),
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
-  transform: translateY(-4px);
-}
-
-/* Яркие акценты для текста */
-.text-glow {
-  text-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
 }
