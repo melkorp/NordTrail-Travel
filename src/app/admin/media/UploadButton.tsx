@@ -1,18 +1,12 @@
 // src/app/admin/media/UploadButton.tsx
 "use client";
 
-// Двухэтапная загрузка:
-// Этап 1: каждый файл → POST /api/admin/media/upload → blobSha (без коммита)
-// Этап 2: все blobSha → POST /api/admin/media/commit → один коммит
-//
-// Загрузка последовательная — бережём GitHub API rate limit.
-// Один коммит → Actions триггерится один раз → нет гонки.
-
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Upload, Check, Loader2 } from "lucide-react";
 
 const MAX_FILES = 10;
-const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_SIZE = 10 * 1024 * 1024;
 
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -21,9 +15,6 @@ const ALLOWED_TYPES = new Set([
   "image/webp",
 ]);
 
-// ─────────────────────────────────────────────────────────────
-// Типы
-// ─────────────────────────────────────────────────────────────
 interface FileResult {
   name: string;
   ok: boolean;
@@ -44,9 +35,6 @@ export default function UploadButton() {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // ─────────────────────────────────────────────────────────
-  // Этап 1: загрузить один файл → получить blobSha
-  // ─────────────────────────────────────────────────────────
   async function uploadBlob(file: File): Promise<BlobResult> {
     const formData = new FormData();
     formData.append("file", file);
@@ -54,7 +42,6 @@ export default function UploadButton() {
     const res = await fetch("/api/admin/media/upload", {
       method: "POST",
       body: formData,
-      // Content-Type не указываем — браузер сам добавит boundary
     });
 
     const data = (await res.json().catch(() => ({}))) as {
@@ -80,9 +67,6 @@ export default function UploadButton() {
     };
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Этап 2: закоммитить все blobs одним коммитом
-  // ─────────────────────────────────────────────────────────
   async function commitBlobs(blobs: BlobResult[]): Promise<void> {
     const res = await fetch("/api/admin/media/commit", {
       method: "POST",
@@ -106,9 +90,6 @@ export default function UploadButton() {
     }
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Основной обработчик
-  // ─────────────────────────────────────────────────────────
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const fileList = e.target.files;
     if (!fileList || fileList.length === 0) return;
@@ -119,7 +100,6 @@ export default function UploadButton() {
     setResults([]);
     setProgress(`Проверка файлов...`);
 
-    // ── Клиентская валидация ─────────────────────────────
     const validFiles: File[] = [];
     const accumulated: FileResult[] = [];
 
@@ -151,7 +131,6 @@ export default function UploadButton() {
       return;
     }
 
-    // ── Этап 1: загружаем blobs последовательно ──────────
     const blobs: BlobResult[] = [];
 
     for (let i = 0; i < validFiles.length; i++) {
@@ -165,7 +144,6 @@ export default function UploadButton() {
       try {
         const blob = await uploadBlob(file);
         blobs.push(blob);
-        // Добавляем промежуточный результат — пользователь видит прогресс
         accumulated.push({ name: blob.safeName, ok: true });
       } catch (err) {
         accumulated.push({
@@ -175,11 +153,9 @@ export default function UploadButton() {
         });
       }
 
-      // Обновляем список после каждого файла
       setResults([...accumulated]);
     }
 
-    // ── Этап 2: коммитим все успешные blobs одним коммитом
     if (blobs.length > 0) {
       setProgress(
         blobs.length === 1
@@ -192,7 +168,6 @@ export default function UploadButton() {
         console.log(`[UploadButton] Закоммичено ${blobs.length} файл(ов)`);
         router.refresh();
       } catch (err) {
-        // Коммит не прошёл — помечаем все успешные blobs как ошибку
         const commitError =
           err instanceof Error ? err.message : "Ошибка коммита";
 
@@ -218,30 +193,25 @@ export default function UploadButton() {
     setProgress(null);
     if (inputRef.current) inputRef.current.value = "";
 
-    // Сбрасываем результаты через 6 секунд
     setTimeout(() => setResults([]), 6000);
   }
 
-  // ─────────────────────────────────────────────────────────
-  // Отображение
-  // ─────────────────────────────────────────────────────────
   const successCount = results.filter((r) => r.ok).length;
   const errorCount = results.filter((r) => !r.ok).length;
   const hasResults = results.length > 0;
 
   const buttonStyle = isUploading
-    ? "border border-text/10 bg-surface/30 text-text-muted cursor-wait"
+    ? "border border-slate-700/50 bg-slate-800/30 text-slate-500 cursor-wait"
     : hasResults && errorCount === 0
-      ? "border border-accent/30 bg-accent/10 text-accent"
+      ? "border border-green-400/30 bg-green-500/10 text-green-400"
       : hasResults && successCount === 0
         ? "border border-red-500/30 bg-red-500/10 text-red-400"
         : hasResults
-          ? "border border-text/10 bg-surface/30 text-text-muted"
-          : "border border-accent-bright/30 bg-accent-bright/8 text-accent-bright hover:border-accent-bright/50 hover:bg-accent-bright/15";
+          ? "border border-slate-700/50 bg-slate-800/30 text-slate-500"
+          : "border border-cyan-400/30 bg-cyan-500/10 text-cyan-400 hover:border-cyan-400/50 hover:bg-cyan-500/20";
 
   return (
     <div className="flex flex-col items-end gap-2">
-      {/* Скрытый input — multiple для выбора нескольких файлов */}
       <input
         ref={inputRef}
         type="file"
@@ -251,54 +221,18 @@ export default function UploadButton() {
         className="hidden"
       />
 
-      {/* Кнопка */}
       <button
         onClick={() => !isUploading && inputRef.current?.click()}
         className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all ${buttonStyle}`}
       >
-        {/* Иконка */}
         {isUploading ? (
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 14 14"
-            fill="none"
-            className="animate-spin"
-          >
-            <circle
-              cx="7"
-              cy="7"
-              r="5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeDasharray="20"
-              strokeDashoffset="10"
-              strokeLinecap="round"
-            />
-          </svg>
+          <Loader2 size={14} className="animate-spin" />
         ) : hasResults && errorCount === 0 ? (
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path
-              d="M2 7l4 4 6-6"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Check size={14} />
         ) : (
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path
-              d="M7 1v8M4 6l3-3 3 3M2 11h10"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Upload size={14} />
         )}
 
-        {/* Текст */}
         {isUploading
           ? (progress ?? "Загрузка...")
           : hasResults && errorCount === 0
@@ -310,26 +244,25 @@ export default function UploadButton() {
                 : "Загрузить изображения"}
       </button>
 
-      {/* Список результатов */}
       {hasResults && (
         <div className="w-full max-w-xs space-y-1">
           {results.map((r, i) => (
             <p
               key={`${r.name}-${i}`}
               className={`truncate text-right text-xs ${
-                r.ok ? "text-accent/80" : "text-red-400"
+                r.ok ? "text-green-400/80" : "text-red-400"
               }`}
               title={r.error}
             >
               {r.ok ? "✓" : "✗"} {r.name}
               {r.error && (
-                <span className="ml-1 text-text-muted/60">— {r.error}</span>
+                <span className="ml-1 text-slate-500">— {r.error}</span>
               )}
             </p>
           ))}
 
           {successCount > 0 && !isUploading && (
-            <p className="text-right text-xs text-text-muted/60">
+            <p className="text-right text-xs text-slate-500">
               GitHub Actions оптимизирует за 2–3 мин
             </p>
           )}

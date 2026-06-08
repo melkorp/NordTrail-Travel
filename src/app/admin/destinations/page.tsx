@@ -2,9 +2,11 @@
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { getSlugs, getBySlug } from "@/lib/mdx";
 import type { Destination } from "@/lib/types";
 import DestinationRow from "./DestinationRow";
+import { Map, Plus, ArrowLeft } from "lucide-react";
 
 async function getAllDestinations(): Promise<Destination[]> {
   const slugs = getSlugs("destinations");
@@ -21,22 +23,42 @@ export default async function AdminDestinationsPage() {
   const destinations = await getAllDestinations();
 
   return (
-    <main className="min-h-screen bg-bg text-text">
+    <main className="min-h-screen bg-slate-900 text-slate-100">
       <div className="mx-auto max-w-6xl px-6 py-12">
-        <nav className="mb-6 flex items-center gap-2 text-xs text-text-muted">
-          <Link href="/admin" className="transition-colors hover:text-primary">
+        {/* Хлебные крошки */}
+        <motion.nav
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 flex items-center gap-2 text-xs text-slate-500"
+        >
+          <Link
+            href="/admin"
+            className="transition-colors hover:text-cyan-400 flex items-center gap-1.5"
+          >
+            <ArrowLeft size={12} />
             Админка
           </Link>
-          <span>/</span>
-          <span className="text-text/70">Направления</span>
-        </nav>
+          <span className="text-slate-700">/</span>
+          <span className="text-blue-400">Направления</span>
+        </motion.nav>
 
-        <div className="mb-8 flex items-center justify-between">
+        {/* Шапка */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8 flex items-center justify-between"
+        >
           <div>
-            <h1 className="font-heading text-2xl font-bold text-text">
-              Направления
-            </h1>
-            <p className="mt-1 text-sm text-text-muted">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-linear-to-br from-blue-500 to-purple-500">
+                <Map className="w-5 h-5 text-white" />
+              </div>
+              <h1 className="font-heading text-2xl font-bold text-white">
+                Направления
+              </h1>
+            </div>
+            <p className="text-sm text-slate-400">
               {destinations.length}{" "}
               {destinations.length === 1 ? "направление" : "направлений"} в базе
             </p>
@@ -44,51 +66,54 @@ export default async function AdminDestinationsPage() {
 
           <Link
             href="/admin/destinations/new"
-            className="inline-flex items-center gap-2 rounded-xl border border-accent-bright/30 bg-accent-bright/8 px-4 py-2.5 text-sm font-medium text-accent-bright transition-all hover:border-accent-bright/50 hover:bg-accent-bright/15"
+            className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-blue-500 to-purple-500 px-5 py-2.5 text-sm font-medium text-white transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/25"
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path
-                d="M7 1v12M1 7h12"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <Plus size={16} />
             Новое направление
           </Link>
-        </div>
+        </motion.div>
 
+        {/* Таблица */}
         {destinations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-text/8 bg-surface/30 py-20 text-center">
-            <div className="mb-4 text-4xl text-text-muted">◎</div>
-            <p className="font-heading text-lg font-bold text-text-muted">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center rounded-2xl border border-slate-700/50 bg-slate-800/30 backdrop-blur-sm py-20 text-center"
+          >
+            <div className="mb-4 text-5xl text-slate-600">◎</div>
+            <p className="font-heading text-lg font-bold text-slate-400">
               Направлений пока нет
             </p>
-            <p className="mt-2 text-sm text-text-muted/75">
+            <p className="mt-2 text-sm text-slate-500">
               Добавьте первое направление в content/destinations/
             </p>
-          </div>
+          </motion.div>
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-text/8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="overflow-hidden rounded-2xl border border-slate-700/50 bg-slate-800/30 backdrop-blur-sm"
+          >
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-text/8 bg-surface/50">
-                  <th className="px-5 py-3.5 text-left text-xs font-medium uppercase tracking-wide text-text-muted">
+                <tr className="border-b border-slate-700/50 bg-slate-800/50">
+                  <th className="px-5 py-3.5 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                     Название
                   </th>
-                  <th className="px-5 py-3.5 text-left text-xs font-medium uppercase tracking-wide text-text-muted">
+                  <th className="px-5 py-3.5 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                     Сложность
                   </th>
-                  <th className="px-5 py-3.5 text-left text-xs font-medium uppercase tracking-wide text-text-muted">
+                  <th className="px-5 py-3.5 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                     Бюджет
                   </th>
-                  <th className="px-5 py-3.5 text-left text-xs font-medium uppercase tracking-wide text-text-muted">
+                  <th className="px-5 py-3.5 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                     Сезон
                   </th>
-                  <th className="px-5 py-3.5 text-left text-xs font-medium uppercase tracking-wide text-text-muted">
+                  <th className="px-5 py-3.5 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                     Безопасность
                   </th>
-                  <th className="px-5 py-3.5 text-right text-xs font-medium uppercase tracking-wide text-text-muted">
+                  <th className="px-5 py-3.5 text-right text-xs font-medium uppercase tracking-wide text-slate-500">
                     Действия
                   </th>
                 </tr>
@@ -103,32 +128,30 @@ export default async function AdminDestinationsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </motion.div>
         )}
 
-        <div className="mt-8 flex items-center justify-between text-xs text-text-muted">
+        {/* Подвал */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="mt-8 flex items-center justify-between text-xs text-slate-500"
+        >
           <Link
             href="/admin"
-            className="inline-flex items-center gap-1.5 transition-colors hover:text-primary"
+            className="inline-flex items-center gap-1.5 transition-colors hover:text-cyan-400"
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path
-                d="M10 6H2M5 9L2 6l3-3"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <ArrowLeft size={12} />
             Назад в админку
           </Link>
-          <p className="text-text-muted/60">
+          <p className="text-slate-600">
             Файлы хранятся в{" "}
-            <code className="rounded bg-surface/50 px-1.5 py-0.5 font-mono text-text-muted">
+            <code className="rounded bg-slate-800/50 px-1.5 py-0.5 font-mono text-slate-400">
               content/destinations/
             </code>
           </p>
-        </div>
+        </motion.div>
       </div>
     </main>
   );

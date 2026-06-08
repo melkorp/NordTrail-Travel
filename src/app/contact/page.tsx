@@ -68,7 +68,7 @@ export default function ContactPage() {
             variants={reveal}
             className="text-4xl md:text-5xl font-heading font-semibold text-text mb-4 tracking-tight"
           >
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
               Связь с севером
             </span>
           </motion.h1>
@@ -91,7 +91,7 @@ export default function ContactPage() {
             whileInView={{ opacity: 1, scaleX: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="w-16 h-px bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto mb-10"
+            className="w-16 h-px bg-linear-to-r from-cyan-400 to-purple-400 mx-auto mb-10"
           />
 
           {/* Основной CTA: Email */}

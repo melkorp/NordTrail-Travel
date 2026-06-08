@@ -1,26 +1,24 @@
 // src/app/admin/articles/ArticleRow.tsx
 "use client";
 
-// Клиентский компонент — строка таблицы статей с кнопкой удаления.
-// Модалка подтверждения встроена — не требует внешнего стейта.
-
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ArticleData } from "@/lib/types";
+import { Eye, Edit, Trash2 } from "lucide-react";
 
 function CategoryBadge({ category }: Readonly<{ category: string }>) {
   const styles: Record<string, string> = {
-    Budget: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
-    Hiking: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
-    Luxury: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
-    Winter: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
-    "Solo Travel":
-      "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
-    Family: "border-accent-bright/30 text-accent-bright bg-accent-bright/5",
+    Budget: "border-cyan-400/30 text-cyan-400 bg-cyan-500/10",
+    Hiking: "border-blue-400/30 text-blue-400 bg-blue-500/10",
+    Luxury: "border-purple-400/30 text-purple-400 bg-purple-500/10",
+    Winter: "border-pink-400/30 text-pink-400 bg-pink-500/10",
+    "Solo Travel": "border-orange-400/30 text-orange-400 bg-orange-500/10",
+    Family: "border-green-400/30 text-green-400 bg-green-500/10",
   };
 
-  const style = styles[category] ?? "border-text/20 text-text-muted bg-text/5";
+  const style =
+    styles[category] ?? "border-slate-600/30 text-slate-400 bg-slate-700/30";
 
   return (
     <span
@@ -31,9 +29,6 @@ function CategoryBadge({ category }: Readonly<{ category: string }>) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// Модалка подтверждения удаления
-// ─────────────────────────────────────────────────────────────
 function DeleteModal({
   title,
   slug,
@@ -48,41 +43,36 @@ function DeleteModal({
   onCancel: () => void;
 }>) {
   return (
-    // Оверлей — клик вне карточки отменяет удаление
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-bg/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm"
       onClick={onCancel}
     >
       <div
-        className="mx-4 w-full max-w-sm rounded-2xl border border-text/10 bg-surface/90 p-6 shadow-2xl"
+        className="mx-4 w-full max-w-sm rounded-2xl border border-slate-700/50 bg-slate-800/90 p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-heading text-lg font-bold text-text">
+        <h3 className="font-heading text-lg font-bold text-white">
           Удалить статью?
         </h3>
 
-        <p className="mt-2 text-sm text-text-muted">Будет удалён файл:</p>
+        <p className="mt-2 text-sm text-slate-400">Будет удалён файл:</p>
 
-        {/* Имя файла */}
-        <div className="mt-3 rounded-xl border border-text/8 bg-bg/50 p-3">
-          <p className="font-mono text-xs text-accent-bright">
+        <div className="mt-3 rounded-xl border border-slate-700/50 bg-slate-900/50 p-3">
+          <p className="font-mono text-xs text-cyan-400">
             content/blog/{slug}.mdx
           </p>
-          <p className="mt-1 text-xs text-text-muted/70 leading-snug">
-            {title}
-          </p>
+          <p className="mt-1 text-xs text-slate-500 leading-snug">{title}</p>
         </div>
 
-        <p className="mt-3 text-xs text-text-muted/60">
+        <p className="mt-3 text-xs text-slate-500">
           Действие необратимо. Восстановить можно только через git history.
         </p>
 
-        {/* Кнопки */}
         <div className="mt-5 flex gap-3">
           <button
             onClick={onCancel}
             disabled={isDeleting}
-            className="flex-1 rounded-xl border border-text/10 bg-text/5 py-2.5 text-sm text-text-muted transition-all hover:text-text disabled:opacity-50"
+            className="flex-1 rounded-xl border border-slate-700/50 bg-slate-700/30 py-2.5 text-sm text-slate-400 transition-all hover:text-white disabled:opacity-50"
           >
             Отмена
           </button>
@@ -92,7 +82,7 @@ function DeleteModal({
             disabled={isDeleting}
             className={`flex-1 rounded-xl border py-2.5 text-sm font-medium transition-all ${
               isDeleting
-                ? "cursor-wait border-text/10 bg-surface/30 text-text-muted"
+                ? "cursor-wait border-slate-700/50 bg-slate-800/30 text-slate-500"
                 : "border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20"
             }`}
           >
@@ -104,9 +94,6 @@ function DeleteModal({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
-// СТРОКА ТАБЛИЦЫ
-// ─────────────────────────────────────────────────────────────
 export default function ArticleRow({
   article,
   index,
@@ -123,9 +110,6 @@ export default function ArticleRow({
 
   const router = useRouter();
 
-  // ─────────────────────────────────────────────────────────
-  // Удаление через DELETE /api/admin/articles/[slug]
-  // ─────────────────────────────────────────────────────────
   async function handleDelete() {
     setIsDeleting(true);
     setErrorMsg("");
@@ -141,7 +125,6 @@ export default function ArticleRow({
         throw new Error(data.error ?? `HTTP ${res.status}`);
       }
 
-      // Закрываем модалку и обновляем серверные данные
       setShowModal(false);
       router.refresh();
     } catch (err) {
@@ -152,7 +135,6 @@ export default function ArticleRow({
 
   return (
     <>
-      {/* Модалка подтверждения */}
       {showModal && (
         <DeleteModal
           title={article.title}
@@ -165,84 +147,50 @@ export default function ArticleRow({
         />
       )}
 
-      {/* Строка таблицы */}
       <tr
-        className={`border-b border-text/5 transition-colors hover:bg-surface/30 ${
-          index % 2 === 0 ? "bg-transparent" : "bg-surface/10"
+        className={`border-b border-slate-700/30 transition-colors hover:bg-slate-800/50 ${
+          index % 2 === 0 ? "bg-transparent" : "bg-slate-800/20"
         }`}
       >
-        {/* Заголовок + slug */}
         <td className="px-5 py-4">
-          <p className="font-medium text-text leading-snug">{article.title}</p>
-          <p className="mt-0.5 text-xs text-text-muted">/{article.slug}/</p>
-          {/* Ошибка удаления под заголовком */}
+          <p className="font-medium text-white leading-snug">{article.title}</p>
+          <p className="mt-0.5 text-xs text-slate-500">/{article.slug}/</p>
           {errorMsg && <p className="mt-1 text-xs text-red-400">{errorMsg}</p>}
         </td>
 
-        {/* Категория */}
         <td className="px-5 py-4">
           <CategoryBadge category={article.category} />
         </td>
 
-        {/* Дата */}
-        <td className="px-5 py-4 text-text-muted">{article.dateDisplay}</td>
+        <td className="px-5 py-4 text-slate-400">{article.dateDisplay}</td>
 
-        {/* Время чтения */}
-        <td className="px-5 py-4 text-text-muted">{article.readTime}</td>
+        <td className="px-5 py-4 text-slate-400">{article.readTime}</td>
 
-        {/* Действия */}
         <td className="px-5 py-4">
           <div className="flex items-center justify-end gap-2">
-            {/* Просмотр на сайте */}
             <Link
               href={`/blog/${article.slug}/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-text/10 bg-text/5 px-3 py-1.5 text-xs text-text-muted transition-all hover:border-text/20 hover:text-text"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/50 bg-slate-700/30 px-3 py-1.5 text-xs text-slate-400 transition-all hover:border-slate-600 hover:text-white"
             >
-              <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                <path
-                  d="M1 10L10 1M10 1H4M10 1v6"
-                  stroke="currentColor"
-                  strokeWidth="1.3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Eye size={11} />
               Открыть
             </Link>
 
-            {/* Редактировать */}
             <Link
               href={`/admin/articles/${article.slug}/edit`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-accent-bright/30 bg-accent-bright/8 px-3 py-1.5 text-xs font-medium text-accent-bright transition-all hover:border-accent-bright/50 hover:bg-accent-bright/15"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-400/30 bg-cyan-500/10 px-3 py-1.5 text-xs font-medium text-cyan-400 transition-all hover:border-cyan-400/50 hover:bg-cyan-500/20"
             >
-              <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                <path
-                  d="M7.5 1.5l2 2L3 10H1V8L7.5 1.5z"
-                  stroke="currentColor"
-                  strokeWidth="1.3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Edit size={11} />
               Редактировать
             </Link>
 
-            {/* Удалить */}
             <button
               onClick={() => setShowModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-text/10 bg-text/5 px-3 py-1.5 text-xs text-text-muted transition-all hover:border-red-500/30 hover:bg-red-500/8 hover:text-red-400"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/50 bg-slate-700/30 px-3 py-1.5 text-xs text-slate-400 transition-all hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-400"
             >
-              <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                <path
-                  d="M1.5 3h8M3.5 3V2h4v1M4.5 5v3M6.5 5v3M2 3l.5 6.5a1 1 0 001 .5h4a1 1 0 001-.5L9 3"
-                  stroke="currentColor"
-                  strokeWidth="1.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Trash2 size={11} />
               Удалить
             </button>
           </div>

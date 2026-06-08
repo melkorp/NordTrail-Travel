@@ -51,7 +51,7 @@ export default function HeroSection({
         />
         {/* Градиентные оверлеи */}
         <div className="absolute inset-0 bg-gradient-to-b from-bg/80 via-bg/60 to-bg/90" />
-        <div className="absolute inset-0 bg-gradient-to-r from-accent-cyan/10 via-transparent to-accent-purple/10" />
+        <div className="absolute inset-0 bg-linear-to-r from-accent-cyan/10 via-transparent to-accent-purple/10" />
 
         {/* Анимированные градиентные сферы */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-cyan/20 rounded-full blur-3xl animate-pulse" />
@@ -80,7 +80,7 @@ export default function HeroSection({
           variants={gentleFade}
           className="text-6xl md:text-8xl font-heading font-bold text-text mb-6 tracking-tighter text-balance"
         >
-          <span className="bg-gradient-to-r from-accent-cyan via-accent-blue to-accent-purple bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-accent-cyan via-accent-blue to-accent-purple bg-clip-text text-transparent">
             NordTrail
           </span>
           <br />
@@ -164,3 +164,4 @@ export default function HeroSection({
     </section>
   );
 }
+

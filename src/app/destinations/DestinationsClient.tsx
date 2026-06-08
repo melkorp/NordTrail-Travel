@@ -85,10 +85,10 @@ export default function DestinationsClient({
                       ) : (
                         <div className="absolute inset-0 bg-linear-to-b from-cyan-500/20 to-purple-500/20" />
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-bg/60 via-bg/20 to-transparent group-hover:from-bg/40 transition-colors duration-500" />
+                      <div className="absolute inset-0 bg-linear-to-t from-bg/60 via-bg/20 to-transparent group-hover:from-bg/40 transition-colors duration-500" />
 
                       {/* Градиентный оверлей */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="absolute inset-0 bg-linear-to-br from-cyan-500/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     </div>
 
                     {/* Текст */}
@@ -116,7 +116,7 @@ export default function DestinationsClient({
                       )}
                       <span className="relative z-10 text-xs font-heading uppercase tracking-widest text-cyan-400 mt-auto pt-4 flex items-center gap-3 group-hover:text-cyan-300 transition-colors duration-300">
                         Открыть маршрут
-                        <span className="block w-3 h-px bg-gradient-to-r from-cyan-400 to-purple-400 group-hover:w-6 transition-all duration-500" />
+                        <span className="block w-3 h-px bg-linear-to-r from-cyan-400 to-purple-400 group-hover:w-6 transition-all duration-500" />
                       </span>
                     </div>
 

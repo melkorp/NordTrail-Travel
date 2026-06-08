@@ -29,7 +29,7 @@ export default function LegalPage({
           <h1 className="text-2xl md:text-3xl font-heading font-semibold text-text tracking-tight">
             {title}
           </h1>
-          <div className="w-12 h-px bg-gradient-to-r from-cyan-400 to-purple-400 mt-4" />
+          <div className="w-12 h-px bg-linear-to-r from-cyan-400 to-purple-400 mt-4" />
         </header>
 
         <div className="prose prose-invert prose-headings:font-heading prose-headings:text-text prose-headings:tracking-tight prose-p:text-text-secondary prose-p:leading-relaxed prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline prose-strong:text-text prose-ul:text-text-secondary prose-li:leading-relaxed max-w-none">

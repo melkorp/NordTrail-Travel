@@ -74,7 +74,7 @@ export default async function BlogPage() {
             >
               <article className="p-8 md:p-12 flex flex-col md:flex-row gap-8 items-start">
                 <div className="flex-1">
-                  <div className="flex items-center gap-4 text-xs font-heading uppercase tracking-widest text-cyan-400 mb-4 bg-cyan-500/10 border border-cyan-400/30 rounded-full px-3 py-1 inline-block">
+                  <div className="flex items-center gap-4 text-xs font-heading uppercase tracking-widest text-cyan-400 mb-4 bg-cyan-500/10 border border-cyan-400/30 rounded-full px-3 py-1 ">
                     <span>{featuredArticle.category}</span>
                     <span
                       className="w-1 h-1 bg-cyan-400 rounded-full"

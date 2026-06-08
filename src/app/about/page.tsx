@@ -40,7 +40,7 @@ export default function AboutPage() {
             variants={reveal}
             className="text-4xl md:text-5xl lg:text-6xl font-heading font-semibold text-text mb-6 tracking-tight text-balance"
           >
-            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
               NordTrail Travel
             </span>
             <br />
@@ -51,7 +51,7 @@ export default function AboutPage() {
             whileInView={{ opacity: 1, scaleX: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="w-20 h-px bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto mb-10"
+            className="w-20 h-px bg-linear-to-r from-cyan-400 to-purple-400 mx-auto mb-10"
           />
           <motion.p
             initial="hidden"
@@ -75,7 +75,7 @@ export default function AboutPage() {
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
               variants={reveal}
-              className="text-2xl md:text-3xl font-heading bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-14 tracking-wide uppercase text-center"
+              className="text-2xl md:text-3xl font-heading bg-linear-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-14 tracking-wide uppercase text-center"
             >
               Почему выбирают нас
             </motion.h2>
@@ -109,7 +109,7 @@ export default function AboutPage() {
                   className="group glass-card-light rounded-2xl p-8 transition-all duration-500"
                 >
                   <div
-                    className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${item.gradient} mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}
+                    className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br ${item.gradient} mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}
                   >
                     <item.icon className="w-6 h-6 text-white" />
                   </div>
@@ -136,7 +136,7 @@ export default function AboutPage() {
               <h2 className="text-2xl md:text-3xl font-heading text-text mb-4 tracking-tight">
                 Команда
               </h2>
-              <div className="w-12 h-px bg-gradient-to-r from-cyan-400 to-purple-400 mb-6" />
+              <div className="w-12 h-px bg-linear-to-r from-cyan-400 to-purple-400 mb-6" />
               <p className="text-text-secondary leading-relaxed">
                 Мы собираем и структурируем информацию о направлениях, сезонах и
                 бюджетах, чтобы путешественники могли самостоятельно планировать
@@ -195,7 +195,7 @@ export default function AboutPage() {
             >
               <Link
                 href="/destinations"
-                className="inline-block px-10 py-4 font-heading text-sm tracking-widest uppercase font-medium text-white bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-xl transition-all duration-500 hover:-translate-y-px hover:shadow-[0_8px_30px_rgba(6,182,212,0.4)]"
+                className="inline-block px-10 py-4 font-heading text-sm tracking-widest uppercase font-medium text-white bg-linear-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-xl transition-all duration-500 hover:-translate-y-px hover:shadow-[0_8px_30px_rgba(6,182,212,0.4)]"
               >
                 Смотреть направления
               </Link>

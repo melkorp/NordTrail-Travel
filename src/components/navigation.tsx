@@ -53,7 +53,7 @@ export default function Navigation() {
         {/* Логотип */}
         <Link
           href="/"
-          className="font-heading font-bold text-xl tracking-tight bg-gradient-to-r from-accent-cyan to-accent-purple bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300"
+          className="font-heading font-bold text-xl tracking-tight bg-linear-to-r from-accent-cyan to-accent-purple bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300"
         >
           NordTrail
         </Link>
@@ -76,7 +76,7 @@ export default function Navigation() {
                   {isActive && (
                     <motion.span
                       layoutId="activeNav"
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-accent-cyan to-accent-purple rounded-full"
+                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-linear-to-r from-accent-cyan to-accent-purple rounded-full"
                     />
                   )}
                 </Link>
