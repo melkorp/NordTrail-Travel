@@ -12,7 +12,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { buildBreadcrumbsJsonLd } from "@/lib/breadcrumbs";
-// Анимация появления: медленная, плавная
+
 const reveal = {
   hidden: { opacity: 0, y: 24 },
   visible: {
@@ -38,7 +38,6 @@ export default function ContactPage() {
         }}
       />
       <main className="min-h-screen bg-bg text-text font-body antialiased selection:bg-accent-bright selection:text-bg flex items-center justify-center px-6 py-24">
-        {/* Schema.org разметка для SEO */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -60,7 +59,7 @@ export default function ContactPage() {
           }}
         />
 
-        <div className="w-full max-w-xl mx-auto text-center">
+        <div className="w-full max-w-2xl mx-auto text-center">
           {/* Заголовок */}
           <motion.h1
             initial="hidden"
@@ -69,7 +68,9 @@ export default function ContactPage() {
             variants={reveal}
             className="text-4xl md:text-5xl font-heading font-semibold text-text mb-4 tracking-tight"
           >
-            Связь с севером
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+              Связь с севером
+            </span>
           </motion.h1>
 
           <motion.p
@@ -78,19 +79,19 @@ export default function ContactPage() {
             viewport={{ once: true }}
             variants={reveal}
             transition={{ delay: 0.1 }}
-            className="text-text-muted mb-10 leading-relaxed"
+            className="text-text-secondary mb-10 leading-relaxed"
           >
             По вопросам сотрудничества, приобретения сайта или размещения
             материалов свяжитесь с нами.
           </motion.p>
 
-          {/* Золотой разделитель */}
+          {/* Градиентный разделитель */}
           <motion.div
             initial={{ opacity: 0, scaleX: 0 }}
             whileInView={{ opacity: 1, scaleX: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="w-16 h-px bg-accent-bright mx-auto mb-10"
+            className="w-16 h-px bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto mb-10"
           />
 
           {/* Основной CTA: Email */}
@@ -104,7 +105,7 @@ export default function ContactPage() {
           >
             <a
               href="mailto:tamogoghi@gmail.com"
-              className="group inline-flex items-center gap-3 px-8 py-4 border border-accent-bright/30 text-accent-bright hover:bg-accent-bright hover:text-bg transition-all duration-500 rounded-sm"
+              className="group inline-flex items-center gap-3 px-8 py-4 glass-card-light rounded-xl text-cyan-400 hover:text-white transition-all duration-500"
             >
               <Mail size={20} />
               <span className="font-heading text-sm tracking-widest uppercase">
@@ -124,38 +125,47 @@ export default function ContactPage() {
             viewport={{ once: true }}
             variants={reveal}
             transition={{ delay: 0.4 }}
-            className="flex justify-center gap-6"
+            className="glass-card-light rounded-2xl p-8"
           >
-            {[
-              {
-                icon: Camera,
-                href: "https://pinterest.com",
-                label: "Pinterest",
-              },
-              {
-                icon: MessageCircle,
-                href: "https://instagram.com",
-                label: "Instagram",
-              },
-              { icon: Globe, href: "https://linkedin.com", label: "LinkedIn" },
-              { icon: Play, href: "https://youtube.com", label: "YouTube" },
-              {
-                icon: AtSign,
-                href: "https://twitter.com",
-                label: "X / Twitter",
-              },
-            ].map((social) => (
-              <a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={social.label}
-                className="text-text/40 hover:text-accent-bright hover:-translate-y-px transition-all duration-500"
-              >
-                <social.icon size={22} strokeWidth={1.5} />
-              </a>
-            ))}
+            <h3 className="text-lg font-heading text-text mb-6">
+              Мы в социальных сетях
+            </h3>
+            <div className="flex justify-center gap-6">
+              {[
+                {
+                  icon: Camera,
+                  href: "https://pinterest.com",
+                  label: "Pinterest",
+                },
+                {
+                  icon: MessageCircle,
+                  href: "https://instagram.com",
+                  label: "Instagram",
+                },
+                {
+                  icon: Globe,
+                  href: "https://linkedin.com",
+                  label: "LinkedIn",
+                },
+                { icon: Play, href: "https://youtube.com", label: "YouTube" },
+                {
+                  icon: AtSign,
+                  href: "https://twitter.com",
+                  label: "X / Twitter",
+                },
+              ].map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className="text-text-muted hover:text-cyan-400 hover:-translate-y-1 transition-all duration-500"
+                >
+                  <social.icon size={24} strokeWidth={1.5} />
+                </a>
+              ))}
+            </div>
           </motion.div>
         </div>
       </main>

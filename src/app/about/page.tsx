@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { buildBreadcrumbsJsonLd } from "@/lib/breadcrumbs";
+import { Compass, Map, Calendar } from "lucide-react";
 
 const reveal = {
   hidden: { opacity: 0, y: 24 },
@@ -39,14 +40,18 @@ export default function AboutPage() {
             variants={reveal}
             className="text-4xl md:text-5xl lg:text-6xl font-heading font-semibold text-text mb-6 tracking-tight text-balance"
           >
-            NordTrail Travel — Планирование путешествий на север
+            <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
+              NordTrail Travel
+            </span>
+            <br />
+            <span className="text-text">Планирование путешествий на север</span>
           </motion.h1>
           <motion.div
             initial={{ opacity: 0, scaleX: 0 }}
             whileInView={{ opacity: 1, scaleX: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="w-20 h-px bg-accent-bright mx-auto mb-10"
+            className="w-20 h-px bg-gradient-to-r from-cyan-400 to-purple-400 mx-auto mb-10"
           />
           <motion.p
             initial="hidden"
@@ -54,7 +59,7 @@ export default function AboutPage() {
             viewport={{ once: true, amount: 0.3 }}
             variants={reveal}
             transition={{ delay: 0.1 }}
-            className="text-lg md:text-xl text-text-muted max-w-2xl mx-auto leading-relaxed"
+            className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed"
           >
             NordTrail Travel — информационный ресурс о северных и горных
             путешествиях. Мы собираем и структурируем данные о направлениях,
@@ -63,30 +68,36 @@ export default function AboutPage() {
           </motion.p>
         </section>
 
-        <section className="py-24 px-6 bg-surface">
+        <section className="py-24 px-6">
           <div className="max-w-5xl mx-auto">
             <motion.h2
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.2 }}
               variants={reveal}
-              className="text-2xl md:text-3xl font-heading text-accent-bright mb-14 tracking-wide uppercase text-center"
+              className="text-2xl md:text-3xl font-heading bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent mb-14 tracking-wide uppercase text-center"
             >
               Почему выбирают нас
             </motion.h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
               {[
                 {
+                  icon: Compass,
                   title: "Экспертиза",
                   desc: "Практические маршруты, сезонные рекомендации и структурированная информация для самостоятельного планирования путешествий по северным направлениям.",
+                  gradient: "from-cyan-500 to-blue-500",
                 },
                 {
+                  icon: Map,
                   title: "Актуальные направления",
                   desc: "Подборка маршрутов, локаций и travel-идей с фокусом на Исландию, Скандинавию, Японию и северные регионы России.",
+                  gradient: "from-blue-500 to-purple-500",
                 },
                 {
+                  icon: Calendar,
                   title: "Удобное планирование",
                   desc: "Сайт помогает быстро сравнить сезоны, бюджеты, маршруты и форматы поездок — от коротких путешествий до экспедиционных направлений.",
+                  gradient: "from-purple-500 to-pink-500",
                 },
               ].map((item) => (
                 <motion.div
@@ -95,12 +106,17 @@ export default function AboutPage() {
                   whileInView="visible"
                   viewport={{ once: true, amount: 0.2 }}
                   variants={reveal}
-                  className="group p-6 border border-white/5 hover:border-accent-bright/30 rounded-sm transition-all duration-500"
+                  className="group glass-card-light rounded-2xl p-8 transition-all duration-500"
                 >
-                  <h3 className="text-xl font-heading text-text mb-3 tracking-tight group-hover:text-accent-bright transition-colors duration-500">
+                  <div
+                    className={`inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br ${item.gradient} mb-6 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}
+                  >
+                    <item.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <h3 className="text-xl font-heading text-text mb-3 tracking-tight group-hover:text-cyan-400 transition-colors duration-500">
                     {item.title}
                   </h3>
-                  <p className="text-text-muted leading-relaxed text-sm md:text-base">
+                  <p className="text-text-secondary leading-relaxed text-sm md:text-base">
                     {item.desc}
                   </p>
                 </motion.div>
@@ -120,8 +136,8 @@ export default function AboutPage() {
               <h2 className="text-2xl md:text-3xl font-heading text-text mb-4 tracking-tight">
                 Команда
               </h2>
-              <div className="w-12 h-px bg-accent-calm mb-6" />
-              <p className="text-text-muted leading-relaxed">
+              <div className="w-12 h-px bg-gradient-to-r from-cyan-400 to-purple-400 mb-6" />
+              <p className="text-text-secondary leading-relaxed">
                 Мы собираем и структурируем информацию о направлениях, сезонах и
                 бюджетах, чтобы путешественники могли самостоятельно планировать
                 поездки по северным регионам.
@@ -136,7 +152,7 @@ export default function AboutPage() {
                 ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
                 delay: 0.2,
               }}
-              className="h-64 md:h-80 rounded-sm overflow-hidden border border-white/5"
+              className="h-64 md:h-80 rounded-2xl overflow-hidden glass-card-light"
             >
               <Image
                 src="/images/optimized/about-team-1600.webp"
@@ -149,8 +165,8 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section className="py-24 px-6 bg-linear-to-b from-surface to-bg">
-          <div className="max-w-3xl mx-auto text-center">
+        <section className="py-24 px-6">
+          <div className="max-w-3xl mx-auto text-center glass-card-light rounded-3xl p-12 md:p-16">
             <motion.h2
               initial="hidden"
               whileInView="visible"
@@ -166,7 +182,7 @@ export default function AboutPage() {
               viewport={{ once: true, amount: 0.3 }}
               variants={reveal}
               transition={{ delay: 0.1 }}
-              className="text-text-muted mb-10 max-w-xl mx-auto"
+              className="text-text-secondary mb-10 max-w-xl mx-auto"
             >
               Вся информация для планирования уже собрана — выбирайте
               направление и начинайте.
@@ -179,7 +195,7 @@ export default function AboutPage() {
             >
               <Link
                 href="/destinations"
-                className="inline-block px-10 py-4 font-heading text-sm tracking-widest uppercase font-medium text-bg bg-accent-bright rounded-sm transition-all duration-500 hover:-translate-y-px hover:shadow-[0_4px_24px_rgba(212,175,55,0.25)]"
+                className="inline-block px-10 py-4 font-heading text-sm tracking-widest uppercase font-medium text-white bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 rounded-xl transition-all duration-500 hover:-translate-y-px hover:shadow-[0_8px_30px_rgba(6,182,212,0.4)]"
               >
                 Смотреть направления
               </Link>
