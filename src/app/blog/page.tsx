@@ -70,25 +70,25 @@ export default async function BlogPage() {
           <section className="py-16 px-6 max-w-5xl mx-auto">
             <Link
               href={`/blog/${featuredArticle.slug}/`}
-              className="group relative block bg-surface border border-white/5 hover:border-accent-bright/40 transition-all duration-500 rounded-sm overflow-hidden"
+              className="group relative block glass-card-light rounded-2xl overflow-hidden"
             >
               <article className="p-8 md:p-12 flex flex-col md:flex-row gap-8 items-start">
                 <div className="flex-1">
-                  <div className="flex items-center gap-4 text-xs font-heading uppercase tracking-widest text-accent-calm mb-4">
+                  <div className="flex items-center gap-4 text-xs font-heading uppercase tracking-widest text-cyan-400 mb-4 bg-cyan-500/10 border border-cyan-400/30 rounded-full px-3 py-1 inline-block">
                     <span>{featuredArticle.category}</span>
                     <span
-                      className="w-1 h-1 bg-white/20 rounded-full"
+                      className="w-1 h-1 bg-cyan-400 rounded-full"
                       aria-hidden="true"
                     />
                     <span>{featuredArticle.readTime || "5 min read"}</span>
                   </div>
-                  <h2 className="text-2xl md:text-3xl font-heading text-text mb-4 group-hover:text-accent-bright transition-colors duration-500">
+                  <h2 className="text-2xl md:text-3xl font-heading text-text mb-4 group-hover:text-cyan-400 transition-colors duration-500 text-glow">
                     {featuredArticle.title}
                   </h2>
-                  <p className="text-text-muted leading-relaxed mb-6">
+                  <p className="text-text-secondary leading-relaxed mb-6">
                     {featuredArticle.quickAnswer}
                   </p>
-                  <span className="text-sm font-heading text-text/60 group-hover:text-accent-bright transition-colors duration-500 underline decoration-accent-bright/30 underline-offset-4">
+                  <span className="text-sm font-heading text-cyan-400 group-hover:text-cyan-300 transition-colors duration-500 underline decoration-cyan-400/30 underline-offset-4">
                     Читать статью
                   </span>
                 </div>
@@ -98,10 +98,14 @@ export default async function BlogPage() {
                     alt={featuredArticle.title}
                     width={400}
                     height={300}
-                    className="w-full md:w-1/3 aspect-4/3 rounded-sm border border-white/5 object-cover"
+                    className="w-full md:w-1/3 aspect-4/3 rounded-xl border border-white/20 object-cover group-hover:border-cyan-400/50 transition-colors duration-500"
                   />
                 )}
               </article>
+
+              {/* Декоративное свечение */}
+              <div className="absolute -right-20 -top-20 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute -left-20 -bottom-20 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </Link>
           </section>
         )}
@@ -126,19 +130,19 @@ export default async function BlogPage() {
               <Link
                 key={article.slug}
                 href={`/blog/${article.slug}/`}
-                className="group block bg-surface border border-white/5 hover:border-accent-bright/40 hover:-translate-y-px transition-all duration-500 rounded-sm p-6 h-full"
+                className="group block glass-card-light rounded-2xl p-6 h-full"
               >
                 <article className="flex flex-col h-full">
-                  <div className="mb-4 text-xs font-heading uppercase tracking-widest text-accent-calm">
+                  <div className="mb-4 text-xs font-heading uppercase tracking-widest text-cyan-400 bg-cyan-500/10 border border-cyan-400/30 rounded-full px-3 py-1 inline-block w-fit">
                     {article.category}
                   </div>
-                  <h3 className="text-xl font-heading text-text mb-3 leading-snug group-hover:text-accent-bright transition-colors duration-500">
+                  <h3 className="text-xl font-heading text-text mb-3 leading-snug group-hover:text-cyan-400 transition-colors duration-500 text-glow">
                     {article.title}
                   </h3>
-                  <div className="mt-auto pt-4 flex items-center justify-between text-xs text-text/40 font-heading">
+                  <div className="mt-auto pt-4 flex items-center justify-between text-xs text-text-secondary font-heading">
                     <span>{article.readTime || "5 min read"}</span>
                     <span
-                      className="group-hover:text-accent-bright transition-colors duration-500"
+                      className="group-hover:text-cyan-400 transition-colors duration-500"
                       aria-hidden="true"
                     >
                       →

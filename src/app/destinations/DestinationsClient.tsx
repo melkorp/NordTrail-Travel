@@ -70,7 +70,7 @@ export default function DestinationsClient({
                 >
                   <Link
                     href={`/destinations/${dest.slug}/`}
-                    className="group relative h-full bg-surface border border-white/5 hover:border-accent-bright/50 hover:-translate-y-px transition-all duration-500 rounded-2xl overflow-hidden flex flex-col"
+                    className="group relative h-full glass-card-light rounded-2xl overflow-hidden flex flex-col"
                   >
                     {/* Изображение */}
                     <div className="relative h-48 w-full overflow-hidden shrink-0">
@@ -79,43 +79,50 @@ export default function DestinationsClient({
                           src={dest.image}
                           alt={dest.name}
                           fill
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       ) : (
-                        <div className="absolute inset-0 bg-linear-to-b from-surface/60 to-bg" />
+                        <div className="absolute inset-0 bg-linear-to-b from-cyan-500/20 to-purple-500/20" />
                       )}
-                      <div className="absolute inset-0 bg-bg/30 group-hover:bg-bg/10 transition-colors duration-500" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-bg/60 via-bg/20 to-transparent group-hover:from-bg/40 transition-colors duration-500" />
+
+                      {/* Градиентный оверлей */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     </div>
 
                     {/* Текст */}
                     <div className="relative z-10 p-6 flex flex-col flex-1">
-                      <h2 className="text-2xl font-heading text-text group-hover:text-accent-bright transition-colors duration-500 mb-2 tracking-tight">
+                      <h2 className="text-2xl font-heading text-text group-hover:text-cyan-400 transition-colors duration-500 mb-2 tracking-tight text-glow">
                         {dest.name}
                       </h2>
-                      <p className="text-text-muted text-sm leading-relaxed line-clamp-2">
+                      <p className="text-text-secondary text-sm leading-relaxed line-clamp-2">
                         {dest.quickAnswer?.slice(0, 120) ??
                           "Готовые маршруты, сезонные гиды и приватные экспедиции."}
                       </p>
                       {(dest.bestSeason || dest.budget) && (
                         <div className="mt-4 flex flex-wrap gap-2">
                           {dest.bestSeason && (
-                            <span className="text-[10px] font-medium uppercase tracking-wide text-text-muted/60 border border-white/8 rounded-full px-2.5 py-0.5">
+                            <span className="text-[10px] font-medium uppercase tracking-wide text-cyan-300 border border-cyan-400/30 rounded-full px-2.5 py-0.5 bg-cyan-500/10">
                               {dest.bestSeason.split(",")[0]}
                             </span>
                           )}
                           {dest.budget && (
-                            <span className="text-[10px] font-medium uppercase tracking-wide text-text-muted/60 border border-white/8 rounded-full px-2.5 py-0.5">
+                            <span className="text-[10px] font-medium uppercase tracking-wide text-purple-300 border border-purple-400/30 rounded-full px-2.5 py-0.5 bg-purple-500/10">
                               {dest.budget} бюджет
                             </span>
                           )}
                         </div>
                       )}
-                      <span className="relative z-10 text-xs font-heading uppercase tracking-widest text-accent-bright/80 mt-auto pt-4 flex items-center gap-3">
+                      <span className="relative z-10 text-xs font-heading uppercase tracking-widest text-cyan-400 mt-auto pt-4 flex items-center gap-3 group-hover:text-cyan-300 transition-colors duration-300">
                         Открыть маршрут
-                        <span className="block w-3 h-px bg-accent-bright group-hover:w-6 transition-all duration-500" />
+                        <span className="block w-3 h-px bg-gradient-to-r from-cyan-400 to-purple-400 group-hover:w-6 transition-all duration-500" />
                       </span>
                     </div>
+
+                    {/* Декоративное свечение */}
+                    <div className="absolute -right-20 -top-20 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute -left-20 -bottom-20 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </Link>
                 </motion.div>
               ))}
