@@ -7,10 +7,9 @@ export interface SiteSettings {
   footer: { text: string };
   theme: {
     accentColor: string;
-    // ── Новые поля типографики ──────────────────────────
-    fontHeading: string; // шрифт заголовков
-    fontBody: string; // шрифт текста
-    fontSizeBase: string; // базовый размер: "14px" | "16px" | "18px"
+    fontHeading: string;
+    fontBody: string;
+    fontSizeBase: string;
   };
   admin: { password: string };
 }
@@ -24,7 +23,6 @@ const DEFAULT_SETTINGS: SiteSettings = {
   footer: { text: `© ${new Date().getFullYear()} NordTrail Travel.` },
   theme: {
     accentColor: "#D4AF37",
-    // Дефолты совпадают с текущей темой проекта
     fontHeading: "Manrope",
     fontBody: "Inter",
     fontSizeBase: "16px",
@@ -40,7 +38,6 @@ export function getSettings(): SiteSettings {
     return {
       site: { ...DEFAULT_SETTINGS.site, ...parsed.site },
       footer: { ...DEFAULT_SETTINGS.footer, ...parsed.footer },
-      // Глубокий мёрдж theme — новые поля не потеряются если их нет в файле
       theme: { ...DEFAULT_SETTINGS.theme, ...parsed.theme },
       admin: { ...DEFAULT_SETTINGS.admin, ...parsed.admin },
     };
