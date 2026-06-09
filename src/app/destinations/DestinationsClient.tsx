@@ -103,12 +103,12 @@ export default function DestinationsClient({
                       {(dest.bestSeason || dest.budget) && (
                         <div className="mt-4 flex flex-wrap gap-2">
                           {dest.bestSeason && (
-                            <span className="text-[10px] font-medium uppercase tracking-wide text-cyan-300 border border-cyan-400/30 rounded-full px-2.5 py-0.5 bg-cyan-500/10">
+                            <span className="text-[10px] font-medium uppercase tracking-wide text-cyan-400 border border-cyan-400/50 rounded-full px-2.5 py-0.5 bg-cyan-500/20">
                               {dest.bestSeason.split(",")[0]}
                             </span>
                           )}
                           {dest.budget && (
-                            <span className="text-[10px] font-medium uppercase tracking-wide text-purple-300 border border-purple-400/30 rounded-full px-2.5 py-0.5 bg-purple-500/10">
+                            <span className="text-[10px] font-medium uppercase tracking-wide text-purple-400 border border-purple-400/50 rounded-full px-2.5 py-0.5 bg-purple-500/20">
                               {dest.budget} бюджет
                             </span>
                           )}
