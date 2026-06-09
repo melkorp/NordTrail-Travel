@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { Mountain, Compass, MapPin, ArrowRight } from "lucide-react";
 
-// Медленное появление без резких скачков
 const gentleFade = {
   hidden: { opacity: 0, y: 30 },
   visible: {
@@ -40,7 +39,7 @@ export default function HeroSection({
 
   return (
     <section className="relative min-h-screen flex flex-col items-center justify-center px-6 bg-bg overflow-hidden">
-      {/* Фоновое изображение с эффектом */}
+      {/* Фоновое изображение */}
       <div className="fixed inset-0">
         <Image
           src="/images/optimized/hero-bg-1600.webp"
@@ -49,13 +48,12 @@ export default function HeroSection({
           className="object-cover opacity-40"
           priority
         />
-        {/* Градиентные оверлеи */}
         <div className="absolute inset-0 bg-gradient-to-b from-bg/80 via-bg/60 to-bg/90" />
-        <div className="absolute inset-0 bg-linear-to-r from-accent-cyan/10 via-transparent to-accent-purple/10" />
+        <div className="absolute inset-0 bg-accent-bright/5" />
 
-        {/* Анимированные градиентные сферы */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-cyan/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-purple/20 rounded-full blur-3xl animate-pulse delay-1000" />
+        {/* Анимированные сферы */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-bright/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent-bright/10 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
       {/* Контент */}
@@ -68,7 +66,7 @@ export default function HeroSection({
         {/* Бейдж */}
         <motion.div variants={gentleFade} className="mb-8">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card">
-            <div className="w-2 h-2 rounded-full bg-accent-cyan animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-accent-bright animate-pulse" />
             <span className="text-sm font-medium text-text-secondary">
               Премиум путешествия 2026
             </span>
@@ -80,9 +78,7 @@ export default function HeroSection({
           variants={gentleFade}
           className="text-6xl md:text-8xl font-heading font-bold text-text mb-6 tracking-tighter text-balance"
         >
-          <span className="bg-linear-to-r from-accent-cyan via-accent-blue to-accent-purple bg-clip-text text-transparent">
-            NordTrail
-          </span>
+          <span className="text-accent-bright">NordTrail</span>
           <br />
           <span className="text-text">Travel</span>
         </motion.h1>
@@ -93,9 +89,9 @@ export default function HeroSection({
           className="text-xl md:text-2xl font-body text-text-secondary mb-12 leading-relaxed text-balance max-w-3xl mx-auto"
         >
           Практические гиды по{" "}
-          <span className="text-accent-cyan font-medium">Исландии</span>,{" "}
-          <span className="text-accent-blue font-medium">Норвегии</span>,{" "}
-          <span className="text-accent-purple font-medium">Японии</span> и
+          <span className="text-accent-bright font-medium">Исландии</span>,{" "}
+          <span className="text-accent-bright font-medium">Норвегии</span>,{" "}
+          <span className="text-accent-bright font-medium">Японии</span> и
           другим северным направлениям — сезоны, бюджеты, маршруты.
         </motion.p>
 
@@ -106,7 +102,7 @@ export default function HeroSection({
         >
           <Link
             href="/destinations/"
-            className="group relative px-8 py-4 font-heading text-sm tracking-widest uppercase font-medium rounded-xl gradient-button text-white overflow-hidden"
+            className="group relative px-8 py-4 font-heading text-sm tracking-widest uppercase font-medium rounded-xl bg-accent-bright text-white hover:opacity-90 transition-opacity overflow-hidden"
           >
             <span className="relative z-10 flex items-center justify-center gap-2">
               Выбрать маршрут
@@ -116,7 +112,7 @@ export default function HeroSection({
 
           <Link
             href="/about/"
-            className="px-8 py-4 font-heading text-sm tracking-widest uppercase font-medium rounded-xl glass-card text-text hover:text-accent-cyan transition-all duration-300"
+            className="px-8 py-4 font-heading text-sm tracking-widest uppercase font-medium rounded-xl glass-card text-text hover:text-accent-bright transition-all duration-300"
           >
             О нас
           </Link>
@@ -128,19 +124,19 @@ export default function HeroSection({
           className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto"
         >
           <div className="glass-card rounded-2xl p-6 text-center">
-            <Mountain className="w-8 h-8 mx-auto mb-3 text-accent-cyan" />
+            <Mountain className="w-8 h-8 mx-auto mb-3 text-accent-bright" />
             <div className="text-3xl font-bold text-text mb-1">9+</div>
             <div className="text-sm text-text-muted">Направлений</div>
           </div>
 
           <div className="glass-card rounded-2xl p-6 text-center">
-            <Compass className="w-8 h-8 mx-auto mb-3 text-accent-blue" />
+            <Compass className="w-8 h-8 mx-auto mb-3 text-accent-bright" />
             <div className="text-3xl font-bold text-text mb-1">50+</div>
             <div className="text-sm text-text-muted">Маршрутов</div>
           </div>
 
           <div className="glass-card rounded-2xl p-6 text-center">
-            <MapPin className="w-8 h-8 mx-auto mb-3 text-accent-purple" />
+            <MapPin className="w-8 h-8 mx-auto mb-3 text-accent-bright" />
             <div className="text-3xl font-bold text-text mb-1">100%</div>
             <div className="text-sm text-text-muted">Авторские гиды</div>
           </div>
@@ -158,10 +154,9 @@ export default function HeroSection({
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 w-px h-12 bg-gradient-to-b from-accent-cyan/60 to-transparent"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 w-px h-12 bg-gradient-to-b from-accent-bright/60 to-transparent"
         />
       )}
     </section>
   );
 }
-

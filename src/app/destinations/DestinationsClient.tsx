@@ -96,8 +96,8 @@ export default function DestinationsClient({
                       <h2 className="text-2xl font-heading text-text group-hover:text-cyan-400 transition-colors duration-500 mb-2 tracking-tight text-glow">
                         {dest.name}
                       </h2>
-                      <p className="text-text-secondary text-sm leading-relaxed line-clamp-2">
-                        {dest.quickAnswer?.slice(0, 120) ??
+                      <p className="text-gray-900 text-[15px] leading-relaxed line-clamp-3 mb-4 font-medium text-balance">
+                        {dest.quickAnswer?.slice(0, 140) ??
                           "Готовые маршруты, сезонные гиды и приватные экспедиции."}
                       </p>
                       {(dest.bestSeason || dest.budget) && (

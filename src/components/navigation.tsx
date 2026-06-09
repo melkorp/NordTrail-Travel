@@ -53,7 +53,7 @@ export default function Navigation() {
         {/* Логотип */}
         <Link
           href="/"
-          className="font-heading font-bold text-xl tracking-tight bg-linear-to-r from-accent-cyan to-accent-purple bg-clip-text text-transparent hover:opacity-80 transition-opacity duration-300"
+          className="font-heading font-bold text-xl tracking-tight text-accent-bright hover:opacity-80 transition-opacity duration-300"
         >
           NordTrail
         </Link>
@@ -68,7 +68,7 @@ export default function Navigation() {
                   href={link.href}
                   className={`relative font-heading text-sm tracking-wide transition-all duration-300 hover:-translate-y-0.5 ${
                     isActive
-                      ? "text-accent-cyan"
+                      ? "text-accent-bright"
                       : "text-text-secondary hover:text-text"
                   }`}
                 >
@@ -76,7 +76,7 @@ export default function Navigation() {
                   {isActive && (
                     <motion.span
                       layoutId="activeNav"
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-linear-to-r from-accent-cyan to-accent-purple rounded-full"
+                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-accent-bright rounded-full"
                     />
                   )}
                 </Link>
@@ -88,7 +88,7 @@ export default function Navigation() {
         {/* Гамбургер */}
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="md:hidden text-text-secondary hover:text-accent-cyan p-2 transition-colors"
+          className="md:hidden text-text-secondary hover:text-accent-bright p-2 transition-colors"
           aria-label="Открыть меню"
           aria-expanded={isMobileOpen}
           aria-controls="mobile-menu"
@@ -117,7 +117,7 @@ export default function Navigation() {
                       href={link.href}
                       className={`block py-3 font-heading text-base transition-all duration-300 ${
                         isActive
-                          ? "text-accent-cyan border-l-2 border-accent-cyan pl-4 bg-accent-cyan/5"
+                          ? "text-accent-bright border-l-2 border-accent-bright pl-4 bg-accent-bright/5"
                           : "text-text-secondary hover:text-text hover:pl-4 border-l-2 border-transparent"
                       }`}
                     >
