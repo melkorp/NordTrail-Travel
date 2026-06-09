@@ -44,9 +44,11 @@ export default function DestinationsClient({
             variants={reveal}
             className="mb-16"
           >
+            {/* ⚙️ ЗАГОЛОВОК СТРАНИЦЫ: цвет текста — text-text */}
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-semibold text-text mb-4 tracking-tight text-balance">
               Направления
             </h1>
+            {/* ⚙️ ПОДЗАГОЛОВОК: цвет текста — text-text-muted */}
             <p className="text-lg text-text-muted max-w-xl leading-relaxed">
               Исследуйте маршруты, которые мы тщательно отбираем, тестируем и
               формируем под ваш уровень комфорта.
@@ -72,7 +74,7 @@ export default function DestinationsClient({
                     href={`/destinations/${dest.slug}/`}
                     className="group relative h-full glass-card-light rounded-2xl overflow-hidden flex flex-col"
                   >
-                    {/* Изображение */}
+                    {/* ─── ИЗОБРАЖЕНИЕ КАРТОЧКИ ─── */}
                     <div className="relative h-48 w-full overflow-hidden shrink-0">
                       {dest.image ? (
                         <Image
@@ -83,45 +85,61 @@ export default function DestinationsClient({
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         />
                       ) : (
+                        // ⚙️ ЗАГЛУШКА БЕЗ КАРТИНКИ: градиент from-cyan-500/20 to-purple-500/20
                         <div className="absolute inset-0 bg-linear-to-b from-cyan-500/20 to-purple-500/20" />
                       )}
+                      {/* ⚙️ ЗАТЕМНЕНИЕ СНИЗУ: from-bg/60 via-bg/20 to-transparent */}
                       <div className="absolute inset-0 bg-linear-to-t from-bg/60 via-bg/20 to-transparent group-hover:from-bg/40 transition-colors duration-500" />
 
-                      {/* Градиентный оверлей */}
+                      {/* ⚙️ ГРАДИЕНТНЫЙ ОВЕРЛЕЙ ПРИ НАВЕДЕНИИ: from-cyan-500/10 via-transparent to-purple-500/10 */}
                       <div className="absolute inset-0 bg-linear-to-br from-cyan-500/10 via-transparent to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     </div>
 
-                    {/* Текст */}
+                    {/* ─── ТЕКСТ КАРТОЧКИ ─── */}
                     <div className="relative z-10 p-6 flex flex-col flex-1">
+                      {/* ⚙️ НАЗВАНИЕ НАПРАВЛЕНИЯ: цвет — text-text, при наведении — text-cyan-400 */}
                       <h2 className="text-2xl font-heading text-text group-hover:text-cyan-400 transition-colors duration-500 mb-2 tracking-tight text-glow">
                         {dest.name}
                       </h2>
+
+                      {/* ⚙️ ОПИСАНИЕ: цвет текста — text-gray-900 (тёмный, читаемый на светлой карточке) */}
                       <p className="text-gray-900 text-[15px] leading-relaxed line-clamp-3 mb-4 font-medium text-balance">
                         {dest.quickAnswer?.slice(0, 140) ??
                           "Готовые маршруты, сезонные гиды и приватные экспедиции."}
                       </p>
+
+                      {/* ⚙️ БЕЙДЖИ (СЕЗОН + БЮДЖЕТ) */}
                       {(dest.bestSeason || dest.budget) && (
                         <div className="mt-4 flex flex-wrap gap-2">
                           {dest.bestSeason && (
-                            <span className="text-[11px] font-semibold uppercase tracking-wide text-white border border-white/40 rounded-full px-3 py-1 bg-white/10">
+                            // ⚙️ БЕЙДЖ СЕЗОНА: тёмно-синий текст на голубом фоне
+                            //    Менять: text-ЦВЕТ-800, bg-ЦВЕТ-200, border-ЦВЕТ-400
+                            <span className="text-[11px] font-semibold uppercase tracking-wide text-blue-800 border border-blue-400 rounded-full px-3 py-1 bg-blue-200">
                               {dest.bestSeason.split(",")[0]}
                             </span>
                           )}
                           {dest.budget && (
-                            <span className="text-[11px] font-semibold uppercase tracking-wide text-amber-300 border border-amber-400/50 rounded-full px-3 py-1 bg-amber-500/20">
+                            // ⚙️ БЕЙДЖ БЮДЖЕТА: тёмно-зелёный текст на зелёном фоне
+                            //    Менять: text-ЦВЕТ-800, bg-ЦВЕТ-200, border-ЦВЕТ-400
+                            <span className="text-[11px] font-semibold uppercase tracking-wide text-green-800 border border-green-400 rounded-full px-3 py-1 bg-green-200">
                               {dest.budget} бюджет
                             </span>
                           )}
                         </div>
                       )}
+
+                      {/* ⚙️ ССЫЛКА "ОТКРЫТЬ МАРШРУТ": текст — text-cyan-400, при наведении — text-cyan-300 */}
+                      {/* ⚙️ ПОЛОСКА ПОД ССЫЛКОЙ: градиент from-cyan-400 to-purple-400 */}
                       <span className="relative z-10 text-xs font-heading uppercase tracking-widest text-cyan-400 mt-auto pt-4 flex items-center gap-3 group-hover:text-cyan-300 transition-colors duration-300">
                         Открыть маршрут
                         <span className="block w-3 h-px bg-linear-to-r from-cyan-400 to-purple-400 group-hover:w-6 transition-all duration-500" />
                       </span>
                     </div>
 
-                    {/* Декоративное свечение */}
+                    {/* ⚙️ ДЕКОРАТИВНОЕ СВЕЧЕНИЕ ПРИ НАВЕДЕНИИ: */}
+                    {/* ⚙️ Правое: bg-cyan-500/20 */}
                     <div className="absolute -right-20 -top-20 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    {/* ⚙️ Левое: bg-purple-500/20 */}
                     <div className="absolute -left-20 -bottom-20 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </Link>
                 </motion.div>
