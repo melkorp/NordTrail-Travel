@@ -2,6 +2,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState } from "react";
 import {
   Mail,
   Camera,
@@ -10,6 +11,8 @@ import {
   AtSign,
   ArrowRight,
   MessageCircle,
+  Copy,
+  Check,
 } from "lucide-react";
 import { buildBreadcrumbsJsonLd } from "@/lib/breadcrumbs";
 
@@ -26,6 +29,19 @@ const reveal = {
 };
 
 export default function ContactPage() {
+  const [copied, setCopied] = useState(false);
+
+  // Защита от спам-ботов: email собирается из частей
+  const emailUser = "tamogoghi";
+  const emailDomain = "gmail.com";
+  const emailFull = `${emailUser}@${emailDomain}`;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(emailFull);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <>
       <script
@@ -47,7 +63,7 @@ export default function ContactPage() {
               mainEntity: {
                 "@type": "Organization",
                 name: "NordTrail Travel",
-                email: "tamogoghi@gmail.com",
+                email: emailFull,
                 sameAs: [
                   "https://instagram.com/nordtrail",
                   "https://linkedin.com/company/nordtrail",
@@ -94,7 +110,7 @@ export default function ContactPage() {
             className="w-16 h-px bg-linear-to-r from-cyan-400 to-purple-400 mx-auto mb-10"
           />
 
-          {/* Основной CTA: Email */}
+          {/* Основной CTA: Email (защищён от спам-ботов) */}
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -103,19 +119,31 @@ export default function ContactPage() {
             transition={{ delay: 0.3 }}
             className="mb-12"
           >
-            <a
-              href="mailto:tamogoghi@gmail.com"
-              className="group inline-flex items-center gap-3 px-8 py-4 glass-card-light rounded-xl text-cyan-400 hover:text-white transition-all duration-500"
+            {/* Кнопка копирования email */}
+            <button
+              onClick={handleCopy}
+              className="group inline-flex items-center gap-3 px-8 py-4 glass-card-light rounded-xl text-cyan-400 hover:text-white transition-all duration-500 cursor-pointer"
             >
-              <Mail size={20} />
+              {copied ? (
+                <Check size={20} className="text-green-400" />
+              ) : (
+                <Mail size={20} />
+              )}
               <span className="font-heading text-sm tracking-widest uppercase">
-                tamogoghi@gmail.com
+                {copied ? "Скопировано!" : emailFull}
               </span>
-              <ArrowRight
-                size={16}
-                className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-500"
-              />
-            </a>
+              {copied ? (
+                <Check size={16} className="text-green-400" />
+              ) : (
+                <Copy
+                  size={16}
+                  className="opacity-0 group-hover:opacity-100 transition-all duration-500"
+                />
+              )}
+            </button>
+            <p className="text-xs text-text-muted mt-3">
+              Нажмите, чтобы скопировать email
+            </p>
           </motion.div>
 
           {/* Соцсети */}
